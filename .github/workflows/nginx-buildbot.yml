@@ -1,8 +1,22 @@
 name: buildbot
 
 on:
-  workflow_call:
-
+  # workflow_call:
+  workflow_dispatch: # 手动执行时候可以配置的参数
+    inputs:
+      doRelease:
+        description: 'Publish new release'
+        type: boolean
+        default: true
+        required: false
+      buildOnly:
+        description: 'Only build ffmpeg'
+        type: boolean
+        default: false
+        required: false
+  schedule:
+    - cron: '07 10 * * *' # 每天凌晨2点（UTC），对应每天上午10点（CST）, 这里对应的是中国时区的是 13 点
+    
 env:
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
@@ -12,7 +26,7 @@ defaults:
 
 jobs:
   check-if-allowed:
-    if: ${{ ( github.repository_owner == 'nginx' || github.repository_owner == 'nginxinc' ) }}
+    # if: ${{ ( github.repository_owner == 'nginx' || github.repository_owner == 'nginxinc' ) }}
     runs-on: [ ubuntu-latest ]
     steps:
       - name: Check if we're in the allowed environment
@@ -66,10 +80,18 @@ jobs:
       - name: Check out nginx sources
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
         if: ${{ matrix.os == 'amazonlinux-2' }}
+        with:
+          ref: master
+          repository: nginx/nginx
+          fetch-depth: 1
 
       - name: Check out nginx sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         if: ${{ matrix.os != 'amazonlinux-2' }}
+        with:
+          ref: master
+          repository: nginx/nginx
+          fetch-depth: 1
 
       - name: Set the defaults and set up environment
         run: |
@@ -567,7 +589,11 @@ jobs:
     steps:
       - name: Check out nginx sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
+        with:
+          ref: master
+          repository: nginx/nginx
+          fetch-depth: 1
+          
       - name: Checkout and build clang-ast
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
@@ -638,7 +664,10 @@ jobs:
     steps:
       - name: Check out nginx sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
+        with:
+          ref: master
+          repository: nginx/nginx
+          fetch-depth: 1
       - name: Check out nginx tests
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
@@ -761,7 +790,10 @@ jobs:
     steps:
       - name: Check out nginx sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
+        with:
+          ref: master
+          repository: nginx/nginx
+          fetch-depth: 1
       - name: Check out nginx tests
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
@@ -771,6 +803,11 @@ jobs:
       - name: Set MSYSTEM
         run: |
           echo MSYSTEM=MINGW64 >> $GITHUB_ENV
+          Set-TimeZone -Id "China Standard Time"
+          $mem = Get-WmiObject Win32_OperatingSystem
+          echo "Time:$(Get-Date)"
+          echo "Mem:$([math]::round((($mem.TotalVisibleMemorySize - $mem.FreePhysicalMemory) / $mem.TotalVisibleMemorySize) * 100, 2))%"
+          echo "CPU:$(Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty LoadPercentage)%"
 
       - name: Set the defaults and set up environment
         run: |

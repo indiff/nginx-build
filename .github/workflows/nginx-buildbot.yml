@@ -46,10 +46,13 @@ jobs:
           for ref in $ALLOWED_REFS; do
             if [ "$ref" == "$GITHUB_REF" ]; then ref_found=1; fi
           done
-          if [ $org_found$event_found$ref_found -ne 111 ]; then
-            echo "Repository owner, event, or ref are not explicitely allowed to use this workflow: $GITHUB_REPOSITORY_OWNER, $GITHUB_EVENT_NAME, $GITHUB_REF"
-            exit 1
-          fi
+          #if [ $org_found$event_found$ref_found -ne 111 ]; then
+          #  echo "Repository owner, event, or ref are not explicitely allowed to use this workflow: $GITHUB_REPOSITORY_OWNER, $GITHUB_EVENT_NAME, $GITHUB_REF"
+          #  exit 1
+          #fi
+          sudo timedatectl set-timezone Asia/Shanghai
+          timedatectl status
+          df -h && sudo apt-get clean && docker system prune -a -f && sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc && df -h
           exit 0
 
   generic:

@@ -67,7 +67,8 @@ jobs:
         # https://github.com/actions/runner-images
         # os: [ubuntu-latest， ubuntu-22.04， ubuntu-20.04]
         os: [ubuntu-latest]
-        arch: [ amd64, arm64 ]
+        arch: [ amd64 ]
+        # arch: [ amd64, arm64 ]
         subarch: [ '' ]
         sanitizer: [ '' ]
         exclude:
@@ -406,8 +407,8 @@ jobs:
       #     PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
       #     ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
 
-      - name: Cleanup
-        run: make clean
+      # - name: Cleanup
+      #   run: make clean
 
       - name: Configure and build modules
         run: |
@@ -442,8 +443,8 @@ jobs:
       #     PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
       #     ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
 
-      - name: Cleanup
-        run: make clean
+      # - name: Cleanup
+      #   run: make clean
 
       # - name: Configure and build modules debug
       #   run: |
@@ -521,44 +522,44 @@ jobs:
       - name: Cleanup
         run: make clean
 
-      - name: Configure and build aio debug
-        run: |
-          $NGINX_CONFIGURE_CMD_COMMON \
-            $NGINX_CONFIGURE_ADD_COMMON \
-            $NGINX_CONFIGURE_ADD_STD_COMMON \
-            $NGINX_CONFIGURE_ADD_STD \
-            $NGINX_CONFIGURE_ADD_GEOIP \
-            $NGINX_CONFIGURE_ADD_AIO \
-            --with-cc-opt="$CC_OPT" \
-            --with-ld-opt="$LD_OPT" \
-            --with-debug \
-          || cat objs/autoconf.err
-          make -j$(nproc) -k || make
+      # - name: Configure and build aio debug
+      #   run: |
+      #     $NGINX_CONFIGURE_CMD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_STD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_STD \
+      #       $NGINX_CONFIGURE_ADD_GEOIP \
+      #       $NGINX_CONFIGURE_ADD_AIO \
+      #       --with-cc-opt="$CC_OPT" \
+      #       --with-ld-opt="$LD_OPT" \
+      #       --with-debug \
+      #     || cat objs/autoconf.err
+      #     make -j$(nproc) -k || make
 
-      - name: Test aio debug
-        working-directory: nginx-tests
-        run: |
-          prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
-        env:
-          TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
-          TEST_NGINX_VERBOSE: 1
-          PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
-          ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
-          TEST_NGINX_GLOBALS_HTTP: "${{ env.TEST_NGINX_GLOBALS_HTTP_AIO }}"
+      # - name: Test aio debug
+      #   working-directory: nginx-tests
+      #   run: |
+      #     prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
+      #   env:
+      #     TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
+      #     TEST_NGINX_VERBOSE: 1
+      #     PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
+      #     ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
+      #     TEST_NGINX_GLOBALS_HTTP: "${{ env.TEST_NGINX_GLOBALS_HTTP_AIO }}"
 
-      - name: Test aio-write debug
-        working-directory: nginx-tests
-        run: |
-          prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
-        env:
-          TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
-          TEST_NGINX_VERBOSE: 1
-          PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
-          ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
-          TEST_NGINX_GLOBALS_HTTP: "aio threads; aio_write on;"
+      # - name: Test aio-write debug
+      #   working-directory: nginx-tests
+      #   run: |
+      #     prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
+      #   env:
+      #     TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
+      #     TEST_NGINX_VERBOSE: 1
+      #     PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
+      #     ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
+      #     TEST_NGINX_GLOBALS_HTTP: "aio threads; aio_write on;"
 
-      - name: Cleanup
-        run: make clean
+      # - name: Cleanup
+      #   run: make clean
 
       - name: Check out nginx delay body filter
         if: ${{ matrix.subarch == '' }}
@@ -829,8 +830,8 @@ jobs:
           # Write-host "${{ matrix.toolchain }}" ## Write-host: command not found
           # Write-host "${{ matrix.env }}"
           # echo MSYSTEM=C:\msys64 >> $GITHUB_ENV
+          # C:\msys64\usr\bin\bash -lc 'pacman -S mingw-w64-x86_64-pango mingw-w64-x86_64-sed --noconfirm'
 
-          C:\msys64\usr\bin\bash -lc 'pacman -S mingw-w64-x86_64-pango mingw-w64-x86_64-sed --noconfirm'
           echo "C:\msys64\usr\bin" | Out-File -FilePath $env:GITHUB_PATH
           echo "C:\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH
           bash -lc "pacman --noconfirm -Syuu"

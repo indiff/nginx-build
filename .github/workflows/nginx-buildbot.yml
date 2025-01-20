@@ -51,9 +51,6 @@ jobs:
           #  echo "Repository owner, event, or ref are not explicitely allowed to use this workflow: $GITHUB_REPOSITORY_OWNER, $GITHUB_EVENT_NAME, $GITHUB_REF"
           #  exit 1
           #fi
-          sudo timedatectl set-timezone Asia/Shanghai
-          timedatectl status
-          df -h && sudo apt-get clean && docker system prune -a -f && sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc && df -h
           exit 0
 
   generic:
@@ -104,6 +101,9 @@ jobs:
 
       - name: Set the defaults and set up environment
         run: |
+            sudo timedatectl set-timezone Asia/Shanghai
+            timedatectl status
+            df -h && sudo apt-get clean && docker system prune -a -f && sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc && df -h
             ENV_JSON=$(cat <<EOF
             {
             "alpine-3.19": {

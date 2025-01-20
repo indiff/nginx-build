@@ -256,6 +256,10 @@ jobs:
 
             CC_OPT=$(echo $ENV_JSON | jq -r '."${{ matrix.os }}".CC_OPT')
             LD_OPT=$(echo $ENV_JSON | jq -r '."${{ matrix.os }}".LD_OPT')
+
+            echo "${{ matrix.os }} CC_OPT  $CC_OPT"
+            echo "${{ matrix.os }} LD_OPT  $LD_OPT"
+
             CC_OPT_ADD=""
             LD_OPT_ADD=""
 
@@ -835,24 +839,25 @@ jobs:
           # Write-host "${{ matrix.env }}"
           # echo MSYSTEM=C:\msys64 >> $GITHUB_ENV
           # C:\msys64\usr\bin\bash -lc 'pacman -S mingw-w64-x86_64-pango mingw-w64-x86_64-sed --noconfirm'
-
-          Write-Output "C:\msys64\usr\bin" >> $env:GITHUB_OUTPUT
-          Write-Output "C:\msys64\mingw64\bin" >> $env:GITHUB_OUTPUT
-
-          Write-Output "C:\msys64\usr\bin" >> $env:GITHUB_PATH
-          Write-Output "C:\msys64\mingw64\bin" >> $env:GITHUB_PATH
-
-          bash -lc "pacman --noconfirm -Syuu"
-          Write-Output "Tools version:"
-          Write-Output (((gcc --version) | select-object -first 1) + " " + (gcc -dumpmachine))
-          Write-Output (mingw32-make --version) | select-object -first 1
-          Write-Output (sh --version) | select-object -first 1
-
           Set-TimeZone -Id "China Standard Time"
           $mem = Get-WmiObject Win32_OperatingSystem
           echo "Time:$(Get-Date)"
           echo "Mem:$([math]::round((($mem.TotalVisibleMemorySize - $mem.FreePhysicalMemory) / $mem.TotalVisibleMemorySize) * 100, 2))%"
           echo "CPU:$(Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty LoadPercentage)%"
+
+          echo "C:\msys64\usr\bin" >> $env:GITHUB_OUTPUT
+          echo "C:\msys64\mingw64\bin" >> $env:GITHUB_OUTPUT
+
+          echo "C:\msys64\usr\bin" >> $env:GITHUB_PATH
+          echo "C:\msys64\mingw64\bin" >> $env:GITHUB_PATH
+
+          bash -lc "pacman --noconfirm -Syuu"
+          echo "Tools version:"
+          echo (((gcc --version) | select-object -first 1) + " " + (gcc -dumpmachine))
+          echo (mingw32-make --version) | select-object -first 1
+          echo (sh --version) | select-object -first 1
+
+          
 
       - name: Set the defaults and set up environment
         run: |

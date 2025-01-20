@@ -957,8 +957,8 @@ jobs:
           echo 'TMP=C:\TEMP' >> $GITHUB_ENV
           echo 'TMPDIR=C:\TEMP' >> $GITHUB_ENV
 
-          rd /s /q C:/TEMP/
-          rd /s /q C:/tmp/
+          rm -f -r C:/TEMP/
+          rm -f -r C:/tmp/
 
           mkdir C:/TEMP/
           mkdir C:/tmp/

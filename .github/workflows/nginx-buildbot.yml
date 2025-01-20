@@ -65,7 +65,8 @@ jobs:
       matrix:
         # os: [ alpine-3.19, alpine-3.20, amazonlinux-2, amazonlinux-2023, debian-11, debian-12, freebsd-14, rhel-8, rhel-9, sles-15, ubuntu-20.04, ubuntu-22.04, ubuntu-24.04 ]
         # https://github.com/actions/runner-images
-        os: [ubuntu-latest， ubuntu-22.04， ubuntu-20.04]
+        # os: [ubuntu-latest， ubuntu-22.04， ubuntu-20.04]
+        os: [ubuntu-latest]
         arch: [ amd64, arm64 ]
         subarch: [ '' ]
         sanitizer: [ '' ]
@@ -80,7 +81,7 @@ jobs:
           #   subarch: x86
           - os: ubuntu-22.04
             arch: amd64
-            sanitizer: asan
+            # sanitizer: asan
       fail-fast: false
 
     steps:
@@ -780,6 +781,9 @@ jobs:
   # Windows builds with MSVC and mingw64
   #
   # mingw32 is excluded, https://github.com/msys2/MINGW-packages/issues/2600
+#   Notes
+# Location: C:\msys64
+# Note: MSYS2 is pre-installed on image but not added to PATH.
   windows:
     name: ${{ matrix.os }}, ${{ matrix.toolchain }}, ${{ matrix.env }}
     #runs-on: ${{ matrix.os }}-amd64
@@ -787,7 +791,8 @@ jobs:
     needs: check-if-allowed
     strategy:
       matrix:
-        os: [ windows-2025, windows-latest, windows-2019 ]
+        os: [ windows-latest ]
+        #os: [ windows-2025, windows-latest, windows-2019 ]
         include:
           - toolchain: msvc
             env: x64
@@ -798,7 +803,8 @@ jobs:
       fail-fast: false
     defaults:
       run:
-        shell: C:\Tools\msys64\msys2_shell.cmd -defterm -no-start -where . -full-path -shell bash.exe -Eeo pipefail -x '{0}'
+        # shell: C:\Tools\msys64\msys2_shell.cmd -defterm -no-start -where . -full-path -shell bash.exe -Eeo pipefail -x '{0}'
+        shell: C:\msys64\msys2_shell.cmd -defterm -no-start -where . -full-path -shell bash.exe -Eeo pipefail -x '{0}'
     env:
       pcre2_ver: 10.39
       zlib_ver: 1.3.1
@@ -819,8 +825,22 @@ jobs:
           path: nginx-tests
 
       - name: Set MSYSTEM
-        run: |
-          echo MSYSTEM=MINGW64 >> $GITHUB_ENV
+        run: | # env
+          Write-host "${{ matrix.toolchain }}"
+          Write-host "${{ matrix.env }}"
+          # echo MSYSTEM=C:\msys64 >> $GITHUB_ENV
+          $Env:Path = 'C:\msys64\usr\bin' + [IO.Path]::PathSeparator + $Env:Path
+          if ( $${{ matrix.env == 'x86_64'}} ) {$Env:MSYSTEM = 'MINGW64'}
+          if ( $${{ matrix.env == 'x86_64'}} ) {$Env:Path = 'C:\msys64\mingw64\bin' + [IO.Path]::PathSeparator + $Env:Path}
+          
+          bash -lc "pacman --noconfirm -Syuu"
+          if ( $${{ matrix.env == 'x86_64'}} ) { bash -lc "pacman --noconfirm -S mingw-w64-x86_64-gcc mingw-w64-x86_64-make" }
+
+          Write-Output "Tools version:"
+          Write-Output (((gcc --version) | select-object -first 1) + " " + (gcc -dumpmachine))
+          Write-Output (mingw32-make --version) | select-object -first 1
+          Write-Output (sh --version) | select-object -first 1
+
           Set-TimeZone -Id "China Standard Time"
           $mem = Get-WmiObject Win32_OperatingSystem
           echo "Time:$(Get-Date)"

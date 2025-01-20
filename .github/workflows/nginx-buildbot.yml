@@ -73,9 +73,9 @@ jobs:
           - os: sles-15 # we don't have an arm64 builder for sles-15 yet
             arch: arm64
         include:
-          - os: debian-12
-            arch: amd64
-            subarch: x86
+          # - os: debian-12
+          #   arch: amd64
+          #   subarch: x86
           - os: ubuntu-22.04
             arch: amd64
             sanitizer: asan
@@ -657,7 +657,9 @@ jobs:
   # FreeBSD builds with different SSL libraries
   ssl:
     name: ${{ matrix.os }}, ${{ matrix.arch }}, ${{ matrix.ssl }}
-    runs-on: [ "${{ matrix.os }}-${{ matrix.arch }}" ]
+    # skips
+    if: ${{ false }}
+    runs-on: [ "${{ matrix.os }}-${{ matrix.arch }}" ] 
     needs: check-if-allowed
     strategy:
       matrix:

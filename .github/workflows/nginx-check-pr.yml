@@ -23,7 +23,11 @@ jobs:
     steps:
       - name: checkout v4
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-
+        with:
+          ref: master
+          repository: nginx/nginx
+          fetch-depth: 1
+          
       - name: Check out nginx tests
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:

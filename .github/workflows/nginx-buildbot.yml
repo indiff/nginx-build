@@ -417,7 +417,31 @@ jobs:
 
       # - name: Cleanup
       #   run: make clean
-
+      
+      - name: Install build and test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+            libedit-dev \
+            libgd-dev \
+            libgeoip-dev \
+            libpcre2-dev \
+            libperl-dev \
+            libssl-dev \
+            libxml2-dev \
+            libxslt1-dev \
+            zlib1g-dev \
+            ffmpeg \
+            libcache-memcached-perl \
+            libcryptx-perl \
+            libgd-perl \
+            libio-socket-ssl-perl \
+            libtest-harness-perl \
+            libprotocol-websocket-perl \
+            libscgi-perl \
+            uwsgi \
+            uwsgi-plugin-python3
+            
       - name: Configure and build modules
         run: |
           CC_OPT="$(DEB_BUILD_MAINT_OPTIONS=hardening=+all DEB_CFLAGS_MAINT_APPEND=-fPIC DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed dpkg-buildflags --get CFLAGS)"

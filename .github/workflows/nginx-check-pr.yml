@@ -1,12 +1,25 @@
 name: check-pr
 
 on:
-  workflow_call:
-
+  #workflow_call:
+  workflow_dispatch: # 手动执行时候可以配置的参数
+    inputs:
+      doRelease:
+        description: 'Publish new release'
+        type: boolean
+        default: true
+        required: false
+      buildOnly:
+        description: 'Only build nginx'
+        type: boolean
+        default: false
+        required: false
+  schedule:
+    - cron: '07 10 * * *' # 每天凌晨2点（UTC），对应每天上午10点（CST）, 这里对应的是中国时区的是 13 点
 jobs:
   build-and-test:
-    if: ${{ ( github.repository_owner == 'nginx' || github.repository_owner == 'nginxinc' ) }}
-    runs-on: [ ubuntu-22.04 ]
+    #if: ${{ ( github.repository_owner == 'nginx' || github.repository_owner == 'nginxinc' ) }}
+    runs-on: [ ubuntu-latest ]
     steps:
       - name: checkout v4
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7

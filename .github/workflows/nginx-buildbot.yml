@@ -420,8 +420,8 @@ jobs:
 
       - name: Configure and build modules
         run: |
-          "CC_OPT"="$(DEB_BUILD_MAINT_OPTIONS=hardening=+all DEB_CFLAGS_MAINT_APPEND=-fPIC DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed dpkg-buildflags --get CFLAGS)"
-          "LD_OPT"="$(DEB_BUILD_MAINT_OPTIONS=hardening=+all DEB_CFLAGS_MAINT_APPEND=-fPIC DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed dpkg-buildflags --get LDFLAGS)"
+          CC_OPT="$(DEB_BUILD_MAINT_OPTIONS=hardening=+all DEB_CFLAGS_MAINT_APPEND=-fPIC DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed dpkg-buildflags --get CFLAGS)"
+          LD_OPT="$(DEB_BUILD_MAINT_OPTIONS=hardening=+all DEB_CFLAGS_MAINT_APPEND=-fPIC DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed dpkg-buildflags --get LDFLAGS)"
 
           $NGINX_CONFIGURE_CMD_COMMON \
             $NGINX_CONFIGURE_ADD_COMMON \
@@ -847,7 +847,7 @@ jobs:
           # echo "Time:$(Get-Date)"
           # echo "Mem:$([math]::round((($mem.TotalVisibleMemorySize - $mem.FreePhysicalMemory) / $mem.TotalVisibleMemorySize) * 100, 2))%"
           # echo "CPU:$(Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty LoadPercentage)%"
-
+            
           echo "C:\msys64\usr\bin" >> $env:GITHUB_OUTPUT
           echo "C:\msys64\mingw64\bin" >> $env:GITHUB_OUTPUT
 
@@ -856,10 +856,10 @@ jobs:
 
           bash -lc "pacman --noconfirm -Syuu"
           bash -lc 'pacman -S mingw-w64-x86_64-pango mingw-w64-x86_64-sed --noconfirm'
-          echo "Tools version:"
-          echo (((gcc --version) | select-object -first 1) + " " + (gcc -dumpmachine))
-          echo (mingw32-make --version) | select-object -first 1
-          echo (sh --version) | select-object -first 1
+          #echo "Tools version:"
+          #echo (((gcc --version) | select-object -first 1) + " " + (gcc -dumpmachine))
+          #echo (mingw32-make --version) | select-object -first 1
+          #echo (sh --version) | select-object -first 1
 
           
 

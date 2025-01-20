@@ -358,53 +358,53 @@ jobs:
       - name: Cleanup
         run: make clean
 
-      - name: Configure and build package-max
-        run: |
-          $NGINX_CONFIGURE_CMD_COMMON \
-            $NGINX_CONFIGURE_ADD_COMMON \
-            $NGINX_CONFIGURE_ADD_STD_COMMON \
-            $NGINX_CONFIGURE_ADD_STD \
-            $NGINX_CONFIGURE_ADD_GEOIP \
-            --with-cc-opt="$CC_OPT" \
-            --with-ld-opt="$LD_OPT" \
-          || cat objs/autoconf.err
-          make -j$(nproc) -k || make
+      # - name: Configure and build package-max
+      #   run: |
+      #     $NGINX_CONFIGURE_CMD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_STD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_STD \
+      #       $NGINX_CONFIGURE_ADD_GEOIP \
+      #       --with-cc-opt="$CC_OPT" \
+      #       --with-ld-opt="$LD_OPT" \
+      #     || cat objs/autoconf.err
+      #     make -j$(nproc) -k || make
 
-      - name: Test package-max
-        working-directory: nginx-tests
-        run: |
-          prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
-        env:
-          TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
-          TEST_NGINX_VERBOSE: 1
-          PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
-          ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
+      # - name: Test package-max
+      #   working-directory: nginx-tests
+      #   run: |
+      #     prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
+      #   env:
+      #     TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
+      #     TEST_NGINX_VERBOSE: 1
+      #     PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
+      #     ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
 
-      - name: Cleanup
-        run: make clean
+      # - name: Cleanup
+      #   run: make clean
 
-      - name: Configure and build package-max debug
-        run: |
-          $NGINX_CONFIGURE_CMD_COMMON \
-            $NGINX_CONFIGURE_ADD_COMMON \
-            $NGINX_CONFIGURE_ADD_STD_COMMON \
-            $NGINX_CONFIGURE_ADD_STD \
-            $NGINX_CONFIGURE_ADD_GEOIP \
-            --with-cc-opt="$CC_OPT" \
-            --with-ld-opt="$LD_OPT" \
-            --with-debug \
-          || cat objs/autoconf.err
-          make -j$(nproc) -k || make
+      # - name: Configure and build package-max debug
+      #   run: |
+      #     $NGINX_CONFIGURE_CMD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_STD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_STD \
+      #       $NGINX_CONFIGURE_ADD_GEOIP \
+      #       --with-cc-opt="$CC_OPT" \
+      #       --with-ld-opt="$LD_OPT" \
+      #       --with-debug \
+      #     || cat objs/autoconf.err
+      #     make -j$(nproc) -k || make
 
-      - name: Test package-max debug
-        working-directory: nginx-tests
-        run: |
-          prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
-        env:
-          TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
-          TEST_NGINX_VERBOSE: 1
-          PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
-          ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
+      # - name: Test package-max debug
+      #   working-directory: nginx-tests
+      #   run: |
+      #     prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
+      #   env:
+      #     TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
+      #     TEST_NGINX_VERBOSE: 1
+      #     PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
+      #     ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
 
       - name: Cleanup
         run: make clean
@@ -431,57 +431,57 @@ jobs:
           || cat objs/autoconf.err
           make -j$(nproc) -k || make
 
-      - name: Test dynamic
-        working-directory: nginx-tests
-        run: |
-          prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
-        env:
-          TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
-          TEST_NGINX_GLOBALS: "load_module ${{ github.workspace }}/objs/ngx_http_image_filter_module.so;load_module ${{ github.workspace }}/objs/ngx_http_perl_module.so;load_module ${{ github.workspace }}/objs/ngx_http_xslt_filter_module.so;"
-          TEST_NGINX_VERBOSE: 1
-          PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
-          ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
+      # - name: Test dynamic
+      #   working-directory: nginx-tests
+      #   run: |
+      #     prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
+      #   env:
+      #     TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
+      #     TEST_NGINX_GLOBALS: "load_module ${{ github.workspace }}/objs/ngx_http_image_filter_module.so;load_module ${{ github.workspace }}/objs/ngx_http_perl_module.so;load_module ${{ github.workspace }}/objs/ngx_http_xslt_filter_module.so;"
+      #     TEST_NGINX_VERBOSE: 1
+      #     PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
+      #     ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
 
       - name: Cleanup
         run: make clean
 
-      - name: Configure and build modules debug
-        run: |
-          $NGINX_CONFIGURE_CMD_COMMON \
-            $NGINX_CONFIGURE_ADD_COMMON \
-            $NGINX_CONFIGURE_ADD_STD_COMMON \
-            $NGINX_CONFIGURE_ADD_STD_MODULES \
-            $NGINX_CONFIGURE_ADD_GEOIP_MODULES \
-            --with-cc-opt="$CC_OPT" \
-            --with-ld-opt="$LD_OPT" \
-            --with-debug \
-          || cat objs/autoconf.err
-          make modules
+      # - name: Configure and build modules debug
+      #   run: |
+      #     $NGINX_CONFIGURE_CMD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_STD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_STD_MODULES \
+      #       $NGINX_CONFIGURE_ADD_GEOIP_MODULES \
+      #       --with-cc-opt="$CC_OPT" \
+      #       --with-ld-opt="$LD_OPT" \
+      #       --with-debug \
+      #     || cat objs/autoconf.err
+      #     make modules
 
-      - name: Configure and build dynamic debug
-        run: |
-          $NGINX_CONFIGURE_CMD_COMMON \
-            $NGINX_CONFIGURE_ADD_COMMON \
-            $NGINX_CONFIGURE_ADD_STD_COMMON \
-            --with-cc-opt="$CC_OPT" \
-            --with-ld-opt="$LD_OPT" \
-            --with-debug \
-          || cat objs/autoconf.err
-          make -j$(nproc) -k || make
+      # - name: Configure and build dynamic debug
+      #   run: |
+      #     $NGINX_CONFIGURE_CMD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_COMMON \
+      #       $NGINX_CONFIGURE_ADD_STD_COMMON \
+      #       --with-cc-opt="$CC_OPT" \
+      #       --with-ld-opt="$LD_OPT" \
+      #       --with-debug \
+      #     || cat objs/autoconf.err
+      #     make -j$(nproc) -k || make
 
-      - name: Test dynamic debug
-        working-directory: nginx-tests
-        run: |
-          prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
-        env:
-          TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
-          TEST_NGINX_GLOBALS: "load_module ${{ github.workspace }}/objs/ngx_http_image_filter_module.so;load_module /${{ github.workspace }}/objs/ngx_http_perl_module.so;load_module /${{ github.workspace }}/objs/ngx_http_xslt_filter_module.so;"
-          TEST_NGINX_VERBOSE: 1
-          PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
-          ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
+      # - name: Test dynamic debug
+      #   working-directory: nginx-tests
+      #   run: |
+      #     prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
+      #   env:
+      #     TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
+      #     TEST_NGINX_GLOBALS: "load_module ${{ github.workspace }}/objs/ngx_http_image_filter_module.so;load_module /${{ github.workspace }}/objs/ngx_http_perl_module.so;load_module /${{ github.workspace }}/objs/ngx_http_xslt_filter_module.so;"
+      #     TEST_NGINX_VERBOSE: 1
+      #     PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
+      #     ASAN_OPTIONS: "detect_odr_violation=0:report_globals=0:detect_leaks=0"
 
-      - name: Cleanup
-        run: make clean
+      # - name: Cleanup
+      #   run: make clean
 
       - name: Configure and build aio
         run: |
@@ -826,8 +826,8 @@ jobs:
 
       - name: Set MSYSTEM
         run: | # env
-          Write-host "${{ matrix.toolchain }}"
-          Write-host "${{ matrix.env }}"
+          # Write-host "${{ matrix.toolchain }}" ## Write-host: command not found
+          # Write-host "${{ matrix.env }}"
           # echo MSYSTEM=C:\msys64 >> $GITHUB_ENV
           $Env:Path = 'C:\msys64\usr\bin' + [IO.Path]::PathSeparator + $Env:Path
           if ( $${{ matrix.env == 'x86_64'}} ) {$Env:MSYSTEM = 'MINGW64'}

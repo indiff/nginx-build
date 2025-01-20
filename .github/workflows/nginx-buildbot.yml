@@ -10,7 +10,7 @@ on:
         default: true
         required: false
       buildOnly:
-        description: 'Only build ffmpeg'
+        description: 'Only build nginx'
         type: boolean
         default: false
         required: false
@@ -592,7 +592,7 @@ jobs:
     # name: debian-12, amd64, print
     name: ubuntu-latest, amd64, print
     # skip
-    if: ${{ env.MY_SKIP }}
+    if: ${{ false }}
     # runs-on: [ debian-12-amd64 ]
     runs-on: [ ubuntu-latest ]
     needs: check-if-allowed
@@ -661,7 +661,7 @@ jobs:
   ssl:
     name: ${{ matrix.os }}, ${{ matrix.arch }}, ${{ matrix.ssl }}
     # skips
-    if:  ${{ env.MY_SKIP }}
+    if:  ${{ false }}
     runs-on: [ "${{ matrix.os }}-${{ matrix.arch }}" ] 
     needs: check-if-allowed
     strategy:

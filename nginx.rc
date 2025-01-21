@@ -1,27 +1,36 @@
+#include <windows.h>
 
 // Copyright (C) Igor Sysoev
 // Copyright (C) Nginx, Inc.
 
-
-nginx   icon  discardable  "src\\os\\win32\\nginx.ico"
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION 1,0,0,0
+PRODUCTVERSION 1,0,0,0
+FILEFLAGSMASK 0x3fL
+FILEFLAGS 0x0L
+FILEOS VOS__WINDOWS32
+FILETYPE VFT_APP
+FILESUBTYPE VFT2_UNKNOWN
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "040904b0"
+        BLOCK "080404b0" // Language and code page (Simplified Chinese)
         BEGIN
-            VALUE "Comments",  TCN_LICENSE "\0"
+            VALUE "Comments",  "TCN_LICENSE\0"
             VALUE "CompanyName", "indiff\0"
             VALUE "FileDescription", "indiff\0"
-            VALUE "FileVersion", TCN_VERSION "\0"
+            VALUE "FileVersion", "TCN_VERSION\0"
             VALUE "InternalName", "nginx\0"
-            VALUE "LegalCopyright", TCN_COPYRIGHT "\0"
+            VALUE "LegalCopyright", "TCN_COPYRIGHT\0"
             VALUE "OriginalFilename", "nginx.exe\0"
-            VALUE "ProductName", "indiff\0"
-            VALUE "ProductVersion", TCN_VERSION "\0"
+            VALUE "ProductName", "nginx\0"
+            VALUE "ProductVersion", "TCN_VERSION\0"
         END
     END
     BLOCK "VarFileInfo"
     BEGIN
-        VALUE "Translation", 0x409, 1200
+        VALUE "Translation", 0x804, 936
     END
 END
+
+nginx   icon  discardable  "src\\os\\win32\\nginx.ico"

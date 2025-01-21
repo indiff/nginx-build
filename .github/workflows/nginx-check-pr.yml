@@ -125,4 +125,9 @@ jobs:
         with:
           name: nginx-${{ steps.configure_build.outputs.build_date }}
           overwrite: true
-          path: objs/* 
+          path: |
+            objs/*
+            !objs\**\*.obj
+            !objs\**\*.pdb
+            !objs\**\*.lib
+            !objs\**\*.exp          

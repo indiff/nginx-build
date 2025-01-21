@@ -17,7 +17,7 @@ on:
   schedule:
     - cron: '07 10 * * *' # 每天凌晨2点（UTC），对应每天上午10点（CST）, 这里对应的是中国时区的是 13 点
 jobs:
-  build-and-test:
+  build-in-ubuntu:
     #if: ${{ ( github.repository_owner == 'nginx' || github.repository_owner == 'nginxinc' ) }}
     runs-on: [ ubuntu-latest ]
     steps:
@@ -145,3 +145,198 @@ jobs:
             !objs/**/*.pdb
             !objs/**/*.lib
             !objs/**/*.exp
+
+  build-in-windows:
+    name: ${{ matrix.os }}, ${{ matrix.toolchain }}, ${{ matrix.env }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-latest ]
+        toolchain: msvc
+        env: x64
+    defaults:
+      run:
+        # shell: C:\Tools\msys64\msys2_shell.cmd -defterm -no-start -where . -full-path -shell bash.exe -Eeo pipefail -x '{0}'
+        shell: C:\msys64\msys2_shell.cmd -defterm -no-start -where . -full-path -shell bash.exe -Eeo pipefail -x '{0}'
+    env:
+      pcre2_ver: 10.39
+      zlib_ver: 1.3.1
+      openssl3_ver: 3.0.15
+      openssl_ver: 1.1.1w
+    steps:
+      - name: Check out nginx sources
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          ref: master
+          repository: nginx/nginx
+          fetch-depth: 1
+      - name: Check out nginx tests
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          repository: nginx/nginx-tests
+          path: nginx-tests
+
+      - name: Set MSYSTEM
+        run: | # env
+          # Write-host "${{ matrix.toolchain }}" ## Write-host: command not found
+          # Write-host "${{ matrix.env }}"
+          # echo MSYSTEM=C:\msys64 >> $GITHUB_ENV
+          # C:\msys64\usr\bin\bash -lc 'pacman -S mingw-w64-x86_64-pango mingw-w64-x86_64-sed --noconfirm'
+          # Set-TimeZone -Id "China Standard Time"
+          # $mem = Get-WmiObject Win32_OperatingSystem
+          # echo "Time:$(Get-Date)"
+          # echo "Mem:$([math]::round((($mem.TotalVisibleMemorySize - $mem.FreePhysicalMemory) / $mem.TotalVisibleMemorySize) * 100, 2))%"
+          # echo "CPU:$(Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty LoadPercentage)%"
+          
+          echo "MSYSTEM=MINGW64" >> $GITHUB_ENV
+          # 安装 tree 命令，显示当前目录以及子目录的树状机构
+          pacman -S tree --noconfirm
+          #echo "C:\msys64\usr\bin" >> $env:GITHUB_OUTPUT
+          #echo "C:\msys64\mingw64\bin" >> $env:GITHUB_OUTPUT
+
+          #echo "C:\msys64\usr\bin" >> $env:GITHUB_PATH
+          #echo "C:\msys64\mingw64\bin" >> $env:GITHUB_PATH
+
+          #bash -lc "pacman --noconfirm -Syuu"
+          #bash -lc 'pacman -S mingw-w64-x86_64-pango mingw-w64-x86_64-sed --noconfirm'
+          
+          #echo "Tools version:"
+          #echo (((gcc --version) | select-object -first 1) + " " + (gcc -dumpmachine))
+          #echo (mingw32-make --version) | select-object -first 1
+          #echo (sh --version) | select-object -first 1
+
+          
+
+      - name: Set the defaults and set up environment
+        run: |
+          ENV_JSON=$(cat <<EOF
+          {
+          "NGINX_CONFIGURE_CMD_WIN": "auto/configure \
+                    --builddir=objs \
+                    --prefix= \
+                    --conf-path=conf/nginx.conf \
+                    --pid-path=logs/nginx.pid \
+                    --http-log-path=logs/access.log \
+                    --error-log-path=logs/error.log \
+                    --sbin-path=nginx.exe \
+                    --http-client-body-temp-path=temp/client_body_temp \
+                    --http-proxy-temp-path=temp/proxy_temp \
+                    --http-fastcgi-temp-path=temp/fastcgi_temp \
+                    --with-cc-opt=-DFD_SETSIZE=1024 \
+                    --with-pcre=objs/lib/pcre \
+                    --with-zlib=objs/lib/zlib \
+                    --with-select_module \
+                    --with-http_realip_module \
+                    --with-http_addition_module \
+                    --with-http_sub_module \
+                    --with-http_dav_module \
+                    --with-http_stub_status_module \
+                    --with-http_flv_module \
+                    --with-http_mp4_module \
+                    --with-http_gunzip_module \
+                    --with-http_gzip_static_module \
+                    --with-http_random_index_module \
+                    --with-http_secure_link_module \
+                    --with-http_ssl_module \
+                    --with-mail_ssl_module \
+                    --with-http_auth_request_module \
+                    --with-http_v2_module \
+                    --with-http_slice_module \
+                    --with-stream_ssl_module \
+                    --with-stream_ssl_preread_module \
+                    --with-stream_realip_module \
+                    --with-openssl=objs/lib/openssl",
+          "NGINX_CONFIGURE_CC_MSVC": "--with-cc=cl",
+          "NGINX_CONFIGURE_CC_MINGW": "--with-cc=/${{ matrix.toolchain }}/bin/${{ matrix.env }}-w64-mingw32-gcc.exe",
+          "NGINX_CONFIGURE_ADD_STATIC": "--with-stream --with-mail",
+          "NGINX_CONFIGURE_ADD_DYNAMIC": "--with-stream=dynamic --with-mail=dynamic",
+          "NGINX_CONFIGURE_OPENSSL_OPT": "no-asm no-tests -D_WIN32_WINNT=0x0601"
+          }
+          EOF
+          )
+
+          NGINX_CONFIGURE_CMD_WIN=$(echo $ENV_JSON | jq -r '.NGINX_CONFIGURE_CMD_WIN')
+          NGINX_CONFIGURE_CC_MSVC=$(echo $ENV_JSON | jq -r '.NGINX_CONFIGURE_CC_MSVC')
+          NGINX_CONFIGURE_CC_MINGW=$(echo $ENV_JSON | jq -r '.NGINX_CONFIGURE_CC_MINGW')
+          NGINX_CONFIGURE_ADD_STATIC=$(echo $ENV_JSON | jq -r '.NGINX_CONFIGURE_ADD_STATIC')
+          NGINX_CONFIGURE_ADD_DYNAMIC=$(echo $ENV_JSON | jq -r '.NGINX_CONFIGURE_ADD_DYNAMIC')
+          NGINX_CONFIGURE_OPENSSL_OPT=$(echo $ENV_JSON | jq -r '.NGINX_CONFIGURE_OPENSSL_OPT')
+
+          echo NGINX_CONFIGURE_CMD_WIN="$NGINX_CONFIGURE_CMD_WIN" >> $GITHUB_ENV
+          echo NGINX_CONFIGURE_CC_MSVC="$NGINX_CONFIGURE_CC_MSVC" >> $GITHUB_ENV
+          echo NGINX_CONFIGURE_CC_MINGW="$NGINX_CONFIGURE_CC_MINGW" >> $GITHUB_ENV
+          echo NGINX_CONFIGURE_ADD_STATIC="$NGINX_CONFIGURE_ADD_STATIC" >> $GITHUB_ENV
+          echo NGINX_CONFIGURE_ADD_DYNAMIC="$NGINX_CONFIGURE_ADD_DYNAMIC" >> $GITHUB_ENV
+          echo NGINX_CONFIGURE_OPENSSL_OPT="$NGINX_CONFIGURE_OPENSSL_OPT" >> $GITHUB_ENV
+
+          echo "VCVARSALL=$('C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe' -products \* -latest -property installationPath)\\VC\\Auxiliary\\Build\\vcvarsall.bat" >> $GITHUB_ENV
+          echo "VCARCH=${{ matrix.env }}" >> $GITHUB_ENV
+          echo "CL=/MP" >> $GITHUB_ENV
+
+          echo 'TEMP=C:\TEMP' >> $GITHUB_ENV
+          echo 'TMP=C:\TEMP' >> $GITHUB_ENV
+          echo 'TMPDIR=C:\TEMP' >> $GITHUB_ENV
+
+          rm -rf C:/TEMP/
+          rm -rf C:/tmp/
+
+          mkdir C:/TEMP/
+          mkdir C:/tmp/
+          mkdir -p t/
+
+      - name: Download and unpack dependencies
+        run: |
+          mkdir objs
+          mkdir objs/lib
+          curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${{ env.pcre2_ver }}/pcre2-${{ env.pcre2_ver }}.tar.gz
+          tar -C objs/lib --transform 's/pcre2-${{ env.pcre2_ver }}/pcre/' -xzf ./pcre2-${{ env.pcre2_ver }}.tar.gz
+          echo '#include <stdint.h>' > objs/lib/pcre/src/inttypes.h
+          curl -sLO https://zlib.net/fossils/zlib-${{ env.zlib_ver }}.tar.gz
+          tar -C objs/lib --transform 's/zlib-${{ env.zlib_ver }}/zlib/' -xzf ./zlib-${{ env.zlib_ver }}.tar.gz
+          case "${{ matrix.toolchain }}" in
+            msvc)
+              curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${{ env.openssl3_ver }}/openssl-${{ env.openssl3_ver }}.tar.gz
+              tar -C objs/lib --transform 's/openssl-${{ env.openssl3_ver }}/openssl/' -xzf ./openssl-${{ env.openssl3_ver }}.tar.gz
+            ;;
+            mingw*)
+              curl -sLO https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${{ env.openssl_ver }}.tar.gz
+              tar -C objs/lib --transform 's/openssl-${{ env.openssl_ver }}/openssl/' -xzf ./openssl-${{ env.openssl_ver }}.tar.gz
+            ;;
+          esac
+          cp -R objs objs.deps
+
+      - name: Configure and build msvc
+        id: configure_build
+        if: matrix.toolchain == 'msvc'
+        shell: cmd
+        run: |
+          @echo on
+          call "%VCVARSALL%" %VCARCH%
+          bash.exe ^
+            %NGINX_CONFIGURE_CMD_WIN% ^
+            %NGINX_CONFIGURE_CC_MSVC% ^
+            %NGINX_CONFIGURE_ADD_STATIC% ^
+            --with-openssl-opt="%NGINX_CONFIGURE_OPENSSL_OPT%"
+          nmake -f objs/Makefile
+          set BUILD_DATE="%date:~0,4%%date:~5,2%%date:~8,2%_%time:~0,2%%time:~3,2%"
+          echo "build_date=${BUILD_DATE}" >> $GITHUB_OUTPUT
+ 
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nginx-${{ steps.configure_build.outputs.build_date }}
+          overwrite: true
+          path: |
+            objs/*
+            !objs/src/**/*
+            !objs/**/Makefile
+            !objs/**/*.8
+            !objs/**/*.err
+            !objs/**/*.c
+            !objs/**/*.h
+            !objs/**/*.o
+            !objs/**/*.obj
+            !objs/**/*.pdb
+            !objs/**/*.lib
+            !objs/**/*.exp 
+    

@@ -128,9 +128,14 @@ jobs:
           overwrite: true
           path: |
             objs/*
-            !objs\src\*
-            !objs\**\*.o
-            !objs\**\*.obj
-            !objs\**\*.pdb
-            !objs\**\*.lib
-            !objs\**\*.exp          
+            !objs/src/**/*
+            !objs/**/Makefile
+            !objs/**/*.8
+            !objs/**/*.err
+            !objs/**/*.c
+            !objs/**/*.h
+            !objs/**/*.o
+            !objs/**/*.obj
+            !objs/**/*.pdb
+            !objs/**/*.lib
+            !objs/**/*.exp

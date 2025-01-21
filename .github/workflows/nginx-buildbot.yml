@@ -832,10 +832,10 @@ jobs:
         include:
           - toolchain: msvc
             env: x64
-          - toolchain: msvc
-            env: x86
-          - toolchain: mingw64
-            env: x86_64
+          # - toolchain: msvc
+          #   env: x86
+          # - toolchain: mingw64
+          #   env: x86_64
       fail-fast: false
     defaults:
       run:

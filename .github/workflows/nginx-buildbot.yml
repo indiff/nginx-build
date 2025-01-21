@@ -873,6 +873,8 @@ jobs:
           # echo "CPU:$(Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty LoadPercentage)%"
           
           echo "MSYSTEM=MINGW64" >> $GITHUB_ENV
+          # 安装 tree 命令，显示当前目录以及子目录的树状机构
+          pacman -S tree
           #echo "C:\msys64\usr\bin" >> $env:GITHUB_OUTPUT
           #echo "C:\msys64\mingw64\bin" >> $env:GITHUB_OUTPUT
 
@@ -1002,7 +1004,7 @@ jobs:
 
       - name: Configure and build mingw
         if: startsWith( matrix.toolchain, 'mingw')
-        run: |
+        run: | # tree command not found tree .
           $NGINX_CONFIGURE_CMD_WIN \
           $NGINX_CONFIGURE_CC_MINGW \
           $NGINX_CONFIGURE_ADD_STATIC \

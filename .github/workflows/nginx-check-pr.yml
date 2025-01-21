@@ -63,7 +63,7 @@ jobs:
         run: |
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
-          BUILD_DATE="$(date +'%Y-%m-%d %H:%M')"
+          BUILD_DATE="$(date +'%Y%m%d_%H%M')"
           mkdir -p t
           export DEB_BUILD_MAINT_OPTIONS="hardening=+all"
           #export DEB_CFLAGS_MAINT_APPEND="-Wp,-D_FORTIFY_SOURCE=2 -fPIC"

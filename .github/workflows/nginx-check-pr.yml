@@ -152,8 +152,9 @@ jobs:
     strategy:
       matrix:
         os: [ windows-latest ]
-        toolchain: msvc
-        env: x64
+        include:
+          - toolchain: msvc
+            env: x64
     defaults:
       run:
         # shell: C:\Tools\msys64\msys2_shell.cmd -defterm -no-start -where . -full-path -shell bash.exe -Eeo pipefail -x '{0}'

@@ -130,7 +130,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nginx-${{ steps.configure_build.outputs.build_date }}
+          name: nginx-ubuntu-${{ steps.configure_build.outputs.build_date }}
           overwrite: true
           path: |
             objs/*
@@ -191,7 +191,7 @@ jobs:
           
           echo "MSYSTEM=MINGW64" >> $GITHUB_ENV
           # 安装 tree 命令，显示当前目录以及子目录的树状机构
-          pacman -S tree --noconfirm
+          pacman -S tree mingw-w64-x86_64-sed --noconfirm
           #echo "C:\msys64\usr\bin" >> $env:GITHUB_OUTPUT
           #echo "C:\msys64\mingw64\bin" >> $env:GITHUB_OUTPUT
 
@@ -286,7 +286,7 @@ jobs:
           mkdir -p t/
 
       - name: Download and unpack dependencies
-        run: |
+        run: | #     nginx/src/os/win32/nginx.rc
           mkdir objs
           mkdir objs/lib
           curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${{ env.pcre2_ver }}/pcre2-${{ env.pcre2_ver }}.tar.gz
@@ -305,6 +305,8 @@ jobs:
             ;;
           esac
           cp -R objs objs.deps
+          curl -sLO https://github.com/indiff/nginx-build/raw/refs/heads/main/nginx.rc
+          cp -f nginx.rc src/os/win32/nginx.rc
 
       - name: Configure and build msvc
         id: configure_build
@@ -325,10 +327,11 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nginx-${{ steps.configure_build.outputs.build_date }}
+          name: nginx-windows-${{ steps.configure_build.outputs.build_date }}
           overwrite: true
           path: |
             objs/*
+            !objs/lib/**/*
             !objs/src/**/*
             !objs/**/Makefile
             !objs/**/*.8
@@ -340,4 +343,7 @@ jobs:
             !objs/**/*.pdb
             !objs/**/*.lib
             !objs/**/*.exp 
+            !objs/**/*.ilk 
+            !objs/**/*.res 
+            !objs/**/*.pch 
     

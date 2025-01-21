@@ -110,6 +110,7 @@ jobs:
           || cat objs/autoconf.err
           make -j$(nproc) -k || make
           echo "build_date=${BUILD_DATE}" >> $GITHUB_OUTPUT
+          tree .
 
       # - name: Test
       #   working-directory: nginx-tests
@@ -127,6 +128,8 @@ jobs:
           overwrite: true
           path: |
             objs/*
+            !objs\src\*
+            !objs\**\*.o
             !objs\**\*.obj
             !objs\**\*.pdb
             !objs\**\*.lib

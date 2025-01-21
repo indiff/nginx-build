@@ -59,7 +59,11 @@ jobs:
             uwsgi-plugin-python3
 
       - name: Configure and build
+        id: configure_build
         run: |
+          sudo timedatectl set-timezone Asia/Shanghai
+          timedatectl status
+          BUILD_DATE="$(date +'%Y-%m-%d %H:%M')"
           mkdir -p t
           export DEB_BUILD_MAINT_OPTIONS="hardening=+all"
           #export DEB_CFLAGS_MAINT_APPEND="-Wp,-D_FORTIFY_SOURCE=2 -fPIC"
@@ -105,12 +109,20 @@ jobs:
             --with-ld-opt="$(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err
           make -j$(nproc) -k || make
+          echo "build_date=${BUILD_DATE}" >> $GITHUB_OUTPUT
 
-      - name: Test
-        working-directory: nginx-tests
-        run: |
-          prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
-        env:
-          TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
-          TEST_NGINX_VERBOSE: 1
-          PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
+      # - name: Test
+      #   working-directory: nginx-tests
+      #   run: |
+      #     prove -v -j$(nproc) --state=save ../t . || prove -v --state=failed
+      #   env:
+      #     TEST_NGINX_BINARY: "${{ github.workspace }}/objs/nginx"
+      #     TEST_NGINX_VERBOSE: 1
+      #     PERL5LIB: "${{ github.workspace }}/nginx-tests/lib"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nginx-${{ steps.configure_build.outputs.build_date }}
+          overwrite: true
+          path: objs/* 

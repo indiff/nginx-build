@@ -871,15 +871,17 @@ jobs:
           # echo "Time:$(Get-Date)"
           # echo "Mem:$([math]::round((($mem.TotalVisibleMemorySize - $mem.FreePhysicalMemory) / $mem.TotalVisibleMemorySize) * 100, 2))%"
           # echo "CPU:$(Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty LoadPercentage)%"
-            
-          echo "C:\msys64\usr\bin" >> $env:GITHUB_OUTPUT
-          echo "C:\msys64\mingw64\bin" >> $env:GITHUB_OUTPUT
+          
+          echo "MSYSTEM=MINGW64" >> $GITHUB_ENV
+          #echo "C:\msys64\usr\bin" >> $env:GITHUB_OUTPUT
+          #echo "C:\msys64\mingw64\bin" >> $env:GITHUB_OUTPUT
 
-          echo "C:\msys64\usr\bin" >> $env:GITHUB_PATH
-          echo "C:\msys64\mingw64\bin" >> $env:GITHUB_PATH
+          #echo "C:\msys64\usr\bin" >> $env:GITHUB_PATH
+          #echo "C:\msys64\mingw64\bin" >> $env:GITHUB_PATH
 
-          bash -lc "pacman --noconfirm -Syuu"
-          bash -lc 'pacman -S mingw-w64-x86_64-pango mingw-w64-x86_64-sed --noconfirm'
+          #bash -lc "pacman --noconfirm -Syuu"
+          #bash -lc 'pacman -S mingw-w64-x86_64-pango mingw-w64-x86_64-sed --noconfirm'
+          
           #echo "Tools version:"
           #echo (((gcc --version) | select-object -first 1) + " " + (gcc -dumpmachine))
           #echo (mingw32-make --version) | select-object -first 1
@@ -957,8 +959,8 @@ jobs:
           echo 'TMP=C:\TEMP' >> $GITHUB_ENV
           echo 'TMPDIR=C:\TEMP' >> $GITHUB_ENV
 
-          rm -f -r C:/TEMP/
-          rm -f -r C:/tmp/
+          rm -rf C:/TEMP/
+          rm -rf C:/tmp/
 
           mkdir C:/TEMP/
           mkdir C:/tmp/
@@ -985,7 +987,7 @@ jobs:
           esac
           cp -R objs objs.deps
 
-      - name: Configure and build
+      - name: Configure and build msvc
         if: matrix.toolchain == 'msvc'
         shell: cmd
         run: |
@@ -998,13 +1000,14 @@ jobs:
             --with-openssl-opt="%NGINX_CONFIGURE_OPENSSL_OPT%"
           nmake -f objs/Makefile
 
-      - name: Configure and build
+      - name: Configure and build mingw
         if: startsWith( matrix.toolchain, 'mingw')
         run: |
           $NGINX_CONFIGURE_CMD_WIN \
           $NGINX_CONFIGURE_CC_MINGW \
           $NGINX_CONFIGURE_ADD_STATIC \
           --with-openssl-opt="$NGINX_CONFIGURE_OPENSSL_OPT"
+          tree .
           make -j$(nproc) -k || make
 
       - name: Run tests
@@ -1024,7 +1027,7 @@ jobs:
         run: |
           cp -R objs.deps objs
 
-      - name: Configure and build with debug
+      - name: Configure and build with msvc debug
         if: matrix.toolchain == 'msvc'
         shell: cmd
         run: |
@@ -1038,7 +1041,7 @@ jobs:
             --with-debug
           nmake -f objs/Makefile
 
-      - name: Configure and build with debug
+      - name: Configure and build with mingw debug
         if: startsWith( matrix.toolchain, 'mingw')
         run: |
           $NGINX_CONFIGURE_CMD_WIN \

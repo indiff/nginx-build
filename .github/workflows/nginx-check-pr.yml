@@ -110,7 +110,13 @@ jobs:
           || cat objs/autoconf.err
           make -j$(nproc) -k || make
           echo "build_date=${BUILD_DATE}" >> $GITHUB_OUTPUT
-          tree .
+          tree -all . >> objs/my_log.txt
+          cat src/http/ngx_http_special_response.c | grep NGINX_VER >> objs/my_log.txt
+          cat src/http/ngx_http_header_filter_module.c | grep "Server:" >> objs/my_log.txt
+          cat src/http/ngx_http_header_filter_module.c | grep "NGINX_VER" >> objs/my_log.txt
+          cat src/http/ngx_http_special_response.c | grep "NGINX_VER" >> objs/my_log.txt
+          cat src/http/ngx_http_special_response.c | grep "NGINX_VER_BUILD" >> objs/my_log.txt
+          cat src/http/ngx_http_special_response.c | grep "nginx" >> objs/my_log.txt
 
       # - name: Test
       #   working-directory: nginx-tests

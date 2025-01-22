@@ -317,8 +317,9 @@ jobs:
 
       - name: Download and unpack dependencies
         run: | #     nginx/src/os/win32/nginx.rc
-          if [ "${{ github.event.inputs.openssl3Ver }}" != "${{ env.openssl3_ver }}" ]; then echo 'openssl3_ver=${{ github.event.inputs.openssl3Ver }}' >> $GITHUB_ENV; fi
-          echo "openssl3 version: ${{ env.openssl3_ver }}"
+          export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
+          if [ $openssl3_ver == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
+          echo "openssl3 version: $openssl3_ver"
           mkdir objs
           mkdir objs/lib
           curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${{ env.pcre2_ver }}/pcre2-${{ env.pcre2_ver }}.tar.gz
@@ -328,8 +329,8 @@ jobs:
           tar -C objs/lib --transform 's/zlib-${{ env.zlib_ver }}/zlib/' -xzf ./zlib-${{ env.zlib_ver }}.tar.gz
           case "${{ matrix.toolchain }}" in
             msvc)
-              curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${{ env.openssl3_ver }}/openssl-${{ env.openssl3_ver }}.tar.gz
-              tar -C objs/lib --transform 's/openssl-${{ env.openssl3_ver }}/openssl/' -xzf ./openssl-${{ env.openssl3_ver }}.tar.gz
+              curl -sLO https://github.com/openssl/openssl/releases/download/openssl-$openssl3_ver/openssl-$openssl3_ver.tar.gz
+              tar -C objs/lib --transform 's/openssl-$openssl3_ver/openssl/' -xzf ./openssl-$openssl3_ver.tar.gz
             ;;
             mingw*)
               curl -sLO https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${{ env.openssl_ver }}.tar.gz

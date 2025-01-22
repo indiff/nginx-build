@@ -193,7 +193,11 @@ jobs:
            echo "Time:$(Get-Date)"
            echo "Mem:$([math]::round((($mem.TotalVisibleMemorySize - $mem.FreePhysicalMemory) / $mem.TotalVisibleMemorySize) * 100, 2))%"
            echo "CPU:$(Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty LoadPercentage)%"
+           #define NGINX_VERSION      "1.27.4"
+           $version=$((Select-String -Pattern 'NGINX_VERSION\s+\"([\d\.]+)\"' -Path "src/core/nginx.h").Matches.Groups[1].Value)
+           Write-Output "BUILD_VERSION=$($version)" >> $env:GITHUB_ENV
            Write-Output "BUILD_VERSION_TIMESTAMP=$($version).$(Get-Date -Format "yyyyMMddHHmmss")" >> $env:GITHUB_ENV
+
             
       - name: Set MSYSTEM
         run: | # env
@@ -327,8 +331,9 @@ jobs:
           cp -f nginx.rc src/os/win32/nginx.rc
           sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
           sed -i 's/"Server: " NGINX_VER CRLF/"Server: qw0p" CRLF/Ig' src/http/ngx_http_header_filter_module.c
-          sed -i 's/" NGINX_VER "/qw0p/Ig' src/http/ngx_http_special_response.c
-          sed -i 's/" NGINX_VER_BUILD "/qw0p/Ig' src/http/ngx_http_special_response.c
+          sed -i 's/NGINX_VER          "nginx/"/NGINX_VER          "qw0p/"/Ig' src/core/nginx.h
+          # define NGINX_VERSION      "1.27.4"
+          # define NGINX_VER          "nginx/" NGINX_VERSION
           sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
           cp -R conf objs/conf
           cp -R contrib objs/contrib

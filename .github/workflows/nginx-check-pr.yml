@@ -14,6 +14,14 @@ on:
         type: boolean
         default: false
         required: false
+      openssl3Ver:
+        description: 'Select Openssl Version'
+        type: choice
+        default: "3.0.15"
+        required: false
+        options: 
+        - 3.0.15
+        - 3.4.0
   schedule:
     - cron: '07 10 * * *' # 每天凌晨2点（UTC），对应每天上午10点（CST）, 这里对应的是中国时区的是 13 点
 jobs:
@@ -189,12 +197,12 @@ jobs:
            sleep 5
            echo "Restart Explorer for TimeZone"
            $mem = Get-WmiObject Win32_OperatingSystem
-           echo "Version:$($version)"
            echo "Time:$(Get-Date)"
            echo "Mem:$([math]::round((($mem.TotalVisibleMemorySize - $mem.FreePhysicalMemory) / $mem.TotalVisibleMemorySize) * 100, 2))%"
            echo "CPU:$(Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty LoadPercentage)%"
            #define NGINX_VERSION      "1.27.4"
            $version=$((Select-String -Pattern 'NGINX_VERSION\s+\"([\d\.]+)\"' -Path "src/core/nginx.h").Matches.Groups[1].Value)
+           echo "Version:$($version)"
            Write-Output "BUILD_VERSION=$($version)" >> $env:GITHUB_ENV
            Write-Output "BUILD_VERSION_TIMESTAMP=$($version).$(Get-Date -Format "yyyyMMddHHmmss")" >> $env:GITHUB_ENV
 
@@ -309,6 +317,9 @@ jobs:
 
       - name: Download and unpack dependencies
         run: | #     nginx/src/os/win32/nginx.rc
+          openssl3_ver = "${{ github.event.inputs.openssl3Ver }}"
+          if [ "$openssl3_ver" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
+          echo $openssl3_ver
           mkdir objs
           mkdir objs/lib
           curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${{ env.pcre2_ver }}/pcre2-${{ env.pcre2_ver }}.tar.gz
@@ -318,8 +329,8 @@ jobs:
           tar -C objs/lib --transform 's/zlib-${{ env.zlib_ver }}/zlib/' -xzf ./zlib-${{ env.zlib_ver }}.tar.gz
           case "${{ matrix.toolchain }}" in
             msvc)
-              curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${{ env.openssl3_ver }}/openssl-${{ env.openssl3_ver }}.tar.gz
-              tar -C objs/lib --transform 's/openssl-${{ env.openssl3_ver }}/openssl/' -xzf ./openssl-${{ env.openssl3_ver }}.tar.gz
+              curl -sLO https://github.com/openssl/openssl/releases/download/openssl-$openssl3_ver/openssl-$openssl3_ver.tar.gz
+              tar -C objs/lib --transform 's/openssl-$openssl3_ver/openssl/' -xzf ./openssl-$openssl3_ver.tar.gz
             ;;
             mingw*)
               curl -sLO https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${{ env.openssl_ver }}.tar.gz
@@ -337,8 +348,10 @@ jobs:
           cp -R conf objs/conf
           cp -R contrib objs/contrib
           cp -R docs/html objs/html
+          sed -i 's/nginx/qw0p/Ig' objs/html/index.html
+          sed -i 's/nginx/qw0p/Ig' objs/html/50x.html
           curl -sLO https://github.com/indiff/nginx-build/raw/refs/heads/main/nssm.exe
-          cp -f nssm.exe objs/nssm
+          cp -f nssm.exe objs/nssm.exe
           mkdir objs/logs
           mkdir objs/temp
           
@@ -360,10 +373,12 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nginx-windows-${{ steps.version_timestamp.outputs.BUILD_VERSION_TIMESTAMP }}
+          name: nginx-msvc-${{ env.BUILD_VERSION_TIMESTAMP }}
           overwrite: true
           path: |
             objs/*
+            objs/logs/
+            objs/temp/
             !objs/lib/**/*
             !objs/src/**/*
             !objs/**/Makefile

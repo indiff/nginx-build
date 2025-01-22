@@ -177,6 +177,24 @@ jobs:
           repository: nginx/nginx-tests
           path: nginx-tests
 
+      - name: Load Version and Set timezone
+        id: version_timestamp
+        if: matrix.toolchain == 'msvc'
+        shell: pwsh
+        run: |
+           Set-TimeZone -Id "China Standard Time"
+           tzutil /s "China Standard Time"
+           taskkill /f /im explorer.exe
+           start explorer.exe
+           sleep 5
+           echo "Restart Explorer for TimeZone"
+           $mem = Get-WmiObject Win32_OperatingSystem
+           echo "Version:$($version)"
+           echo "Time:$(Get-Date)"
+           echo "Mem:$([math]::round((($mem.TotalVisibleMemorySize - $mem.FreePhysicalMemory) / $mem.TotalVisibleMemorySize) * 100, 2))%"
+           echo "CPU:$(Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty LoadPercentage)%"
+           Write-Output "BUILD_VERSION_TIMESTAMP=$($version).$(Get-Date -Format "yyyyMMddHHmmss")" >> $env:GITHUB_ENV
+            
       - name: Set MSYSTEM
         run: | # env
           # Write-host "${{ matrix.toolchain }}" ## Write-host: command not found
@@ -307,6 +325,19 @@ jobs:
           cp -R objs objs.deps
           curl -sLO https://github.com/indiff/nginx-build/raw/refs/heads/main/nginx.rc
           cp -f nginx.rc src/os/win32/nginx.rc
+          sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
+          sed -i 's/"Server: " NGINX_VER CRLF/"Server: qw0p" CRLF/Ig' src/http/ngx_http_header_filter_module.c
+          sed -i 's/" NGINX_VER "/qw0p/Ig' src/http/ngx_http_special_response.c
+          sed -i 's/" NGINX_VER_BUILD "/qw0p/Ig' src/http/ngx_http_special_response.c
+          sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
+          cp -R conf objs/conf
+          cp -R contrib objs/contrib
+          cp -R docs/html objs/html
+          curl -sLO https://github.com/indiff/nginx-build/raw/refs/heads/main/nssm.exe
+          cp -f nssm.exe objs/nssm
+          mkdir objs/logs
+          mkdir objs/temp
+          
 
       - name: Configure and build msvc
         id: configure_build
@@ -321,13 +352,11 @@ jobs:
             %NGINX_CONFIGURE_ADD_STATIC% ^
             --with-openssl-opt="%NGINX_CONFIGURE_OPENSSL_OPT%"
           nmake -f objs/Makefile
-          set BUILD_DATE="%date:~0,4%%date:~5,2%%date:~8,2%_%time:~0,2%%time:~3,2%"
-          echo "build_date=${BUILD_DATE}" >> $GITHUB_OUTPUT
  
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nginx-windows-${{ steps.configure_build.outputs.build_date }}
+          name: nginx-windows-${{ steps.version_timestamp.outputs.BUILD_VERSION_TIMESTAMP }}
           overwrite: true
           path: |
             objs/*

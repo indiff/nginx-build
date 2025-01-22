@@ -3,11 +3,25 @@
 // Copyright (C) Igor Sysoev
 // Copyright (C) Nginx, Inc.
 
+#define NGX_COPYRIGHT "test" \
+                      "copyright."
+
+#define NGX_LICENSE  "Test " \
+                     "License, Version 2.0 (the ""License""); you may not use " \
+                     "this file except in compliance with the License.  You " \
+                     "may obtain a copy of the License at\r\n\r\n" \
+                     "permissions and limitations under the License."
+#define NGX_VERSION "1.27.4"
+					 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 1,0,0,0
-PRODUCTVERSION 1,0,0,0
+FILEVERSION 1,27,4,0
+PRODUCTVERSION 1,27,4,0
 FILEFLAGSMASK 0x3fL
-FILEFLAGS 0x0L
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
 FILEOS VOS__WINDOWS32
 FILETYPE VFT_APP
 FILESUBTYPE VFT2_UNKNOWN
@@ -16,15 +30,15 @@ BEGIN
     BEGIN
         BLOCK "080404b0" // Language and code page (Simplified Chinese)
         BEGIN
-            VALUE "Comments",  "TCN_LICENSE\0"
+            VALUE "Comments",  "NGX_LICENSE\0"
             VALUE "CompanyName", "indiff\0"
-            VALUE "FileDescription", "indiff\0"
-            VALUE "FileVersion", "TCN_VERSION\0"
+            VALUE "FileDescription", "nginx\0"
+            VALUE "FileVersion", "NGX_VERSION\0"
             VALUE "InternalName", "nginx\0"
-            VALUE "LegalCopyright", "TCN_COPYRIGHT\0"
+            VALUE "LegalCopyright", "NGX_COPYRIGHT\0"
             VALUE "OriginalFilename", "nginx.exe\0"
             VALUE "ProductName", "nginx\0"
-            VALUE "ProductVersion", "TCN_VERSION\0"
+            VALUE "ProductVersion", "NGX_VERSION\0"
         END
     END
     BLOCK "VarFileInfo"

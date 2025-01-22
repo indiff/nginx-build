@@ -330,7 +330,7 @@ jobs:
           case "${{ matrix.toolchain }}" in
             msvc)
               curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
-              tar -C objs/lib --transform 's/openssl-${openssl3_ver}/openssl/' -xzf ./openssl-${openssl3_ver}.tar.gz
+              tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
             ;;
             mingw*)
               curl -sLO https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${{ env.openssl_ver }}.tar.gz

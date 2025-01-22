@@ -329,12 +329,11 @@ jobs:
           cp -R objs objs.deps
           curl -sLO https://github.com/indiff/nginx-build/raw/refs/heads/main/nginx.rc
           cp -f nginx.rc src/os/win32/nginx.rc
+          sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
           sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
-          sed -i 's/"Server: " NGINX_VER CRLF/"Server: qw0p" CRLF/Ig' src/http/ngx_http_header_filter_module.c
-          sed -i 's/NGINX_VER          "nginx/"/NGINX_VER          "qw0p/"/Ig' src/core/nginx.h
+          sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
           # define NGINX_VERSION      "1.27.4"
           # define NGINX_VER          "nginx/" NGINX_VERSION
-          sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
           cp -R conf objs/conf
           cp -R contrib objs/contrib
           cp -R docs/html objs/html

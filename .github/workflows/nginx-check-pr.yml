@@ -23,7 +23,7 @@ on:
         - 3.0.15
         - 3.4.0
   schedule:
-    #- cron: '07 10 * * *' # 每天凌晨2点（UTC），对应每天上午10点（CST）, 这里对应的是中国时区的是 13 点
+    #- cron: '07 10 * * *' # 每天凌晨2点（UTC），对应每天上午10点（CST）, 这里对应的是中国时区的是 18 点
     - cron: '3 1 * * *' # UTC 时间 1:00 对应中国时间 9:00
 jobs:
   build-in-ubuntu:
@@ -280,6 +280,8 @@ jobs:
                     --with-stream_ssl_module \
                     --with-stream_ssl_preread_module \
                     --with-stream_realip_module \
+                    --with-file-aio \
+                    --with-threads \
                     --with-openssl=objs/lib/openssl",
           "NGINX_CONFIGURE_CC_MSVC": "--with-cc=cl",
           "NGINX_CONFIGURE_CC_MINGW": "--with-cc=/${{ matrix.toolchain }}/bin/${{ matrix.env }}-w64-mingw32-gcc.exe",
@@ -345,6 +347,8 @@ jobs:
           curl -sLO https://github.com/indiff/nginx-build/raw/refs/heads/main/nginx.rc
           cp -f nginx.rc src/os/win32/nginx.rc
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
+          export RANDOM_STRING=$(openssl rand -base64 12)
+          sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"$RANDOM_STRING\"/" src/core/nginx.h
           sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
           sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
           # define NGINX_VERSION      "1.27.4"
@@ -358,6 +362,12 @@ jobs:
           cp -f nssm.exe objs/nssm.exe
           mkdir objs/logs
           mkdir objs/temp
+          mkdir objs/temp/client_body_temp
+          mkdir objs/temp/proxy_temp
+          mkdir objs/temp/fastcgi_temp
+          echo "" >> objs/logs/access.log
+          echo "" >> objs/logs/error.log
+          echo "" >> objs/temp/dummy
           
 
       - name: Configure and build msvc
@@ -379,6 +389,7 @@ jobs:
         with:
           name: nginx-msvc-${{ env.BUILD_VERSION_TIMESTAMP }}
           overwrite: true
+          compression-level: 9
           path: |
             objs/*
             objs/logs/

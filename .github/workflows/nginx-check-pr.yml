@@ -23,7 +23,8 @@ on:
         - 3.0.15
         - 3.4.0
   schedule:
-    - cron: '07 10 * * *' # 每天凌晨2点（UTC），对应每天上午10点（CST）, 这里对应的是中国时区的是 13 点
+    #- cron: '07 10 * * *' # 每天凌晨2点（UTC），对应每天上午10点（CST）, 这里对应的是中国时区的是 13 点
+    - cron: '3 1 * * *' # UTC 时间 1:00 对应中国时间 9:00
 jobs:
   build-in-ubuntu:
     #if: ${{ ( github.repository_owner == 'nginx' || github.repository_owner == 'nginxinc' ) }}
@@ -168,9 +169,12 @@ jobs:
         # shell: C:\Tools\msys64\msys2_shell.cmd -defterm -no-start -where . -full-path -shell bash.exe -Eeo pipefail -x '{0}'
         shell: C:\msys64\msys2_shell.cmd -defterm -no-start -where . -full-path -shell bash.exe -Eeo pipefail -x '{0}'
     env:
-      pcre2_ver: 10.39
+      # https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.44/pcre2-10.44.tar.gz
+      #pcre2_ver: 10.39
+      pcre2_ver: 10.44
       zlib_ver: 1.3.1
-      openssl3_ver: 3.0.15
+      #openssl3_ver: 3.0.15
+      openssl3_ver: 3.4.0
       openssl_ver: 1.1.1w
     steps:
       - name: Check out nginx sources
@@ -318,7 +322,7 @@ jobs:
       - name: Download and unpack dependencies
         run: | #     nginx/src/os/win32/nginx.rc
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
-          if [ $openssl3_ver == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
+          if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
           echo "openssl3 version: $openssl3_ver"
           mkdir objs
           mkdir objs/lib
@@ -373,7 +377,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nginx-msvc-${{ steps.version_timestamp.outputs.BUILD_VERSION_TIMESTAMP }}
+          name: nginx-msvc-${{ env.BUILD_VERSION_TIMESTAMP }}
           overwrite: true
           path: |
             objs/*
@@ -390,7 +394,7 @@ jobs:
             !objs/**/*.obj
             !objs/**/*.pdb
             !objs/**/*.lib
-            !objs/**/*.exp 
+            !objs/**/*.exp
             !objs/**/*.ilk 
             !objs/**/*.res 
             !objs/**/*.pch 

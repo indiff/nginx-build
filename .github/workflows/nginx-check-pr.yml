@@ -191,7 +191,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ windows-latest ]
+        os: [ windows-2025 ]
         include:
           - toolchain: msvc
             env: x64

@@ -241,7 +241,7 @@ jobs:
           #echo (sh --version) | select-object -first 1
 
           
-
+        # https://nginx.org/en/docs/howto_build_on_win32.html
       - name: Set the defaults and set up environment
         run: |
           ENV_JSON=$(cat <<EOF
@@ -280,8 +280,7 @@ jobs:
                     --with-stream_ssl_module \
                     --with-stream_ssl_preread_module \
                     --with-stream_realip_module \
-                    --with-file-aio \
-                    --with-threads \
+                    --without-http_autoindex_module \
                     --with-openssl=objs/lib/openssl",
           "NGINX_CONFIGURE_CC_MSVC": "--with-cc=cl",
           "NGINX_CONFIGURE_CC_MINGW": "--with-cc=/${{ matrix.toolchain }}/bin/${{ matrix.env }}-w64-mingw32-gcc.exe",

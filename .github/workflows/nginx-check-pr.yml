@@ -37,14 +37,16 @@ jobs:
           repository: nginx/nginx
           fetch-depth: 1
           
-      - name: Check out nginx tests
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-        with:
-          repository: nginx/nginx-tests
-          path: nginx-tests
+      # - name: Check out nginx tests
+      #   uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      #   with:
+      #     repository: nginx/nginx-tests
+      #     path: nginx-tests
 
       - name: Install build and test dependencies
         run: |
+          # Free disk space
+          df -h && sudo apt-get clean && docker system prune -a -f && sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc && df -h
           sudo apt-get update
           sudo apt-get install \
             libedit-dev \
@@ -72,7 +74,10 @@ jobs:
         run: |
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
-          BUILD_DATE="$(date +'%Y%m%d_%H%M')"
+          version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' src/core/nginx.h | head -1)
+          build_timestamp="$(date +'%Y%m%d_%H%M')"
+          echo "BUILD_VERSION_TIMESTAMP=$(version)_${build_timestamp}" >> $GITHUB_OUTPUT
+
           mkdir -p t
           export DEB_BUILD_MAINT_OPTIONS="hardening=+all"
           #export DEB_CFLAGS_MAINT_APPEND="-Wp,-D_FORTIFY_SOURCE=2 -fPIC"
@@ -104,6 +109,7 @@ jobs:
             --with-stream_ssl_module \
             --with-stream_ssl_preread_module \
             --with-stream_realip_module \
+            --with-aio \
             --with-threads \
             --with-compat \
             --with-cpp_test_module \
@@ -117,8 +123,31 @@ jobs:
             --with-cc-opt="$(dpkg-buildflags --get CFLAGS)" \
             --with-ld-opt="$(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err
+
+          sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
+          export RANDOM_STRING=$(openssl rand -base64 12)
+          sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"$RANDOM_STRING\"/" src/core/nginx.h
+          sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
+          sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
+          sed -i 's/nginx/qw0p/Ig' objs/html/index.html
+          sed -i 's/nginx/qw0p/Ig' objs/html/50x.html
+          mkdir objs/logs
+          mkdir objs/temp
+          mkdir objs/temp/client_body_temp
+          mkdir objs/temp/proxy_temp
+          mkdir objs/temp/fastcgi_temp
+          echo "" >> objs/logs/access.log
+          echo "" >> objs/logs/error.log
+          echo "" >> objs/temp/dummy
+
+          # define NGINX_VERSION      "1.27.4"
+          # define NGINX_VER          "nginx/" NGINX_VERSION
+          cp -R conf objs/conf
+          cp -R contrib objs/contrib
+          cp -R docs/html objs/html
+
           make -j$(nproc) -k || make
-          echo "build_date=${BUILD_DATE}" >> $GITHUB_OUTPUT
+          
           tree -all . >> objs/my_log.txt
           cat src/http/ngx_http_special_response.c | grep NGINX_VER >> objs/my_log.txt
           cat src/http/ngx_http_header_filter_module.c | grep "Server:" >> objs/my_log.txt
@@ -139,7 +168,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nginx-ubuntu-${{ steps.configure_build.outputs.build_date }}
+          name: nginx-ubuntu-${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}
           overwrite: true
           path: |
             objs/*

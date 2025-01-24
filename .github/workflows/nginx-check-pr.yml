@@ -269,10 +269,11 @@ jobs:
       - name: Build Nginx in Docker
         run: |
           docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace centos:7 /bin/bash -c "/workspace/build.sh"
-          curl -o nginx.h https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
+          curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}" >> $GITHUB_ENV
+          tree .
 
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4

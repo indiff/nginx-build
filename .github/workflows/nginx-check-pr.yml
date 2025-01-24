@@ -186,7 +186,7 @@ jobs:
   
   build-in-centos:
     runs-on: ubuntu-latest
-    container: centos:7
+    container: quay.io/centos/centos:7
 
     steps:
       - name: Dependencies (pcre/zlib/git/tree)
@@ -217,10 +217,11 @@ jobs:
             tar -czvf nginx.tar.gz /usr/local/nginx
 
       - name: Upload Nginx package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: nginx-centos-package
           path: nginx.tar.gz
+
 
   build-in-windows:
     name: ${{ matrix.os }}, ${{ matrix.toolchain }}, ${{ matrix.env }}

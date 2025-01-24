@@ -210,8 +210,8 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
-          tree all .
-          ./configure --prefix=/usr/local/nginx --with-http_ssl_module &&
+          tree .
+          ./auto/configure --prefix=/usr/local/nginx --with-http_ssl_module &&
             make -j`nproc` &&
             make install &&
             tar -czvf nginx.tar.gz /usr/local/nginx

@@ -204,7 +204,8 @@ jobs:
           yum install -y tzdata
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
-          yum install -y gcc pcre-devel zlib-devel make openssl-devel git wget sed
+          yum update -y
+          yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
           CC_OPT="\$(rpm --eval '%{optflags}') \$(pcre-config --cflags) -fPIC"

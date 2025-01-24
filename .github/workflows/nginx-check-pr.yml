@@ -183,7 +183,7 @@ jobs:
             !objs/**/*.lib
             !objs/**/*.exp
   
-  build-in-centos:
+  build-in-centos7:
     runs-on: ubuntu-latest
 
     steps:
@@ -205,7 +205,7 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
-          yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel
+          yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip
           # git clone --depth 1 -b openssl-3.4 https://github.com/openssl/openssl /ssl
           # cd /ssl
           # ./config --release no-shared enable-ec_nistp_64_gcc_128
@@ -243,7 +243,7 @@ jobs:
             --with-http_degradation_module \
             --with-http_geoip_module \
             --with-stream_geoip_module \
-          --prefix=/usr/local/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
+          --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
           export RANDOM_STRING="$(openssl rand -hex 2)"
@@ -255,11 +255,9 @@ jobs:
           
           make -j$(nproc)
           make install
-          cd /usr/local/nginx
-          tar -czvf /workspace/nginx.tar.gz .
+          zip -r /workspace/opt_nginx.zip /opt/nginx
           EOF
           chmod +x build.sh
-          cat build.sh
           
       - name: Upload build.sh
         uses: actions/upload-artifact@v4
@@ -271,12 +269,16 @@ jobs:
       - name: Build Nginx in Docker
         run: |
           docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace centos:7 /bin/bash -c "/workspace/build.sh"
+          curl -o nginx.h https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
+          export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
+          export build_timestamp="$(date +'%Y%m%d_%H%M')"
+          echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}" >> $GITHUB_ENV
 
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
         with:
-          name: nginx-package
-          path: nginx.tar.gz
+          name: nginx-centos7-${{ env.BUILD_VERSION_TIMESTAMP }}
+          path: opt_nginx.zip
 
 
   build-in-windows:

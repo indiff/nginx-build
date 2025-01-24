@@ -1,6 +1,9 @@
 name: check-pr
 
 on:
+  push:
+    path: |
+      - 'nginx-check-pr.yml'
   #workflow_call:
   workflow_dispatch: # 手动执行时候可以配置的参数
     inputs:

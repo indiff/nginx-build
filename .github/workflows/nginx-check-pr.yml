@@ -80,7 +80,6 @@ jobs:
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' src/core/nginx.h | head -1)
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}" >> $GITHUB_OUTPUT
-
           mkdir -p t
           export DEB_BUILD_MAINT_OPTIONS="hardening=+all"
           #export DEB_CFLAGS_MAINT_APPEND="-Wp,-D_FORTIFY_SOURCE=2 -fPIC"
@@ -127,12 +126,11 @@ jobs:
             --with-cc-opt="$(dpkg-buildflags --get CFLAGS)" \
             --with-ld-opt="$(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err
-
           cp -R conf objs/conf
           cp -R contrib objs/contrib
           cp -R docs/html objs/html
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
-          export RANDOM_STRING="$(openssl rand -base64 12 | | tr -d '/')"
+          export RANDOM_STRING="$(openssl rand -hex 2)"
           sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"$RANDOM_STRING\"/" src/core/nginx.h
           sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
           sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
@@ -146,11 +144,8 @@ jobs:
           echo "" >> objs/logs/access.log
           echo "" >> objs/logs/error.log
           echo "" >> objs/temp/dummy
-
           # define NGINX_VERSION      "1.27.4"
           # define NGINX_VER          "nginx/" NGINX_VERSION
-          
-
           make -j$(nproc) -k || make
           
           tree -all . >> objs/my_log.txt
@@ -212,16 +207,6 @@ jobs:
           yum install -y gcc pcre-devel zlib-devel make openssl-devel git wget
           git clone --depth 1 https://github.com/nginx/nginx.git nginx-build
           cd nginx-build
-
-
-          
-      - name: checkout v3
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
-        with:
-          ref: master
-          repository: nginx/nginx
-          fetch-depth: 1
-
 
       - name: Build Nginx on CentOS
         run: |
@@ -427,7 +412,7 @@ jobs:
           curl -sLO https://github.com/indiff/nginx-build/raw/refs/heads/main/nginx.rc
           cp -f nginx.rc src/os/win32/nginx.rc
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
-          export RANDOM_STRING="$(openssl rand -base64 12 | | tr -d '/')"
+          export RANDOM_STRING="$(openssl rand -hex 2)"
           sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"$RANDOM_STRING\"/" src/core/nginx.h
           sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
           sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c

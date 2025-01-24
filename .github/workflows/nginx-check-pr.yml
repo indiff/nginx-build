@@ -189,7 +189,7 @@ jobs:
     container: centos:7
 
     steps:
-      - name: Dependencies (Linux glibc)
+      - name: Dependencies (pcre/zlib/git/tree)
         run: |
           # force encoding
           echo 'LANG=zh_CN.UTF-8' >> /etc/environment
@@ -204,13 +204,13 @@ jobs:
           yum install -y tzdata
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
-          yum install -y gcc pcre-devel zlib-devel make openssl-devel git wget
-          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
-          
+          yum install -y gcc pcre-devel zlib-devel make openssl-devel git wget tree
 
       - name: Build Nginx on CentOS
         run: |
+          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
+          tree all .
           ./configure --prefix=/usr/local/nginx --with-http_ssl_module &&
             make -j`nproc` &&
             make install &&

@@ -291,6 +291,8 @@ jobs:
           gh release delete --cleanup-tag --yes "$TAGNAME" || true
           sleep 15
           gh release create "$TAGNAME" --target "main" --title "$NAME" opt_nginx.zip
+        env:
+          GITHUB_TOKEN: ${{ github.token }} 
           
   build-in-windows:
     name: ${{ matrix.os }}, ${{ matrix.toolchain }}, ${{ matrix.env }}

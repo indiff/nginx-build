@@ -189,6 +189,7 @@ jobs:
     steps:
       - name: Create build script
         run: |
+          set -xe
           cat << 'EOF' > build.sh
           #!/bin/bash
           set -e
@@ -258,6 +259,7 @@ jobs:
           tar -czvf /workspace/nginx.tar.gz .
           EOF
           chmod +x build.sh
+          cat build.sh
 
       - name: Build Nginx in Docker
         run: |

@@ -189,6 +189,7 @@ jobs:
   
   build-in-centos:
     runs-on: ubuntu-latest
+    container: centos:7
 
     steps:
       - name: checkout v4
@@ -198,19 +199,19 @@ jobs:
           repository: nginx/nginx
           fetch-depth: 1
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+      - name: Dependencies (Linux glibc)
+        run: |
+          yum install -y epel-release
+          yum install -y centos-release-scl
+          yum install -y devtoolset-10-gcc-c++ make git python3 nodejs
+          echo "/opt/rh/devtoolset-10/root/usr/bin" >> $GITHUB_PATH
 
       - name: Build Nginx on CentOS
         run: |
-          docker run --rm -v $(pwd):/workspace -w /workspace centos:7 /bin/bash -c "
-            yum install -y epel-release &&
-            yum install -y gcc pcre-devel zlib-devel make openssl-devel &&
-            ./configure --prefix=/usr/local/nginx --with-http_ssl_module &&
-            make &&
+          ./configure --prefix=/usr/local/nginx --with-http_ssl_module &&
+            make -j`nproc` &&
             make install &&
             tar -czvf nginx.tar.gz /usr/local/nginx
-          "
 
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4

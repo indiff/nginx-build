@@ -211,8 +211,8 @@ jobs:
           # make -sj$(nproc)
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
-          CC_OPT="-I /ssl/include \$(rpm --eval '%{optflags}') \$(pcre-config --cflags) -fPIC"
-          LD_OPT="-Wl,-z,relro -Wl,-z,now -L ssl"
+          CC_OPT="\$(rpm --eval '%{optflags}') \$(pcre-config --cflags) -fPIC"
+          LD_OPT="-Wl,-z,relro -Wl,-z,now"
           ./auto/configure \
             --with-http_realip_module \
             --with-http_addition_module \
@@ -251,6 +251,7 @@ jobs:
           sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
           sed -i 's/nginx/qw0p/Ig' docs/html/index.html
           sed -i 's/nginx/qw0p/Ig' docs/html/50x.html
+          
           make -j$(nproc)
           make install
           cd /usr/local/nginx

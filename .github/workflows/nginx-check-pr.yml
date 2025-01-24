@@ -206,10 +206,10 @@ jobs:
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
           yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd
-          git clone --depth 1 -b openssl-3.4 https://github.com/openssl/openssl /ssl
-          cd /ssl
-          ./config no-shared no-threads
-          make -sj$(nproc)
+          # git clone --depth 1 -b openssl-3.4 https://github.com/openssl/openssl /ssl
+          # cd /ssl
+          # ./config --release no-shared enable-ec_nistp_64_gcc_128
+          # make -sj$(nproc)
                
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
@@ -246,7 +246,6 @@ jobs:
             --with-http_xslt_module \
             --with-http_image_filter_module \
             --with-http_degradation_module \
-            --with-http_v3_module \
             --with-http_geoip_module \
             --with-stream_geoip_module \
           --prefix=/usr/local/nginx --with-http_ssl_module --with-cc-opt="\$CC_OPT" --with-ld-opt="\$LD_OPT"

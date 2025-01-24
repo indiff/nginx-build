@@ -206,10 +206,15 @@ jobs:
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
           yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed
+          git clone --depth 1 -b openssl-3.4 https://github.com/openssl/openssl /ssl
+          cd /ssl
+          ./config no-shared no-threads
+          make -sj$(nproc)
+               
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
-          CC_OPT="\$(rpm --eval '%{optflags}') \$(pcre-config --cflags) -fPIC"
-          LD_OPT="-Wl,-z,relro -Wl,-z,now"
+          CC_OPT="-I /ssl/include \$(rpm --eval '%{optflags}') \$(pcre-config --cflags) -fPIC"
+          LD_OPT="-Wl,-z,relro -Wl,-z,now -L ssl"
           ./auto/configure \
             --with-http_realip_module \
             --with-http_addition_module \
@@ -245,6 +250,7 @@ jobs:
             --with-http_geoip_module \
             --with-stream_geoip_module \
           --prefix=/usr/local/nginx --with-http_ssl_module --with-cc-opt="\$CC_OPT" --with-ld-opt="\$LD_OPT"
+          
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
           export RANDOM_STRING="\$(openssl rand -hex 2)"
           sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"\$RANDOM_STRING\"/" src/core/nginx.h

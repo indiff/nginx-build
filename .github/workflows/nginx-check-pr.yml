@@ -185,6 +185,37 @@ jobs:
             !objs/**/*.pdb
             !objs/**/*.lib
             !objs/**/*.exp
+  
+  build-in-centos:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: master
+          repository: nginx/nginx
+          fetch-depth: 1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build Nginx on CentOS
+        run: |
+          docker run --rm -v $(pwd):/workspace -w /workspace centos:7 /bin/bash -c "
+            yum install -y epel-release &&
+            yum install -y gcc pcre-devel zlib-devel make openssl-devel &&
+            ./configure --prefix=/usr/local/nginx --with-http_ssl_module &&
+            make &&
+            make install &&
+            tar -czvf nginx.tar.gz /usr/local/nginx
+          "
+
+      - name: Upload Nginx package
+        uses: actions/upload-artifact@v2
+        with:
+          name: nginx-package
+          path: nginx.tar.gz
 
   build-in-windows:
     name: ${{ matrix.os }}, ${{ matrix.toolchain }}, ${{ matrix.env }}

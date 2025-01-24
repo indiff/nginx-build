@@ -132,7 +132,6 @@ jobs:
           cp -R contrib objs/contrib
           cp -R docs/html objs/html
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
-          # remove char 
           export RANDOM_STRING="$(openssl rand -base64 12 | | tr -d '/')"
           sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"$RANDOM_STRING\"/" src/core/nginx.h
           sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
@@ -208,9 +207,8 @@ jobs:
           yum install -y tzdata
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
-          yum install -y centos-release-scl
-          yum install -y devtoolset-10-gcc-c++ make git python3
-          echo "/opt/rh/devtoolset-10/root/usr/bin" >> $GITHUB_PATH
+          yum install -y gcc pcre-devel zlib-devel make openssl-devel git wget
+
           
       - name: checkout v3
         uses: actions/checkout@v3
@@ -424,7 +422,6 @@ jobs:
           curl -sLO https://github.com/indiff/nginx-build/raw/refs/heads/main/nginx.rc
           cp -f nginx.rc src/os/win32/nginx.rc
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
-          # generate random string remove char
           export RANDOM_STRING="$(openssl rand -base64 12 | | tr -d '/')"
           sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"$RANDOM_STRING\"/" src/core/nginx.h
           sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c

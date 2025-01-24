@@ -186,40 +186,49 @@ jobs:
   
   build-in-centos:
     runs-on: ubuntu-latest
-    container: quay.io/centos/centos:7
 
     steps:
-      - name: Dependencies (pcre/zlib/git/tree)
+      - name: checkout v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: master
+          repository: nginx/nginx
+          fetch-depth: 1
+
+      - name: Create build script
         run: |
-          # force encoding
+          cat << 'EOF' > build.sh
+          #!/bin/bash
+          set -e
           echo 'LANG=zh_CN.UTF-8' >> /etc/environment
           echo 'LANGUAGE=zh_CN.UTF-8' >> /etc/environment
           echo 'LC_ALL=zh_CN.UTF-8' >> /etc/environment
           echo 'LC_CTYPE=zh_CN.UTF-8' >> /etc/environment
-          # wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
           curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
           yum clean all
           yum makecache
-          # yum install -y epel-release
+          yum install -y epel-release
           yum install -y tzdata
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
-          yum install -y gcc pcre-devel zlib-devel make openssl-devel git wget tree
-
-      - name: Build Nginx on CentOS
-        run: |
+          yum install -y gcc pcre-devel zlib-devel make openssl-devel git wget
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
-          tree .
-          ./auto/configure --prefix=/usr/local/nginx --with-http_ssl_module &&
-            make -j`nproc` &&
-            make install &&
-            tar -czvf nginx.tar.gz /usr/local/nginx
+          ./auto/configure --prefix=/usr/local/nginx --with-http_ssl_module
+          make
+          make install
+          tar -czvf /workspace/nginx.tar.gz /usr/local/nginx
+          EOF
+          chmod +x build.sh
+
+      - name: Build Nginx in Docker
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace centos:7 /bin/bash -c "/workspace/build.sh"
 
       - name: Upload Nginx package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: nginx-centos-package
+          name: nginx-package
           path: nginx.tar.gz
 
 

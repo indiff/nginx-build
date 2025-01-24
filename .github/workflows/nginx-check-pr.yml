@@ -205,11 +205,12 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           yum install -y gcc pcre-devel zlib-devel make openssl-devel git wget
-          git clone --depth 1 https://github.com/nginx/nginx.git nginx-build
-          cd nginx-build
+          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
+          
 
       - name: Build Nginx on CentOS
         run: |
+          cd /nginx-build
           ./configure --prefix=/usr/local/nginx --with-http_ssl_module &&
             make -j`nproc` &&
             make install &&

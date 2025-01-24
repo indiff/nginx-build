@@ -249,9 +249,9 @@ jobs:
           sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"\$RANDOM_STRING\"/" src/core/nginx.h
           sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
           sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
-          sed -i 's/nginx/qw0p/Ig' objs/html/index.html
-          sed -i 's/nginx/qw0p/Ig' objs/html/50x.html
-          make
+          sed -i 's/nginx/qw0p/Ig' docs/html/index.html
+          sed -i 's/nginx/qw0p/Ig' docs/html/50x.html
+          make -j$(nproc)
           make install
           cd /usr/local/nginx
           tar -czvf /workspace/nginx.tar.gz .

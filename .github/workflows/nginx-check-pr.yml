@@ -192,19 +192,21 @@ jobs:
     container: centos:7
 
     steps:
-      - name: checkout v4
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: Dependencies (Linux glibc)
+        run: |
+          yum install -y epel-release
+          yum install -y centos-release-scl
+          yum update
+          yum install -y devtoolset-10-gcc-c++ make git python3 nodejs
+          echo "/opt/rh/devtoolset-10/root/usr/bin" >> $GITHUB_PATH
+          
+      - name: checkout v3
+        uses: actions/checkout@v3
         with:
           ref: master
           repository: nginx/nginx
           fetch-depth: 1
 
-      - name: Dependencies (Linux glibc)
-        run: |
-          yum install -y epel-release
-          yum install -y centos-release-scl
-          yum install -y devtoolset-10-gcc-c++ make git python3 nodejs
-          echo "/opt/rh/devtoolset-10/root/usr/bin" >> $GITHUB_PATH
 
       - name: Build Nginx on CentOS
         run: |

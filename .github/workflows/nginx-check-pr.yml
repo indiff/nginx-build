@@ -187,6 +187,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout v4
+        uses: actions/checkout@v4
+
       - name: Create build script
         run: |
           set -xe

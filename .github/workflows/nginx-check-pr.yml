@@ -192,7 +192,7 @@ jobs:
           set -xe
           cat << 'EOF' > build.sh
           #!/bin/bash
-          set -e
+          set -xe
           echo 'LANG=zh_CN.UTF-8' >> /etc/environment
           echo 'LANGUAGE=zh_CN.UTF-8' >> /etc/environment
           echo 'LC_ALL=zh_CN.UTF-8' >> /etc/environment
@@ -212,7 +212,7 @@ jobs:
           # make -sj$(nproc)
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
-          CC_OPT="\$(rpm --eval '%{optflags}') \$(pcre-config --cflags) -fPIC"
+          CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
           ./auto/configure \
             --with-http_realip_module \
@@ -243,11 +243,11 @@ jobs:
             --with-http_degradation_module \
             --with-http_geoip_module \
             --with-stream_geoip_module \
-          --prefix=/usr/local/nginx --with-http_ssl_module --with-cc-opt="\$CC_OPT" --with-ld-opt="\$LD_OPT"
+          --prefix=/usr/local/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
-          export RANDOM_STRING="\$(openssl rand -hex 2)"
-          sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"\$RANDOM_STRING\"/" src/core/nginx.h
+          export RANDOM_STRING="$(openssl rand -hex 2)"
+          sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"$RANDOM_STRING\"/" src/core/nginx.h
           sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
           sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
           sed -i 's/nginx/qw0p/Ig' docs/html/index.html
@@ -260,6 +260,13 @@ jobs:
           EOF
           chmod +x build.sh
           cat build.sh
+          
+      - name: Upload build.sh
+        uses: actions/upload-artifact@v4
+        with:
+          name: build.sh
+          path: build.sh     
+          
 
       - name: Build Nginx in Docker
         run: |

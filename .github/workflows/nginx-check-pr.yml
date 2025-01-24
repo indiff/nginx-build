@@ -188,13 +188,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout v4
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-        with:
-          ref: master
-          repository: nginx/nginx
-          fetch-depth: 1
-
       - name: Create build script
         run: |
           cat << 'EOF' > build.sh
@@ -211,13 +204,57 @@ jobs:
           yum install -y tzdata
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
-          yum install -y gcc pcre-devel zlib-devel make openssl-devel git wget
+          yum install -y gcc pcre-devel zlib-devel make openssl-devel git wget sed
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
-          ./auto/configure --prefix=/usr/local/nginx --with-http_ssl_module
+          CC_OPT="\$(rpm --eval '%{optflags}') \$(pcre-config --cflags) -fPIC"
+          LD_OPT="-Wl,-z,relro -Wl,-z,now"
+          ./auto/configure \
+            --with-http_realip_module \
+            --with-http_addition_module \
+            --with-http_sub_module \
+            --with-http_dav_module \
+            --with-http_flv_module \
+            --with-http_mp4_module \
+            --with-http_gunzip_module \
+            --with-http_gzip_static_module \
+            --with-http_random_index_module \
+            --with-http_secure_link_module \
+            --with-http_stub_status_module \
+            --with-mail \
+            --with-mail_ssl_module \
+            --with-select_module \
+            --with-poll_module \
+            --with-http_auth_request_module \
+            --with-http_v2_module \
+            --with-http_slice_module \
+            --with-stream \
+            --with-stream_ssl_module \
+            --with-stream_ssl_preread_module \
+            --with-stream_realip_module \
+            --with-file-aio \
+            --with-threads \
+            --with-compat \
+            --with-cpp_test_module \
+            --with-http_perl_module \
+            --with-http_xslt_module \
+            --with-http_image_filter_module \
+            --with-http_degradation_module \
+            --with-http_v3_module \
+            --with-http_geoip_module \
+            --with-stream_geoip_module \
+          --prefix=/usr/local/nginx --with-http_ssl_module --with-cc-opt="\$CC_OPT" --with-ld-opt="\$LD_OPT"
+          sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
+          export RANDOM_STRING="\$(openssl rand -hex 2)"
+          sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"\$RANDOM_STRING\"/" src/core/nginx.h
+          sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
+          sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
+          sed -i 's/nginx/qw0p/Ig' objs/html/index.html
+          sed -i 's/nginx/qw0p/Ig' objs/html/50x.html
           make
           make install
-          tar -czvf /workspace/nginx.tar.gz /usr/local/nginx
+          cd /usr/local/nginx
+          tar -czvf /workspace/nginx.tar.gz .
           EOF
           chmod +x build.sh
 

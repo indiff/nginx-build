@@ -205,7 +205,7 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
-          yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed
+          yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd
           git clone --depth 1 -b openssl-3.4 https://github.com/openssl/openssl /ssl
           cd /ssl
           ./config no-shared no-threads

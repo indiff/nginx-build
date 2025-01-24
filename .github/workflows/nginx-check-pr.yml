@@ -243,7 +243,6 @@ jobs:
             --with-compat \
             --with-cpp_test_module \
             --with-http_perl_module \
-            --with-http_image_filter_module \
             --with-http_degradation_module \
             --with-http_geoip_module \
             --with-stream_geoip_module \

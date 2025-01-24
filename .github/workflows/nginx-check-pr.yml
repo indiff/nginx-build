@@ -213,9 +213,9 @@ jobs:
           "
 
       - name: Upload Nginx package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: nginx-package
+          name: nginx-centos-package
           path: nginx.tar.gz
 
   build-in-windows:

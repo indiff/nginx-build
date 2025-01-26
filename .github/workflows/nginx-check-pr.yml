@@ -294,7 +294,7 @@ jobs:
           set -xe
           shopt -s nullglob
           NAME="Latest_Auto_Build_Nginx_CentOS7_(${{ env.BUILD_VERSION_TIMESTAMP }})"
-          TAGNAME="latest"
+          TAGNAME="latest_${{ env.BUILD_VERSION_TIMESTAMP }}"
           #  gh release delete --cleanup-tag --yes "$TAGNAME" || true
           #  sleep 15
           gh release create "$TAGNAME" --target "main" --title "$NAME" opt_nginx.zip

@@ -274,7 +274,7 @@ jobs:
         run: |
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
-          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace centos:7 /bin/bash -c "/workspace/build.sh"
+          docker run --cpus="$(nproc --all)" --rm -v ${{ github.workspace }}:/workspace -w /workspace centos:7 /bin/bash -c "/workspace/build.sh"
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
           export build_timestamp="$(date +'%Y%m%d_%H%M')"

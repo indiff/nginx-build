@@ -278,7 +278,8 @@ jobs:
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
-          echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}" >> $GITHUB_ENV
+          size_kb=$(du -k opt_nginx.zip | cut -f1)
+          echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
           unzip opt_nginx.zip -d /opt/nginx
           tree .
 

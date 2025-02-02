@@ -319,13 +319,14 @@ jobs:
           # curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
           curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-vault-8.5.2111.repo
           mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+          cat /etc/yum.repos.d/CentOS-Base.repo
           yum clean all
           yum makecache
           # yum install -y epel-release
           yum install -y tzdata
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
-          yum update -y
+          # yum update -y
           yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
           # timedatectl set-timezone Asia/Shanghai
           # git clone --depth 1 -b openssl-3.4 https://github.com/openssl/openssl /ssl

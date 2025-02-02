@@ -299,6 +299,101 @@ jobs:
           gh release create "$TAGNAME" --target "main" --title "$NAME" opt_nginx.zip
         env:
           GITHUB_TOKEN: ${{ github.token }} 
+
+build-in-rocky:
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Checkout v4
+      uses: actions/checkout@v4
+
+    - name: Create build script
+      run: |
+        set -xe
+        cat << 'EOF' > build.sh
+        #!/bin/bash
+        set -xe
+        echo 'LANG=zh_CN.UTF-8' >> /etc/environment
+        echo 'LANGUAGE=zh_CN.UTF-8' >> /etc/environment
+        echo 'LC_ALL=zh_CN.UTF-8' >> /etc/environment
+        echo 'LC_CTYPE=zh_CN.UTF-8' >> /etc/environment
+        # curl -o /etc/yum.repos.d/Rocky-Base.repo https://mirrors.aliyun.com/repo/Rocky-8.repo
+        dnf clean all
+        dnf makecache
+        dnf install -y epel-release
+        dnf install -y tzdata
+        ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+        echo 'Asia/Shanghai' > /etc/timezone
+        dnf update -y
+        dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+        git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
+        cd /nginx-build
+        CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
+        LD_OPT="-Wl,-z,relro -Wl,-z,now"
+        ./auto/configure \
+          --with-http_realip_module \
+          --with-http_addition_module \
+          --with-http_sub_module \
+          --with-http_dav_module \
+          --with-http_flv_module \
+          --with-http_mp4_module \
+          --with-http_gunzip_module \
+          --with-http_gzip_static_module \
+          --with-http_random_index_module \
+          --with-http_secure_link_module \
+          --with-http_stub_status_module \
+          --with-mail \
+          --with-mail_ssl_module \
+          --with-select_module \
+          --with-poll_module \
+          --with-http_auth_request_module \
+          --with-http_v2_module \
+          --with-http_slice_module \
+          --with-stream \
+          --with-stream_ssl_module \
+          --with-stream_ssl_preread_module \
+          --with-stream_realip_module \
+          --with-file-aio \
+          --with-threads \
+          --with-compat \
+          --with-http_degradation_module \
+          --with-http_geoip_module \
+          --with-stream_geoip_module \
+        --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
+        
+        sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
+        export RANDOM_STRING="$(openssl rand -hex 2)"
+        sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"$RANDOM_STRING\"/" src/core/nginx.h
+        sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
+        sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
+        sed -i 's/nginx/qw0p/Ig' docs/html/index.html
+        sed -i 's/nginx/qw0p/Ig' docs/html/50x.html
+        
+        make -j$(nproc)
+        make install
+        zip -r /workspace/opt_nginx.zip /opt/nginx
+        EOF
+        chmod +x build.sh
+        
+
+    - name: Build Nginx in Docker
+      run: |
+        sudo timedatectl set-timezone Asia/Shanghai
+        timedatectl status
+        docker run --cpus="$(nproc --all)" --rm -v ${{ github.workspace }}:/workspace -w /workspace rockylinux:8 /bin/bash -c "/workspace/build.sh"
+        curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
+        export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
+        export build_timestamp="$(date +'%Y%m%d_%H%M')"
+        export size_kb=$(du -k opt_nginx.zip | cut -f1)
+        echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
+        unzip opt_nginx.zip -d /opt/nginx
+        tree .
+
+    - name: Upload Nginx package
+      uses: actions/upload-artifact@v4
+      with:
+        name: nginx-rocky-${{ env.BUILD_VERSION_TIMESTAMP }}
+        path: /opt/nginx 
         
   build-in-windows:
     name: ${{ matrix.os }}, ${{ matrix.toolchain }}, ${{ matrix.env }}

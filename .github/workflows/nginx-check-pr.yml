@@ -379,13 +379,6 @@ jobs:
           zip -r /workspace/opt_nginx.zip /opt/nginx
           EOF
           chmod +x build.sh
-          
-      - name: Upload build.sh
-        uses: actions/upload-artifact@v4
-        with:
-          name: build.sh
-          path: build.sh     
-          
 
       - name: Build Nginx in Docker
         run: |

@@ -635,10 +635,10 @@ jobs:
           del /f s /q *.ilk
           del /f s /q *.res
           del /f s /q *.pch
-          set $sourceDirectory = "objs"
-          set $destination7Z = "Nginx.MSVC.x64.Release.${{ env.BUILD_VERSION_TIMESTAMP }}.7z"
-          cd $sourceDirectory
-          7z a -t7z -mx=9 "$destination7Z" .\ -r
+          set sourceDirectory = "objs"
+          set destination7Z = "Nginx.MSVC.x64.Release.${{ env.BUILD_VERSION_TIMESTAMP }}.7z"
+          cd %sourceDirectory%
+          7z a -t7z -mx=9 "%destination7Z%" .\ -r
  
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -688,12 +688,11 @@ jobs:
         run: |
           set -xe
           shopt -s nullglob
-          (cd artifacts && sha256sum *.{zip,tar.xz} > checksums.sha256)
+          (cd artifacts && sha256sum *.{zip,tar.xz,7z} > checksums.sha256)
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
-          export size_kb=$(du -k artifacts | cut -f1)
-          NAME="${version}_${build_timestamp}_${size_kb}KB"
+          NAME="${version}_${build_timestamp}"
           TAGNAME="${NAME}"
           # gh release delete --cleanup-tag --yes "$TAGNAME" || true
           # sleep 15

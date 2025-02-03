@@ -663,31 +663,19 @@ jobs:
           pattern: nginx-*
           merge-multiple: true
           path: artifacts
-      - name: Create release
-        id: create_release
-        run: | # timedatectl set-timezone Asia/Shanghai 设置中国时区
-          set -xe
-          shopt -s nullglob
-          sudo timedatectl set-timezone Asia/Shanghai
-          timedatectl status
-          RELDATE="$(date +'%Y-%m-%d %H:%M')"
-          NAME="Auto-Build-Nginx $RELDATE"
-          TAGNAME="autobuild-$(date +'%Y-%m-%d-%H-%M')"
-          (cd artifacts && sha256sum *.{zip,tar.xz} > checksums.sha256)
-          gh release create "$TAGNAME" --target "master" --title "$NAME" artifacts/*.{zip,tar.xz} artifacts/checksums.*
-          echo "tag_name=${TAGNAME}" >> $GITHUB_OUTPUT
-          echo "rel_date=${RELDATE}" >> $GITHUB_OUTPUT
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
       - name: Update Latest
         run: |
           set -xe
           shopt -s nullglob
           (cd artifacts && sha256sum *.{zip,tar.xz} > checksums.sha256)
-          NAME="Latest Auto-Build Nginx (${{ steps.create_release.outputs.rel_date }})"
-          TAGNAME="latest"
-          gh release delete --cleanup-tag --yes "$TAGNAME" || true
-          sleep 15
-          gh release create "$TAGNAME" --target "master" --title "$NAME" artifacts/*
+          curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
+          export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
+          export build_timestamp="$(date +'%Y%m%d_%H%M')"
+          export size_kb=$(du -k artifacts | cut -f1)
+          NAME="${version}_${build_timestamp}_${size_kb}KB"
+          TAGNAME="${NAME}"
+          # gh release delete --cleanup-tag --yes "$TAGNAME" || true
+          # sleep 15
+          gh release create "$TAGNAME" --target "main" --title "$NAME" artifacts/*
         env:
           GITHUB_TOKEN: ${{ github.token }}

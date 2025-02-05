@@ -680,7 +680,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: nginx-*
-          merge-multiple: true
+          merge-multiple: false
           path: artifacts
       - name: Update Latest
         run: |

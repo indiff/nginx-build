@@ -635,10 +635,8 @@ jobs:
           del /f /s /q *.ilk
           del /f /s /q *.res
           del /f /s /q *.pch
-          set sourceDirectory = "objs"
-          set destination7Z = "Nginx.MSVC.x64.Release.${{ env.BUILD_VERSION_TIMESTAMP }}.7z"
-          cd %sourceDirectory%
-          7z a -t7z -mx=9 "%destination7Z%" .\ -r
+          cd objs
+          7z a -t7z -mx=9 "Nginx.MSVC.x64.Release.${{ env.BUILD_VERSION_TIMESTAMP }}.7z" . -r
  
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

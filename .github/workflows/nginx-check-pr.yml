@@ -832,7 +832,7 @@ jobs:
             zip -r -q -9 "${dir%/}.zip" .
             cd ..
             rm -rf "${the_dir}"
-          don
+          done
           (cd artifacts && sha256sum *.{zip,tar.xz,7z} > checksums.sha256)
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)

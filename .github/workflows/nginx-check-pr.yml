@@ -174,7 +174,8 @@ jobs:
           rm -f  *.pch
           cp -r objs/ /opt/nginx/
           cd /opt/nginx/
-          zip -r -j /opt/opt_ubuntu_nginx_${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}.zip .
+          zip -r -q -9 /opt/opt_ubuntu_nginx_${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}.zip .
+          # zip -r /opt/opt_ubuntu_nginx_${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}.zip objs/
 
       # - name: Test
       #   working-directory: nginx-tests
@@ -282,7 +283,9 @@ jobs:
           
           make -j$(nproc)
           make install
-          zip -r /workspace/opt_nginx.zip /opt/nginx
+          # zip -r /workspace/opt_nginx.zip /opt/nginx
+          cd /opt/nginx/
+          zip -r -q -9 /workspace/opt_nginx.zip .
           EOF
           chmod +x build.sh
           
@@ -393,7 +396,9 @@ jobs:
           
           make -j$(nproc)
           make install
-          zip -r /workspace/opt_nginx.zip /opt/nginx
+          # zip -r /workspace/opt_nginx.zip /opt/nginx
+          cd /opt/nginx/
+          zip -r -q -9 /workspace/opt_nginx.zip .
           EOF
           chmod +x build.sh
           
@@ -496,7 +501,9 @@ jobs:
           
           make -j$(nproc)
           make install
-          zip -r /workspace/opt_nginx.zip /opt/nginx
+          # zip -r /workspace/opt_nginx.zip /opt/nginx
+          cd /opt/nginx/
+          zip -r -q -9 /workspace/opt_nginx.zip .
           EOF
           chmod +x build.sh
           

@@ -829,7 +829,7 @@ jobs:
           for dir in artifacts/*/; do
             the_dir=`basename "${cdir}/${dir}"`
             cd "${cdir}/artifacts/${the_dir}"
-            zip -r -q -9 "${dir%/}.zip" .
+            zip -r -q -9 "${cdir}/artifacts/${the_dir}.zip" .
             cd ..
             rm -rf "${the_dir}"
           done

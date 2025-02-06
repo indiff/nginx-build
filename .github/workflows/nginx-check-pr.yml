@@ -826,7 +826,7 @@ jobs:
           shopt -s nullglob
           # repack zip for dir
           cdir="$(pwd)"
-          pdir=`dirname "${cdir}"`
+          # pdir=`dirname "${cdir}"`
           for dir in artifacts/*/; do
             the_dir=`basename "${cdir}/${dir}"`
             cd "${cdir}/artifacts/${the_dir}"

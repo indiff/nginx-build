@@ -828,13 +828,13 @@ jobs:
           cdir="$(pwd)"
           for dir in artifacts/*/; do
             the_dir=`basename "${cdir}/${dir}"`
-if [ -d "${cdir}/artifacts/${the_dir}" ]; then
+           if [ -d "${cdir}/artifacts/${the_dir}" ]; then
             echo "Directory exists."
             cd "${cdir}/artifacts/${the_dir}"
             zip -r -q -9 "${cdir}/artifacts/${the_dir}.zip" .
             cd ..
             rm -rf "${the_dir}"
-fi         
+           fi         
           done
           (cd artifacts && sha256sum *.{zip,tar.xz,7z} > checksums.sha256)
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h

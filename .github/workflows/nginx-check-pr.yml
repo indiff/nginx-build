@@ -145,7 +145,7 @@ jobs:
           # define NGINX_VER          "nginx/" NGINX_VERSION
           make -j$(nproc) -k || make
           
-          make install
+          # make install
           tree -all . >> /opt/nginx/my_log.txt
           cat src/http/ngx_http_special_response.c | grep NGINX_VER >> /opt/nginx/my_log.txt
           cat src/http/ngx_http_header_filter_module.c | grep "Server:" >> /opt/nginx/my_log.txt
@@ -153,7 +153,22 @@ jobs:
           cat src/http/ngx_http_special_response.c | grep "NGINX_VER" >> /opt/nginx/my_log.txt
           cat src/http/ngx_http_special_response.c | grep "NGINX_VER_BUILD" >> /opt/nginx/my_log.txt
           cat src/http/ngx_http_special_response.c | grep "nginx" >> /opt/nginx/my_log.txt
-
+          rm -rf objs/lib
+          rm -rf objs/src
+          rm -f Makefile
+          rm -f  *.8
+          rm -f  *.err
+          rm -f  *.c
+          rm -f  *.h
+          rm -f  *.o
+          rm -f  *.obj
+          rm -f  *.pdb
+          rm -f  *.lib
+          rm -f  *.exp
+          rm -f  *.ilk
+          rm -f  *.res
+          rm -f  *.pch
+          cp objs /opt/nginx
       # - name: Test
       #   working-directory: nginx-tests
       #   run: |
@@ -420,7 +435,14 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           dnf update -y
-          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+          # dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd
+          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd libmaxminddb libmaxminddb-devel mmdb-bin
+          # wget https://github.com/maxmind/geoip-api-c/releases/download/v1.6.12/GeoIP-1.6.12.tar.gz
+          # tar -zxvf GeoIP-1.6.12.tar.gz
+          # cd GeoIP-1.6.12
+          # ./configure
+          make
+          sudo make install  
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"

@@ -307,7 +307,7 @@ jobs:
           echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
           # unzip opt_nginx.zip -d /opt/nginx
           # tree .
-          cp -f opt_nginx.zip /opt/nginx-centos7-${{ env.BUILD_VERSION_TIMESTAMP }}.zip
+          cp -f opt_nginx.zip /opt/nginx-centos7-${version}_${build_timestamp}_${size_kb}KB.zip
 
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
@@ -415,7 +415,7 @@ jobs:
           echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
           # unzip opt_nginx.zip -d /opt/nginx
           # tree .
-          cp -f opt_nginx.zip /opt/nginx-rocky8-${{ env.BUILD_VERSION_TIMESTAMP }}.zip
+          cp -f opt_nginx.zip /opt/nginx-rocky8-${version}_${build_timestamp}_${size_kb}KB.zip
   
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
@@ -459,7 +459,7 @@ jobs:
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
-          LD_OPT="-Wl,-z,relro -Wl,-z,now"
+          LD_OPT="-Wl,-z,relro -Wl,-z,now, -static -lGeoIP"
           ./auto/configure \
             --with-http_realip_module \
             --with-http_addition_module \
@@ -520,7 +520,7 @@ jobs:
           echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
           # unzip opt_nginx.zip -d /opt/nginx
           # tree .
-          cp -f opt_nginx.zip /opt/nginx-rocky8-${{ env.BUILD_VERSION_TIMESTAMP }}.zip
+          cp -f opt_nginx.zip /opt/nginx-rocky9-${version}_${build_timestamp}_${size_kb}KB.zip
   
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
@@ -530,6 +530,7 @@ jobs:
           
   build-in-windows:
     name: ${{ matrix.os }}, ${{ matrix.toolchain }}, ${{ matrix.env }}
+    if: false
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -804,7 +805,7 @@ jobs:
   publish_release:
     name: Publish release
     #if: ${{ !cancelled() && ( github.event_name == 'schedule' || github.event.inputs.doRelease == 'true' ) }}
-    needs: [build-in-ubuntu, build-in-centos7, build-in-rocky8, build-in-rocky9, build-in-windows]
+    needs: [build-in-ubuntu, build-in-centos7, build-in-rocky8, build-in-rocky9]  # , build-in-windows
     runs-on: ubuntu-latest
     steps:
       - name: Free Disk-Space

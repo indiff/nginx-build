@@ -828,7 +828,7 @@ jobs:
           cdir="$(pwd)"
           for dir in artifacts/*/; do
             the_dir=`basename "${cdir}/${dir}"`
-           if [ -d "${cdir}/artifacts/${the_dir}" and "${cdir}/artifacts/${the_dir}" != 'artifacts' ]; then
+           if [[ -d "${cdir}/artifacts/${the_dir}" && "${cdir}/artifacts/${the_dir}" != 'artifacts' ]]; then
             echo "Directory exists."
             cd "${cdir}/artifacts/${the_dir}"
             zip -r -q -9 "${cdir}/artifacts/${the_dir}.zip" .

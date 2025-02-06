@@ -836,7 +836,7 @@ jobs:
             rm -rf "${the_dir}"
            fi         
           done
-          (cd artifacts && sha256sum *.{zip,tar.xz,7z} > checksums.sha256)
+          (cd ${cdir}/artifacts && sha256sum *.{zip,tar.xz,7z} > checksums.sha256)
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
@@ -845,6 +845,6 @@ jobs:
           TAGNAME="last"
           gh release delete --cleanup-tag --yes "$TAGNAME" || true
           # sleep 15
-          gh release create "$TAGNAME" --target "main" --title "$NAME" artifacts/*
+          gh release create "$TAGNAME" --target "main" --title "$NAME" ${cdir}/artifacts/*
         env:
           GITHUB_TOKEN: ${{ github.token }}

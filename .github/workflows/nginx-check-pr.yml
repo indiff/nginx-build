@@ -824,6 +824,13 @@ jobs:
         run: |
           set -xe
           shopt -s nullglob
+          # repack zip for dir
+          for dir in artifacts/*/; do
+            cd ${dir%/}
+            zip -r -q -9 "${dir%/}.zip" .
+            cd ..
+            rm -rf "${dir%/}"
+          done
           (cd artifacts && sha256sum *.{zip,tar.xz,7z} > checksums.sha256)
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)

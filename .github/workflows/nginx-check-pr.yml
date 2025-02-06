@@ -455,11 +455,13 @@ jobs:
           cd GeoIP-1.6.12
           ./configure
           make
-          make install  
+          make install
+          echo '/usr/local/lib' >> /etc/ld.so.conf.d/geoip.conf
+          ldconfig
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
-          LD_OPT="-Wl,-z,relro -Wl,-z,now, -static -lGeoIP"
+          LD_OPT="-L/usr/local/lib,-Wl,-z,relro -Wl,-z,now"
           ./auto/configure \
             --with-http_realip_module \
             --with-http_addition_module \

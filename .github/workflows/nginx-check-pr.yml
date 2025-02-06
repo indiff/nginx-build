@@ -68,6 +68,8 @@ jobs:
             libprotocol-websocket-perl \
             libscgi-perl \
             uwsgi \
+            zip \
+            unzip \
             uwsgi-plugin-python3
 
       - name: Configure and build
@@ -171,6 +173,9 @@ jobs:
           rm -f  *.res
           rm -f  *.pch
           cp -r objs/ /opt/nginx/
+          cd /opt/nginx/
+          zip -r -j /opt/opt_ubuntu_nginx_${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}.zip .
+
       # - name: Test
       #   working-directory: nginx-tests
       #   run: |
@@ -185,7 +190,7 @@ jobs:
         with:
           name: nginx-ubuntu-${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}
           overwrite: true
-          path: /opt/nginx
+          path: /opt/*.zip
           # path: |
           #   objs/*
           #   !objs/src/**/*
@@ -281,12 +286,11 @@ jobs:
           EOF
           chmod +x build.sh
           
-      - name: Upload build.sh
-        uses: actions/upload-artifact@v4
-        with:
-          name: build.sh
-          path: build.sh     
-          
+      # - name: Upload build.sh
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: build.sh
+      #     path: build.sh     
 
       - name: Build Nginx in Docker
         run: |
@@ -298,14 +302,15 @@ jobs:
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
-          unzip opt_nginx.zip -d /opt/nginx
-          tree .
+          # unzip opt_nginx.zip -d /opt/nginx
+          # tree .
+          cp -f opt_nginx.zip /opt/nginx-centos7-${{ env.BUILD_VERSION_TIMESTAMP }}.zip
 
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
         with:
           name: nginx-centos7-${{ env.BUILD_VERSION_TIMESTAMP }}
-          path: /opt/nginx
+          path: /opt/*.zip
 
 #       - name: Update Latest
 #        run: |
@@ -403,14 +408,15 @@ jobs:
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
-          unzip opt_nginx.zip -d /opt/nginx
-          tree .
+          # unzip opt_nginx.zip -d /opt/nginx
+          # tree .
+          cp -f opt_nginx.zip /opt/nginx-rocky8-${{ env.BUILD_VERSION_TIMESTAMP }}.zip
   
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
         with:
           name: nginx-rocky8-${{ env.BUILD_VERSION_TIMESTAMP }}
-          path: /opt/nginx 
+          path: /opt/*.zip 
 
   build-in-rocky9:
     runs-on: ubuntu-latest
@@ -505,14 +511,15 @@ jobs:
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
-          unzip opt_nginx.zip -d /opt/nginx
-          tree .
+          # unzip opt_nginx.zip -d /opt/nginx
+          # tree .
+          cp -f opt_nginx.zip /opt/nginx-rocky8-${{ env.BUILD_VERSION_TIMESTAMP }}.zip
   
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
         with:
           name: nginx-rocky9-${{ env.BUILD_VERSION_TIMESTAMP }}
-          path: /opt/nginx
+          path: /opt/*.zip
           
   build-in-windows:
     name: ${{ matrix.os }}, ${{ matrix.toolchain }}, ${{ matrix.env }}
@@ -814,7 +821,7 @@ jobs:
           NAME="${version}_${build_timestamp}"
           # TAGNAME="${NAME}"
           TAGNAME="last"
-          # gh release delete --cleanup-tag --yes "$TAGNAME" || true
+          gh release delete --cleanup-tag --yes "$TAGNAME" || true
           # sleep 15
           gh release create "$TAGNAME" --target "main" --title "$NAME" artifacts/*
         env:

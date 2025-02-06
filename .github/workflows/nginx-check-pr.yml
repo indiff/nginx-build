@@ -444,7 +444,7 @@ jobs:
           cd GeoIP-1.6.12
           ./configure
           make
-          sudo make install  
+          make install  
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"

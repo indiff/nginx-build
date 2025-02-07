@@ -454,6 +454,10 @@ jobs:
           echo 'LC_ALL=zh_CN.UTF-8' >> /etc/environment
           echo 'LC_CTYPE=zh_CN.UTF-8' >> /etc/environment
           # curl -o /etc/yum.repos.d/Rocky-Base.repo https://mirrors.aliyun.com/repo/Rocky-8.repo
+          sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+            -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.aliyun.com/rockylinux|g' \
+            -i.bak \
+            /etc/yum.repos.d/Rocky-*.repo
           dnf clean all
           dnf makecache
           dnf install -y epel-release
@@ -461,7 +465,7 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           dnf update -y
-          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd libmaxminddb-devel
+          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd libmaxminddb libmaxminddb-devel
           # dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd libmaxminddb libmaxminddb-devel mmdb-bin
           # wget https://github.com/maxmind/geoip-api-c/releases/download/v1.6.12/GeoIP-1.6.12.tar.gz
           # tar -zxvf GeoIP-1.6.12.tar.gz
@@ -471,14 +475,14 @@ jobs:
           # make install
           # echo '/usr/local/lib' >> /etc/ld.so.conf.d/geoip.conf
           # ldconfig
-          git clone --depth 1 https://github.com/maxmind/libmaxminddb.git /libmaxminddb
-          cd /libmaxminddb
-          ./configure
-          make
-          make check
-          make install
-          sh -c "echo /usr/local/lib  >> /etc/ld.so.conf.d/local.conf"
-          ldconfig
+          # git clone --depth 1 https://github.com/maxmind/libmaxminddb.git /libmaxminddb
+          # cd /libmaxminddb
+          # ./configure
+          # make
+          # make check
+          # make install
+          # sh -c "echo /usr/local/lib  >> /etc/ld.so.conf.d/local.conf"
+          # ldconfig
           git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git /ngx_http_geoip2_module
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build

@@ -520,7 +520,6 @@ jobs:
             --with-threads \
             --with-compat \
             --with-http_degradation_module \
-            --with-http_geoip_module \
             --add-module=/ngx_http_geoip2_module \
           --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           

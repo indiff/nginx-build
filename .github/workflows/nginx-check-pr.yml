@@ -174,6 +174,9 @@ jobs:
           rm -f  *.pch
           cp -r objs/ /opt/nginx/
           cd /opt/nginx/
+          echo "sudo apt-get update" >> /opt/nginx/00install.sh
+          echo "sudo apt-get install libedit-dev libgd-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip uwsgi-plugin-python3" >> /opt/nginx/00install.sh 
+          chmod +x /opt/nginx/00install.sh
           zip -r -q -9 /opt/opt_ubuntu_nginx_${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}.zip .
           # zip -r /opt/opt_ubuntu_nginx_${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}.zip objs/
 
@@ -284,6 +287,10 @@ jobs:
           make -j$(nproc)
           make install
           # zip -r /workspace/opt_nginx.zip /opt/nginx
+          echo "yum update -y" >> /opt/nginx/00install.sh
+          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd libmaxminddb-devel" >> /opt/nginx/00install.sh 
+          chmod +x /opt/nginx/00install.sh
+
           cd /opt/nginx/
           zip -r -q -9 /workspace/opt_nginx.zip .
           EOF
@@ -393,9 +400,15 @@ jobs:
           sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
           sed -i 's/nginx/qw0p/Ig' docs/html/index.html
           sed -i 's/nginx/qw0p/Ig' docs/html/50x.html
+
           
           make -j$(nproc)
           make install
+
+          echo "dnf update -y" >> /opt/nginx/00install.sh
+          echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> /opt/nginx/00install.sh 
+          chmod +x /opt/nginx/00install.sh
+
           # zip -r /workspace/opt_nginx.zip /opt/nginx
           cd /opt/nginx/
           zip -r -q -9 /workspace/opt_nginx.zip .
@@ -448,7 +461,7 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           dnf update -y
-          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd
+          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd libmaxminddb-devel
           # dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd libmaxminddb libmaxminddb-devel mmdb-bin
           # wget https://github.com/maxmind/geoip-api-c/releases/download/v1.6.12/GeoIP-1.6.12.tar.gz
           # tar -zxvf GeoIP-1.6.12.tar.gz
@@ -501,9 +514,11 @@ jobs:
           sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
           sed -i 's/nginx/qw0p/Ig' docs/html/index.html
           sed -i 's/nginx/qw0p/Ig' docs/html/50x.html
-          
           make -j$(nproc)
           make install
+          echo "dnf update -y" >> /opt/nginx/00install.sh
+          echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd libmaxminddb-devel" >> /opt/nginx/00install.sh 
+          chmod +x /opt/nginx/00install.sh
           # zip -r /workspace/opt_nginx.zip /opt/nginx
           cd /opt/nginx/
           zip -r -q -9 /workspace/opt_nginx.zip .
@@ -811,8 +826,8 @@ jobs:
     needs: [build-in-ubuntu, build-in-centos7, build-in-rocky8, build-in-rocky9, build-in-windows] 
     runs-on: ubuntu-latest
     steps:
-      - name: Free Disk-Space
-        run: df -h && sudo apt-get clean && docker system prune -a -f && sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc && df -h
+      # - name: Free Disk-Space
+      #   run: df -h && sudo apt-get clean && docker system prune -a -f && sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc && df -h
       - name: Checkout
         uses: actions/checkout@v4
       - name: Download artifacts

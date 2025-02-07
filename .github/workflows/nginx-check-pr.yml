@@ -450,14 +450,15 @@ jobs:
           dnf update -y
           dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd
           # dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd libmaxminddb libmaxminddb-devel mmdb-bin
-          wget https://github.com/maxmind/geoip-api-c/releases/download/v1.6.12/GeoIP-1.6.12.tar.gz
-          tar -zxvf GeoIP-1.6.12.tar.gz
-          cd GeoIP-1.6.12
-          ./configure
-          make
-          make install
-          echo '/usr/local/lib' >> /etc/ld.so.conf.d/geoip.conf
-          ldconfig
+          # wget https://github.com/maxmind/geoip-api-c/releases/download/v1.6.12/GeoIP-1.6.12.tar.gz
+          # tar -zxvf GeoIP-1.6.12.tar.gz
+          # cd GeoIP-1.6.12
+          # ./configure
+          # make
+          # make install
+          # echo '/usr/local/lib' >> /etc/ld.so.conf.d/geoip.conf
+          # ldconfig
+          git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git /ngx_http_geoip2_module
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
@@ -490,7 +491,7 @@ jobs:
             --with-compat \
             --with-http_degradation_module \
             --with-http_geoip_module \
-            --with-stream_geoip_module \
+            --add-module=/ngx_http_geoip2_module \
           --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
@@ -532,7 +533,7 @@ jobs:
           
   build-in-windows:
     name: ${{ matrix.os }}, ${{ matrix.toolchain }}, ${{ matrix.env }}
-    if: false
+    #if: false
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -807,7 +808,7 @@ jobs:
   publish_release:
     name: Publish release
     #if: ${{ !cancelled() && ( github.event_name == 'schedule' || github.event.inputs.doRelease == 'true' ) }}
-    needs: [build-in-ubuntu, build-in-centos7, build-in-rocky8, build-in-rocky9]  # , build-in-windows
+    needs: [build-in-ubuntu, build-in-centos7, build-in-rocky8, build-in-rocky9, build-in-windows] 
     runs-on: ubuntu-latest
     steps:
       - name: Free Disk-Space
@@ -828,13 +829,13 @@ jobs:
           cdir="$(pwd)"
           for dir in artifacts/*/; do
             the_dir=`basename "${cdir}/${dir}"`
-           if [[ -d "${cdir}/artifacts/${the_dir}" && "${cdir}/artifacts/${the_dir}" != 'artifacts' ]]; then
-            echo "Directory exists."
-            cd "${cdir}/artifacts/${the_dir}"
-            zip -r -q -9 "${cdir}/artifacts/${the_dir}.zip" .
-            cd ..
-            rm -rf "${the_dir}"
-           fi         
+            if [[ -d "${cdir}/artifacts/${the_dir}" ]]; then
+              echo "Directory exists ${the_dir}."
+              cd "${cdir}/artifacts/${the_dir}"
+              zip -r -q -9 "${cdir}/artifacts/${the_dir}.zip" .
+              cd ..
+              rm -rf "${the_dir}"
+            fi         
           done
           (cd ${cdir}/artifacts && sha256sum *.{zip,tar.xz,7z} > checksums.sha256)
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h

@@ -471,6 +471,14 @@ jobs:
           # make install
           # echo '/usr/local/lib' >> /etc/ld.so.conf.d/geoip.conf
           # ldconfig
+          git clone --depth 1 https://github.com/maxmind/libmaxminddb.git /libmaxminddb
+          cd /libmaxminddb
+          ./configure
+          make
+          make check
+          make install
+          sh -c "echo /usr/local/lib  >> /etc/ld.so.conf.d/local.conf"
+          ldconfig
           git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git /ngx_http_geoip2_module
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build

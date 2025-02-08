@@ -321,7 +321,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nginx-centos7-${{ env.BUILD_VERSION_TIMESTAMP }}
-          path: /workspace/*.tar
+          path: nginx*.tar
 
 #       - name: Update Latest
 #        run: |

@@ -288,11 +288,11 @@ jobs:
           make install
           # zip -r /workspace/opt_nginx.zip /opt/nginx
           echo "yum update -y" >> /opt/nginx/00install.sh
-          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd libmaxminddb-devel" >> /opt/nginx/00install.sh 
+          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> /opt/nginx/00install.sh 
           chmod +x /opt/nginx/00install.sh
-
-          cd /opt/nginx/
-          zip -r -q -9 /workspace/opt_nginx.zip .
+          tar cvf /workspace/opt_nginx.tar /opt/nginx
+          # cd /opt/nginx/
+          # zip -r -q -9 /workspace/opt_nginx.zip .
           EOF
           chmod +x build.sh
           
@@ -314,13 +314,13 @@ jobs:
           echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
           # unzip opt_nginx.zip -d /opt/nginx
           # tree .
-          cp -f opt_nginx.zip /opt/nginx-centos7-${version}_${build_timestamp}_${size_kb}KB.zip
+          # cp -f opt_nginx.zip /opt/nginx-centos7-${version}_${build_timestamp}_${size_kb}KB.zip
 
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
         with:
           name: nginx-centos7-${{ env.BUILD_VERSION_TIMESTAMP }}
-          path: /opt/*.zip
+          path: *.tar
 
 #       - name: Update Latest
 #        run: |
@@ -872,6 +872,7 @@ jobs:
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
+          rm -f nginx.h
           NAME="${version}_${build_timestamp}"
           # TAGNAME="${NAME}"
           TAGNAME="last"

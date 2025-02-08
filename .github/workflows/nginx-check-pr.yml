@@ -778,6 +778,26 @@ jobs:
           echo "" >> objs/temp/dummy
           
 
+      # rmdir /s /q objs/lib/openssl
+      # rmdir /s /q objs/lib/pcre
+      # rmdir /s /q objs/lib/zlib
+      # rmdir /s /q objs/lib
+      # rmdir /s /q objs/src
+      # del /f /s /q Makefile
+      # del /f /s /q *.8
+      # del /f /s /q *.err
+      # del /f /s /q *.c
+      # del /f /s /q *.h
+      # del /f /s /q *.o
+      # del /f /s /q *.obj
+      # del /f /s /q *.pdb
+      # del /f /s /q *.lib
+      # del /f /s /q *.exp
+      # del /f /s /q *.ilk
+      # del /f /s /q *.res
+      # del /f /s /q *.pch
+      # cd objs
+      # 7z a -t7z -mx=9 "Nginx.MSVC.x64.Release.${{ env.BUILD_VERSION_TIMESTAMP }}.7z" . -r
       - name: Configure and build msvc
         id: configure_build
         if: matrix.toolchain == 'msvc'
@@ -791,26 +811,6 @@ jobs:
             %NGINX_CONFIGURE_ADD_STATIC% ^
             --with-openssl-opt="%NGINX_CONFIGURE_OPENSSL_OPT%"
           nmake -f objs/Makefile
-          rmdir /s /q objs/lib/openssl
-          rmdir /s /q objs/lib/pcre
-          rmdir /s /q objs/lib/zlib
-          rmdir /s /q objs/lib
-          rmdir /s /q objs/src
-          del /f /s /q Makefile
-          del /f /s /q *.8
-          del /f /s /q *.err
-          del /f /s /q *.c
-          del /f /s /q *.h
-          del /f /s /q *.o
-          del /f /s /q *.obj
-          del /f /s /q *.pdb
-          del /f /s /q *.lib
-          del /f /s /q *.exp
-          del /f /s /q *.ilk
-          del /f /s /q *.res
-          del /f /s /q *.pch
-          cd objs
-          7z a -t7z -mx=9 "Nginx.MSVC.x64.Release.${{ env.BUILD_VERSION_TIMESTAMP }}.7z" . -r
  
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -819,26 +819,26 @@ jobs:
           overwrite: true
           compression-level: 9
           path: |
-            objs/*.7z
-            *.7z
-            # objs/*
-            # objs/logs/
-            # objs/temp/
-            # !objs/lib/**/*
-            # !objs/src/**/*
-            # !objs/**/Makefile
-            # !objs/**/*.8
-            # !objs/**/*.err
-            # !objs/**/*.c
-            # !objs/**/*.h
-            # !objs/**/*.o
-            # !objs/**/*.obj
-            # !objs/**/*.pdb
-            # !objs/**/*.lib
-            # !objs/**/*.exp
-            # !objs/**/*.ilk 
-            # !objs/**/*.res 
-            # !objs/**/*.pch 
+            # objs/*.7z
+            # *.7z
+            objs/*
+            objs/logs/
+            objs/temp/
+            !objs/lib/**/*
+            !objs/src/**/*
+            !objs/**/Makefile
+            !objs/**/*.8
+            !objs/**/*.err
+            !objs/**/*.c
+            !objs/**/*.h
+            !objs/**/*.o
+            !objs/**/*.obj
+            !objs/**/*.pdb
+            !objs/**/*.lib
+            !objs/**/*.exp
+            !objs/**/*.ilk 
+            !objs/**/*.res 
+            !objs/**/*.pch 
     
   publish_release:
     name: Publish release

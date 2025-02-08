@@ -651,6 +651,7 @@ jobs:
 
           
         # https://nginx.org/en/docs/howto_build_on_win32.html
+        #                     --without-http_autoindex_module \
       - name: Set the defaults and set up environment
         run: |
           ENV_JSON=$(cat <<EOF
@@ -689,7 +690,6 @@ jobs:
                     --with-stream_ssl_module \
                     --with-stream_ssl_preread_module \
                     --with-stream_realip_module \
-                    --without-http_autoindex_module \
                     --with-openssl=objs/lib/openssl",
           "NGINX_CONFIGURE_CC_MSVC": "--with-cc=cl",
           "NGINX_CONFIGURE_CC_MINGW": "--with-cc=/${{ matrix.toolchain }}/bin/${{ matrix.env }}-w64-mingw32-gcc.exe",
@@ -791,8 +791,11 @@ jobs:
             %NGINX_CONFIGURE_ADD_STATIC% ^
             --with-openssl-opt="%NGINX_CONFIGURE_OPENSSL_OPT%"
           nmake -f objs/Makefile
-          del /f /s /q objs/lib
-          del /f /s /q objs/src
+          rmdir /s /q objs/lib/openssl
+          rmdir /s /q objs/lib/pcre
+          rmdir /s /q objs/lib/zlib
+          rmdir /s /q objs/lib
+          rmdir /s /q objs/src
           del /f /s /q Makefile
           del /f /s /q *.8
           del /f /s /q *.err

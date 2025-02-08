@@ -310,17 +310,18 @@ jobs:
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
-          export size_kb=$(du -k opt_nginx.zip | cut -f1)
+          export size_kb=$(du -k opt_nginx.tar | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
           # unzip opt_nginx.zip -d /opt/nginx
           # tree .
           # cp -f opt_nginx.zip /opt/nginx-centos7-${version}_${build_timestamp}_${size_kb}KB.zip
+          mv opt_nginx.tar /opt/nginx-centos7-${version}_${build_timestamp}_${size_kb}KB.tar
 
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
         with:
           name: nginx-centos7-${{ env.BUILD_VERSION_TIMESTAMP }}
-          path: *.tar
+          path: /workspace/*.tar
 
 #       - name: Update Latest
 #        run: |

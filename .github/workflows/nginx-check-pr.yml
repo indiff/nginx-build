@@ -246,6 +246,7 @@ jobs:
           # cd /ssl
           # ./config --release no-shared enable-ec_nistp_64_gcc_128
           # make -sj$(nproc)
+          git clone --depth 1 git://github.com/vozlt/nginx-module-vts.git /nginx-module-vts
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
@@ -284,6 +285,7 @@ jobs:
             --with-http_degradation_module \
             --with-http_geoip_module \
             --with-stream_geoip_module \
+            --add-module=/nginx-module-vts \
           --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
@@ -300,6 +302,11 @@ jobs:
           echo "yum update -y" >> /opt/nginx/00install.sh
           echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> /opt/nginx/00install.sh 
           chmod +x /opt/nginx/00install.sh
+          mkdir /opt/nginx/logs
+          mkdir /opt/nginx/temp
+          echo "" >> objs/logs/access.log
+          echo "" >> objs/logs/error.log
+          echo "" >> objs/temp/qw0p
           tar cvf /workspace/opt_nginx.tar /opt/nginx
           cd /opt/nginx/
           zip -r -q -9 /workspace/opt_nginx.zip .
@@ -585,6 +592,133 @@ jobs:
         with:
           name: nginx-rocky9-${{ env.BUILD_VERSION_TIMESTAMP }}
           path: /opt/*.zip
+
+  # add build in rockylinux 10 by docker            
+  # build-in-rocky10: 
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Checkout v4
+  #       uses: actions/checkout@v4
+  
+  #     - name: Create build script
+  #       run: |
+  #         set -xe
+  #         cat << 'EOF' > build.sh
+  #         #!/bin/bash
+  #         set -xe
+  #         echo 'LANG=zh_CN.UTF-8' >> /etc/environment
+  #         echo 'LANGUAGE=zh_CN.UTF-8' >> /etc/environment
+  #         echo 'LC_ALL=zh_CN.UTF-8' >> /etc/environment
+  #         echo 'LC_CTYPE=zh_CN.UTF-8' >> /etc/environment
+  #         # curl -o /etc/yum.repos.d/Rocky-Base.repo https://mirrors.aliyun.com/repo/Rocky-8.repo
+  #         # sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+  #         #   -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.aliyun.com/rockylinux|g' \
+  #         #   -i.bak \
+  #         #   /etc/yum.repos.d/Rocky-*.repo
+  #         # dnf install -y https://repo.huaweicloud.com/epel/epel-release-latest-9.noarch.rpm
+  #         dnf install -y --nogpgcheck https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+  #         dnf install -y --nogpgcheck https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-10.noarch.rpm
+  #         dnf install --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm -E %rhel).noarch.rpm -y
+  #         dnf install -y --nogpgcheck https://dl.rockylinux.org/pub/rocky/9.5/CRB/x86_64/os/Packages/l/libmaxminddb-devel-1.5.2-4.el9.x86_64.rpm
+  #         dnf clean all
+  #         dnf makecache
+  #         dnf install -y epel-release
+  #         dnf install -y tzdata
+  #         ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+  #         echo 'Asia/Shanghai' > /etc/timezone
+  #         dnf update -y
+  #         dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd
+  #         # dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd libmaxminddb libmaxminddb-devel mmdb-bin
+  #         # wget https://github.com/maxmind/geoip-api-c/releases/download/v1.6.12/GeoIP-1.6.12.tar.gz
+  #         # tar -zxvf GeoIP-1.6.12.tar.gz
+  #         # cd GeoIP-1.6.12
+  #         # ./configure
+  #         # make
+  #         # make install
+  #         # echo '/usr/local/lib' >> /etc/ld.so.conf.d/geoip.conf
+  #         # ldconfig
+  #         # git clone --depth 1 https://github.com/maxmind/libmaxminddb.git /libmaxminddb
+  #         # cd /libmaxminddb
+  #         # ./configure
+  #         # make
+  #         # make check
+  #         # make install
+  #         # sh -c "echo /usr/local/lib  >> /etc/ld.so.conf.d/local.conf"
+  #         # ldconfig
+  #         git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git /ngx_http_geoip2_module
+  #         git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
+  #         cd /nginx-build
+  #         CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
+  #         LD_OPT="-L/usr/local/lib,-Wl,-z,relro -Wl,-z,now"
+  #         ./auto/configure \
+  #           --with-http_realip_module \
+  #           --with-http_addition_module \
+  #           --with-http_sub_module \
+  #           --with-http_dav_module \
+  #           --with-http_flv_module \
+  #           --with-http_mp4_module \
+  #           --with-http_gunzip_module \
+  #           --with-http_gzip_static_module \
+  #           --with-http_random_index_module \
+  #           --with-http_secure_link_module \
+  #           --with-http_stub_status_module \
+  #           --with-mail \
+  #           --with-mail_ssl_module \
+  #           --with-select_module \
+  #           --with-poll_module \
+  #           --with-http_auth_request_module \
+  #           --with-http_v2_module \
+  #           --with-http_slice_module \
+  #           --with-stream \
+  #           --with-stream_ssl_module \
+  #           --with-stream_ssl_preread_module \
+  #           --with-stream_realip_module \
+  #           --with-file-aio \
+  #           --with-threads \
+  #           --with-compat \
+  #           --with-http_degradation_module \
+  #           --add-module=/ngx_http_geoip2_module \
+  #         --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
+          
+  #         sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
+  #         export RANDOM_STRING="$(openssl rand -hex 2)"
+  #         sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"$RANDOM_STRING\"/" src/core/nginx.h
+  #         sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
+  #         sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
+  #         sed -i 's/nginx/qw0p/Ig' docs/html/index.html
+  #         sed -i 's/nginx/qw0p/Ig' docs/html/50x.html
+  #         make -j$(nproc)
+  #         make install
+  #         echo "dnf update -y" >> /opt/nginx/00install.sh
+  #         echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd libmaxminddb-devel" >> /opt/nginx/00install.sh 
+  #         chmod +x /opt/nginx/00install.sh
+  #         # zip -r /workspace/opt_nginx.zip /opt/nginx
+  #         cd /opt/nginx/
+  #         zip -r -q -9 /workspace/opt_nginx.zip .
+  #         EOF
+  #         chmod +x build.sh
+          
+  
+  #     - name: Build Nginx in Docker
+  #       run: |
+  #         sudo timedatectl set-timezone Asia/Shanghai
+  #         timedatectl status
+  #         docker run --cpus="$(nproc --all)" --rm -v ${{ github.workspace }}:/workspace -w /workspace rockylinux:10 /bin/bash -c "/workspace/build.sh"
+  #         curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
+  #         export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
+  #         export build_timestamp="$(date +'%Y%m%d_%H%M')"
+  #         export size_kb=$(du -k opt_nginx.zip | cut -f1)
+  #         echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
+  #         # unzip opt_nginx.zip -d /opt/nginx
+  #         # tree .
+  #         cp -f opt_nginx.zip /opt/nginx-rocky10-${version}_${build_timestamp}_${size_kb}KB.zip
+  
+  #     - name: Upload Nginx package
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: nginx-rocky10-${{ env.BUILD_VERSION_TIMESTAMP }}
+  #         path: /opt/*.zip
           
   build-in-windows:
     name: ${{ matrix.os }}, ${{ matrix.toolchain }}, ${{ matrix.env }}
@@ -713,6 +847,7 @@ jobs:
                     --with-stream_ssl_module \
                     --with-stream_ssl_preread_module \
                     --with-stream_realip_module \
+                    --add-module=c:/nginx-module-vts \
                     --with-openssl=objs/lib/openssl",
           "NGINX_CONFIGURE_CC_MSVC": "--with-cc=cl",
           "NGINX_CONFIGURE_CC_MINGW": "--with-cc=/${{ matrix.toolchain }}/bin/${{ matrix.env }}-w64-mingw32-gcc.exe",
@@ -799,6 +934,8 @@ jobs:
           echo "" >> objs/logs/access.log
           echo "" >> objs/logs/error.log
           echo "" >> objs/temp/dummy
+          git clone --depth 1 git://github.com/vozlt/nginx-module-vts.git c:/nginx-module-vts
+
           
 
       # rmdir /s /q objs/lib/openssl

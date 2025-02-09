@@ -972,7 +972,7 @@ jobs:
             %NGINX_CONFIGURE_CC_MSVC% ^
             %NGINX_CONFIGURE_ADD_STATIC% ^
             --with-openssl-opt="%NGINX_CONFIGURE_OPENSSL_OPT%"
-          powershell -Command "(Get-Content objs/Makefile) -replace '-Yungx_config.h -Fpbuild/ngx_config.pch', '' | Set-Content objs/Makefile"
+          powershell -Command "(Get-Content objs/Makefile) -replace '-Yungx_config.h -Fpobjs/ngx_config.pch', '' | Set-Content objs/Makefile"
           nmake -f objs/Makefile
  
       - name: Upload artifacts

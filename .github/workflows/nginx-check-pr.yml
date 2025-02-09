@@ -89,6 +89,11 @@ jobs:
           # --with-ipv6
           auto/configure \
             --prefix=/opt/nginx \
+            --conf-path=conf/nginx.conf \
+            --pid-path=logs/nginx.pid \
+            --http-log-path=logs/access.log \
+            --error-log-path=logs/error.log \
+            --sbin-path=nginx \
             --with-http_ssl_module \
             --with-http_realip_module \
             --with-http_addition_module \
@@ -177,7 +182,7 @@ jobs:
           echo "sudo apt-get update" >> /opt/nginx/00install.sh
           echo "sudo apt-get install libedit-dev libgd-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip uwsgi-plugin-python3" >> /opt/nginx/00install.sh 
           chmod +x /opt/nginx/00install.sh
-          zip -r -q -9 /opt/opt_ubuntu_nginx_${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}.zip .
+          # zip -r -q -9 /opt/opt_ubuntu_nginx_${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}.zip .
           # zip -r /opt/opt_ubuntu_nginx_${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}.zip objs/
 
       # - name: Test
@@ -194,20 +199,20 @@ jobs:
         with:
           name: nginx-ubuntu-${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}
           overwrite: true
-          path: /opt/*.zip
-          # path: |
-          #   objs/*
-          #   !objs/src/**/*
-          #   !objs/**/Makefile
-          #   !objs/**/*.8
-          #   !objs/**/*.err
-          #   !objs/**/*.c
-          #   !objs/**/*.h
-          #   !objs/**/*.o
-          #   !objs/**/*.obj
-          #   !objs/**/*.pdb
-          #   !objs/**/*.lib
-          #   !objs/**/*.exp
+          #path: /opt/*.zip
+          path: |
+            objs/*
+            !objs/src/**/*
+            !objs/**/Makefile
+            !objs/**/*.8
+            !objs/**/*.err
+            !objs/**/*.c
+            !objs/**/*.h
+            !objs/**/*.o
+            !objs/**/*.obj
+            !objs/**/*.pdb
+            !objs/**/*.lib
+            !objs/**/*.exp
   
   build-in-centos7:
     runs-on: ubuntu-latest
@@ -246,6 +251,11 @@ jobs:
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
           ./auto/configure \
+            --conf-path=conf/nginx.conf \
+            --pid-path=logs/nginx.pid \
+            --http-log-path=logs/access.log \
+            --error-log-path=logs/error.log \
+            --sbin-path=nginx \
             --with-http_realip_module \
             --with-http_addition_module \
             --with-http_sub_module \
@@ -291,8 +301,8 @@ jobs:
           echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> /opt/nginx/00install.sh 
           chmod +x /opt/nginx/00install.sh
           tar cvf /workspace/opt_nginx.tar /opt/nginx
-          # cd /opt/nginx/
-          # zip -r -q -9 /workspace/opt_nginx.zip .
+          cd /opt/nginx/
+          zip -r -q -9 /workspace/opt_nginx.zip .
           EOF
           chmod +x build.sh
           
@@ -312,16 +322,29 @@ jobs:
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           export size_kb=$(du -k opt_nginx.tar | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
-          # unzip opt_nginx.zip -d /opt/nginx
-          # tree .
+          unzip opt_nginx.zip -d /opt/nginx
+          tree /opt/nginx
           # cp -f opt_nginx.zip /opt/nginx-centos7-${version}_${build_timestamp}_${size_kb}KB.zip
-          mv opt_nginx.tar /opt/nginx-centos7-${version}_${build_timestamp}_${size_kb}KB.tar
+          # mv opt_nginx.tar /opt/nginx-centos7-${version}_${build_timestamp}_${size_kb}KB.tar
 
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
         with:
           name: nginx-centos7-${{ env.BUILD_VERSION_TIMESTAMP }}
-          path: /opt/nginx*.tar
+          # path: /opt/nginx*.tar
+          path: |
+            /opt/*
+            !/opt/src/**/*
+            !/opt/**/Makefile
+            !/opt/**/*.8
+            !/opt/**/*.err
+            !/opt/**/*.c
+            !/opt/**/*.h
+            !/opt/**/*.o
+            !/opt/**/*.obj
+            !/opt/**/*.pdb
+            !/opt/**/*.lib
+            !/opt/**/*.exp
 
 #       - name: Update Latest
 #        run: |

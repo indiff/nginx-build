@@ -246,7 +246,7 @@ jobs:
           # cd /ssl
           # ./config --release no-shared enable-ec_nistp_64_gcc_128
           # make -sj$(nproc)
-          git clone --depth 1 git://github.com/vozlt/nginx-module-vts.git /nginx-module-vts
+          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /nginx-module-vts
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
@@ -934,7 +934,7 @@ jobs:
           echo "" >> objs/logs/access.log
           echo "" >> objs/logs/error.log
           echo "" >> objs/temp/dummy
-          git clone --depth 1 git://github.com/vozlt/nginx-module-vts.git c:/nginx-module-vts
+          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git c:/nginx-module-vts
 
           
 

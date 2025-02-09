@@ -302,14 +302,15 @@ jobs:
           echo "yum update -y" >> /opt/nginx/00install.sh
           echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> /opt/nginx/00install.sh 
           chmod +x /opt/nginx/00install.sh
-          mkdir /opt/nginx/logs
           mkdir /opt/nginx/temp
-          echo "" >> objs/logs/access.log
-          echo "" >> objs/logs/error.log
-          echo "" >> objs/temp/qw0p
+          echo "" >> /opt/nginx/logs/access.log
+          echo "" >> /opt/nginx/logs/error.log
+          echo "" >> /opt/nginx/temp/qw0p
           tar cvf /workspace/opt_nginx.tar /opt/nginx
           cd /opt/nginx/
           zip -r -q -9 /workspace/opt_nginx.zip .
+          # get glibc Version
+          echo $(cut -d- -f2 <<<$(rpm -q glibc)) >> /workspace/glibc_version.txt
           EOF
           chmod +x build.sh
           
@@ -327,8 +328,9 @@ jobs:
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
+          export glib_version="$(cat glibc_version.txt)"
           export size_kb=$(du -k opt_nginx.tar | cut -f1)
-          echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
+          echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
           unzip opt_nginx.zip -d /opt/nginx
           tree /opt/nginx
           # cp -f opt_nginx.zip /opt/nginx-centos7-${version}_${build_timestamp}_${size_kb}KB.zip
@@ -970,6 +972,7 @@ jobs:
             %NGINX_CONFIGURE_CC_MSVC% ^
             %NGINX_CONFIGURE_ADD_STATIC% ^
             --with-openssl-opt="%NGINX_CONFIGURE_OPENSSL_OPT%"
+          powershell -Command "(Get-Content objs/Makefile) -replace '-Yungx_config.h -Fpbuild/ngx_config.pch', '' | Set-Content objs/Makefile"
           nmake -f objs/Makefile
  
       - name: Upload artifacts
@@ -1040,8 +1043,9 @@ jobs:
           NAME="${version}_${build_timestamp}"
           TAGNAME="${NAME}"
           # TAGNAME="last"
+          checksums=$(cat ${cdir}/artifacts/checksums.sha256)
           gh release delete --cleanup-tag --yes "$TAGNAME" || true
           # sleep 15
-          gh release create "$TAGNAME" --target "main" --title "$NAME" ${cdir}/artifacts/*
+          gh release create "$TAGNAME" --target "main" --notes "## Checksums\n\`\`\`sha256\n$checksums\n\`\`\`" --title "$NAME" ${cdir}/artifacts/*
         env:
           GITHUB_TOKEN: ${{ github.token }}

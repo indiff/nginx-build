@@ -333,18 +333,18 @@ jobs:
           name: nginx-centos7-${{ env.BUILD_VERSION_TIMESTAMP }}
           # path: /opt/nginx*.tar
           path: |
-            /opt/*
-            !/opt/src/**/*
-            !/opt/**/Makefile
-            !/opt/**/*.8
-            !/opt/**/*.err
-            !/opt/**/*.c
-            !/opt/**/*.h
-            !/opt/**/*.o
-            !/opt/**/*.obj
-            !/opt/**/*.pdb
-            !/opt/**/*.lib
-            !/opt/**/*.exp
+            /opt/nginx/*
+            !/opt/nginx/src/**/*
+            !/opt/nginx/**/Makefile
+            !/opt/nginx/**/*.8
+            !/opt/nginx/**/*.err
+            !/opt/nginx/**/*.c
+            !/opt/nginx/**/*.h
+            !/opt/nginx/**/*.o
+            !/opt/nginx/**/*.obj
+            !/opt/nginx/**/*.pdb
+            !/opt/nginx/**/*.lib
+            !/opt/nginx/**/*.exp
 
 #       - name: Update Latest
 #        run: |
@@ -901,8 +901,8 @@ jobs:
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           rm -f nginx.h
           NAME="${version}_${build_timestamp}"
-          # TAGNAME="${NAME}"
-          TAGNAME="last"
+          TAGNAME="${NAME}"
+          # TAGNAME="last"
           gh release delete --cleanup-tag --yes "$TAGNAME" || true
           # sleep 15
           gh release create "$TAGNAME" --target "main" --title "$NAME" ${cdir}/artifacts/*

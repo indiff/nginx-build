@@ -544,11 +544,11 @@ jobs:
           dnf install -y --nogpgcheck https://dl.rockylinux.org/pub/rocky/9/CRB/x86_64/os/Packages/l/libmaxminddb-devel-1.5.2-4.el9.x86_64.rpm
           dnf clean all
           dnf makecache
+          dnf update -y
           dnf install -y epel-release
           dnf install -y tzdata
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
-          dnf update -y
           dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd
           # dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd libmaxminddb libmaxminddb-devel mmdb-bin
           # wget https://github.com/maxmind/geoip-api-c/releases/download/v1.6.12/GeoIP-1.6.12.tar.gz

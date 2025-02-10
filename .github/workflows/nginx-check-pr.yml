@@ -391,6 +391,7 @@ jobs:
           echo 'Asia/Shanghai' > /etc/timezone
           dnf update -y
           dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /nginx-module-vts
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
@@ -429,6 +430,7 @@ jobs:
             --with-http_degradation_module \
             --with-http_geoip_module \
             --with-stream_geoip_module \
+            --add-module=/nginx-module-vts \
           --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
@@ -548,6 +550,7 @@ jobs:
           # make install
           # sh -c "echo /usr/local/lib  >> /etc/ld.so.conf.d/local.conf"
           # ldconfig
+          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /nginx-module-vts
           git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git /ngx_http_geoip2_module
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
@@ -586,6 +589,7 @@ jobs:
             --with-compat \
             --with-http_degradation_module \
             --add-module=/ngx_http_geoip2_module \
+            --add-module=/nginx-module-vts \
           --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h

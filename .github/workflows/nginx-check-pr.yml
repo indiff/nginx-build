@@ -442,9 +442,14 @@ jobs:
           echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> /opt/nginx/00install.sh 
           chmod +x /opt/nginx/00install.sh
 
-          # zip -r /workspace/opt_nginx.zip /opt/nginx
+          echo "" >> /opt/nginx/logs/access.log
+          echo "" >> /opt/nginx/logs/error.log
+          echo "" >> /opt/nginx/temp/qw0p
+          tar cvf /workspace/opt_nginx.tar /opt/nginx
           cd /opt/nginx/
           zip -r -q -9 /workspace/opt_nginx.zip .
+          # get glibc Version
+          echo $(cut -d- -f2 <<<$(rpm -q glibc)) >> /workspace/glibc_version.txt
           EOF
           chmod +x build.sh
           
@@ -457,17 +462,33 @@ jobs:
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
-          export size_kb=$(du -k opt_nginx.zip | cut -f1)
-          echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
           # unzip opt_nginx.zip -d /opt/nginx
           # tree .
-          cp -f opt_nginx.zip /opt/nginx-rocky8-${version}_${build_timestamp}_${size_kb}KB.zip
+          # cp -f opt_nginx.zip /opt/nginx-rocky8-${version}_${build_timestamp}_${size_kb}KB.zip
+          export glib_version="$(cat glibc_version.txt)"
+          export size_kb=$(du -k opt_nginx.tar | cut -f1)
+          echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
+          unzip opt_nginx.zip -d /opt/nginx
+          tree /opt/nginx
   
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
         with:
           name: nginx-rocky8-${{ env.BUILD_VERSION_TIMESTAMP }}
-          path: /opt/*.zip 
+          # path: /opt/*.zip
+          path: |
+            /opt/nginx/*
+            !/opt/nginx/src/**/*
+            !/opt/nginx/**/Makefile
+            !/opt/nginx/**/*.8
+            !/opt/nginx/**/*.err
+            !/opt/nginx/**/*.c
+            !/opt/nginx/**/*.h
+            !/opt/nginx/**/*.o
+            !/opt/nginx/**/*.obj
+            !/opt/nginx/**/*.pdb
+            !/opt/nginx/**/*.lib
+            !/opt/nginx/**/*.exp
 
   build-in-rocky9:
     runs-on: ubuntu-latest

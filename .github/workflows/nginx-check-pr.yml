@@ -329,7 +329,7 @@ jobs:
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           export glib_version="$(cat glibc_version.txt)"
-          export size_kb=$(du -k opt_nginx.tar | cut -f1)
+          export size_kb=$(du -k opt_nginx.zip | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
           unzip opt_nginx.zip -d /opt/nginx
           tree /opt/nginx
@@ -1103,6 +1103,6 @@ jobs:
           checksums=$(cat ${cdir}/artifacts/checksums.sha256)
           gh release delete --cleanup-tag --yes "$TAGNAME" || true
           # sleep 15
-          gh release create "$TAGNAME" --target "main" --notes "## SHA256 Digest \`\`\`$checksums\`\`\`" --title "$NAME" ${cdir}/artifacts/*
+          gh release create "$TAGNAME" --target "main" --notes "## SHA256 Digest\n \`\`\`\n$checksums\n\`\`\`" --title "$NAME" ${cdir}/artifacts/*
         env:
           GITHUB_TOKEN: ${{ github.token }}

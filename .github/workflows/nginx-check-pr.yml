@@ -936,8 +936,7 @@ jobs:
           echo "" >> objs/logs/access.log
           echo "" >> objs/logs/error.log
           echo "" >> objs/temp/dummy
-          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git c:/nginx-module-vts
-
+          git clone --depth 1 -b dev_sync_windows https://github.com/indiff/nginx-module-vts.git c:/nginx-module-vts
           
 
       # rmdir /s /q objs/lib/openssl

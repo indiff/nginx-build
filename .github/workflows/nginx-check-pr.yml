@@ -1103,6 +1103,8 @@ jobs:
           checksums=$(cat ${cdir}/artifacts/checksums.sha256)
           gh release delete --cleanup-tag --yes "$TAGNAME" || true
           # sleep 15
-          gh release create "$TAGNAME" --target "main" --notes "## SHA256 Digest\n \`\`\`\n$checksums\n\`\`\`" --title "$NAME" ${cdir}/artifacts/*
+          NOTES="$(printf "## SHA256 Digest\n \`\`\`\n$checksums\n\`\`\`")"
+          gh release create --draft --title "${build_tag}" --notes "${body}" 
+          gh release create "$TAGNAME" --target "main" --notes "$NOTES" --title "$NAME" ${cdir}/artifacts/*
         env:
           GITHUB_TOKEN: ${{ github.token }}

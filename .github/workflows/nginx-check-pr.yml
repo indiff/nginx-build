@@ -77,9 +77,7 @@ jobs:
         run: |
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
-          export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' src/core/nginx.h | head -1)
-          export build_timestamp="$(date +'%Y%m%d_%H%M')"
-          echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}" >> $GITHUB_OUTPUT
+          
           mkdir -p t
           export DEB_BUILD_MAINT_OPTIONS="hardening=+all"
           #export DEB_CFLAGS_MAINT_APPEND="-Wp,-D_FORTIFY_SOURCE=2 -fPIC"
@@ -179,10 +177,16 @@ jobs:
           rm -f  *.pch
           cp -r objs/ /opt/nginx/
           cd /opt/nginx/
+
           echo "sudo apt-get update" >> /opt/nginx/00install.sh
           echo "sudo apt-get install libedit-dev libgd-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip uwsgi-plugin-python3" >> /opt/nginx/00install.sh 
           chmod +x /opt/nginx/00install.sh
-          # zip -r -q -9 /opt/opt_ubuntu_nginx_${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}.zip .
+          zip -r -q /opt/opt_ubuntu_nginx.zip .
+          export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' src/core/nginx.h | head -1)
+          export build_timestamp="$(date +'%Y%m%d_%H%M')"
+          export glibc_version="$(cut -d' ' -f2 <<<$(getconf GNU_LIBC_VERSION))"
+          export size_kb="$(du -k /opt/opt_ubuntu_nginx.zip | cut -f1)"
+          echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_glibc${glibc_version}_${size_kb}KB" >> $GITHUB_OUTPUT
           # zip -r /opt/opt_ubuntu_nginx_${{ steps.configure_build.outputs.BUILD_VERSION_TIMESTAMP }}.zip objs/
 
       # - name: Test
@@ -201,18 +205,31 @@ jobs:
           overwrite: true
           #path: /opt/*.zip
           path: |
-            objs/*
-            !objs/src/**/*
-            !objs/**/Makefile
-            !objs/**/*.8
-            !objs/**/*.err
-            !objs/**/*.c
-            !objs/**/*.h
-            !objs/**/*.o
-            !objs/**/*.obj
-            !objs/**/*.pdb
-            !objs/**/*.lib
-            !objs/**/*.exp
+            /opt/nginx/*
+            !/opt/nginx/src/**/*
+            !/opt/nginx/**/Makefile
+            !/opt/nginx/**/*.8
+            !/opt/nginx/**/*.err
+            !/opt/nginx/**/*.c
+            !/opt/nginx/**/*.h
+            !/opt/nginx/**/*.o
+            !/opt/nginx/**/*.obj
+            !/opt/nginx/**/*.pdb
+            !/opt/nginx/**/*.lib
+            !/opt/nginx/**/*.exp
+          # path: |
+          #   objs/*
+          #   !objs/src/**/*
+          #   !objs/**/Makefile
+          #   !objs/**/*.8
+          #   !objs/**/*.err
+          #   !objs/**/*.c
+          #   !objs/**/*.h
+          #   !objs/**/*.o
+          #   !objs/**/*.obj
+          #   !objs/**/*.pdb
+          #   !objs/**/*.lib
+          #   !objs/**/*.exp
   
   build-in-centos7:
     runs-on: ubuntu-latest
@@ -1104,7 +1121,6 @@ jobs:
           gh release delete --cleanup-tag --yes "$TAGNAME" || true
           # sleep 15
           NOTES="$(printf "## SHA256 Digest\n \`\`\`\n$checksums\n\`\`\`")"
-          gh release create --draft --title "${build_tag}" --notes "${body}" 
-          gh release create "$TAGNAME" --target "main" --notes "$NOTES" --title "$NAME" ${cdir}/artifacts/*
+          gh release create "$TAGNAME" --target "main" --notes "${NOTES}" --title "$NAME" ${cdir}/artifacts/*
         env:
           GITHUB_TOKEN: ${{ github.token }}

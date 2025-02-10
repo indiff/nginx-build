@@ -306,7 +306,7 @@ jobs:
           echo "" >> /opt/nginx/logs/access.log
           echo "" >> /opt/nginx/logs/error.log
           echo "" >> /opt/nginx/temp/qw0p
-          tar cvf /workspace/opt_nginx.tar /opt/nginx
+          # tar cvf /workspace/opt_nginx.tar /opt/nginx
           cd /opt/nginx/
           zip -r -q -9 /workspace/opt_nginx.zip .
           # get glibc Version
@@ -396,6 +396,11 @@ jobs:
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
           ./auto/configure \
+            --conf-path=conf/nginx.conf \
+            --pid-path=logs/nginx.pid \
+            --http-log-path=logs/access.log \
+            --error-log-path=logs/error.log \
+            --sbin-path=nginx \
             --with-http_realip_module \
             --with-http_addition_module \
             --with-http_sub_module \
@@ -442,10 +447,11 @@ jobs:
           echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> /opt/nginx/00install.sh 
           chmod +x /opt/nginx/00install.sh
 
+          mkdir /opt/nginx/temp
           echo "" >> /opt/nginx/logs/access.log
           echo "" >> /opt/nginx/logs/error.log
           echo "" >> /opt/nginx/temp/qw0p
-          tar cvf /workspace/opt_nginx.tar /opt/nginx
+          # tar cvf /workspace/opt_nginx.tar /opt/nginx
           cd /opt/nginx/
           zip -r -q -9 /workspace/opt_nginx.zip .
           # get glibc Version
@@ -548,6 +554,11 @@ jobs:
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-L/usr/local/lib,-Wl,-z,relro -Wl,-z,now"
           ./auto/configure \
+            --conf-path=conf/nginx.conf \
+            --pid-path=logs/nginx.pid \
+            --http-log-path=logs/access.log \
+            --error-log-path=logs/error.log \
+            --sbin-path=nginx \
             --with-http_realip_module \
             --with-http_addition_module \
             --with-http_sub_module \
@@ -589,9 +600,16 @@ jobs:
           echo "dnf update -y" >> /opt/nginx/00install.sh
           echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd libmaxminddb-devel" >> /opt/nginx/00install.sh 
           chmod +x /opt/nginx/00install.sh
-          # zip -r /workspace/opt_nginx.zip /opt/nginx
+          
+          mkdir /opt/nginx/temp
+          echo "" >> /opt/nginx/logs/access.log
+          echo "" >> /opt/nginx/logs/error.log
+          echo "" >> /opt/nginx/temp/qw0p
+          # tar cvf /workspace/opt_nginx.tar /opt/nginx
           cd /opt/nginx/
           zip -r -q -9 /workspace/opt_nginx.zip .
+          # get glibc Version
+          echo $(cut -d- -f2 <<<$(rpm -q glibc)) >> /workspace/glibc_version.txt
           EOF
           chmod +x build.sh
           
@@ -605,17 +623,32 @@ jobs:
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
-          echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
+          export glib_version="$(cat glibc_version.txt)"
+          echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
+          unzip opt_nginx.zip -d /opt/nginx
+          tree /opt/nginx
           # unzip opt_nginx.zip -d /opt/nginx
           # tree .
-          cp -f opt_nginx.zip /opt/nginx-rocky9-${version}_${build_timestamp}_${size_kb}KB.zip
+          # cp -f opt_nginx.zip /opt/nginx-rocky9-${version}_${build_timestamp}_${size_kb}KB.zip
   
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
         with:
           name: nginx-rocky9-${{ env.BUILD_VERSION_TIMESTAMP }}
-          path: /opt/*.zip
-
+          # path: /opt/*.zip
+          path: |
+            /opt/nginx/*
+            !/opt/nginx/src/**/*
+            !/opt/nginx/**/Makefile
+            !/opt/nginx/**/*.8
+            !/opt/nginx/**/*.err
+            !/opt/nginx/**/*.c
+            !/opt/nginx/**/*.h
+            !/opt/nginx/**/*.o
+            !/opt/nginx/**/*.obj
+            !/opt/nginx/**/*.pdb
+            !/opt/nginx/**/*.lib
+            !/opt/nginx/**/*.exp
   # add build in rockylinux 10 by docker            
   # build-in-rocky10: 
   #   runs-on: ubuntu-latest

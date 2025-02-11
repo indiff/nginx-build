@@ -279,7 +279,7 @@ jobs:
           # --prefix=/opt/nginx 
           # --sbin-path=nginx \
           ./auto/configure \
-            --builddir=/opt/nginx
+            --builddir=/opt/nginx \
             --with-http_realip_module \
             --with-http_addition_module \
             --with-http_sub_module \

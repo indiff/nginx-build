@@ -271,7 +271,7 @@ jobs:
           cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
-          # --with-http_geoip_module \ No package GeoIP-devel available.
+          # --with-http_geoip_module \ --with-stream_geoip_module \ No package GeoIP-devel available.
           ./auto/configure \
             --conf-path=conf/nginx.conf \
             --pid-path=logs/nginx.pid \
@@ -305,7 +305,6 @@ jobs:
             --with-compat \
             --with-http_degradation_module \
             --without-http-cache \
-            --with-stream_geoip_module \
             --add-module=/nginx-module-vts \
           --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
@@ -321,7 +320,8 @@ jobs:
           make install
           # zip -r /workspace/opt_nginx.zip /opt/nginx
           echo "yum update -y" >> /opt/nginx/00install.sh
-          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> /opt/nginx/00install.sh 
+          # GeoIP GeoIP-devel 
+          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd" >> /opt/nginx/00install.sh 
           chmod +x /opt/nginx/00install.sh
           mkdir /opt/nginx/temp
           echo "" >> /opt/nginx/logs/access.log

@@ -176,15 +176,14 @@ jobs:
           make -j$(nproc) -k || make
           
           # make install
-          mkdir /opt/nginx
-          tree -all . >> /opt/nginx/my_log.txt
-          cat src/http/ngx_http_special_response.c | grep NGINX_VER >> /opt/nginx/my_log.txt
-          cat src/http/ngx_http_header_filter_module.c | grep "Server:" >> /opt/nginx/my_log.txt
-          cat src/http/ngx_http_header_filter_module.c | grep "NGINX_VER" >> /opt/nginx/my_log.txt
-          cat src/http/ngx_http_special_response.c | grep "NGINX_VER" >> /opt/nginx/my_log.txt
-          cat src/http/ngx_http_special_response.c | grep "NGINX_VER_BUILD" >> /opt/nginx/my_log.txt
-          cat src/http/ngx_http_special_response.c | grep "nginx" >> /opt/nginx/my_log.txt
-
+          mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          tree -all . >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
+          cat src/http/ngx_http_special_response.c | grep NGINX_VER >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
+          cat src/http/ngx_http_header_filter_module.c | grep "Server:" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
+          cat src/http/ngx_http_header_filter_module.c | grep "NGINX_VER" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
+          cat src/http/ngx_http_special_response.c | grep "NGINX_VER" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
+          cat src/http/ngx_http_special_response.c | grep "NGINX_VER_BUILD" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
+          cat src/http/ngx_http_special_response.c | grep "nginx" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
           
           rm -rf objs/lib
           rm -rf objs/src
@@ -201,12 +200,11 @@ jobs:
           rm -f  *.ilk
           rm -f  *.res
           rm -f  *.pch
-          cp -r objs/ /opt/nginx/
-          cd /opt/nginx/
-
-          echo "sudo apt-get update" >> /opt/nginx/00install.sh
-          echo "sudo apt-get install libedit-dev libgd-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip uwsgi-plugin-python3" >> /opt/nginx/00install.sh 
-          chmod +x /opt/nginx/00install.sh
+          cp -r objs/ ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          echo "sudo apt-get update" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "sudo apt-get install libedit-dev libgd-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip uwsgi-plugin-python3" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
+          chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           zip -r -q -9 /opt/opt_ubuntu_nginx.zip .
           
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
@@ -231,18 +229,18 @@ jobs:
           overwrite: true
           #path: /opt/*.zip
           path: |
-            /opt/nginx/*
-            !/opt/nginx/src/**/*
-            !/opt/nginx/**/Makefile
-            !/opt/nginx/**/*.8
-            !/opt/nginx/**/*.err
-            !/opt/nginx/**/*.c
-            !/opt/nginx/**/*.h
-            !/opt/nginx/**/*.o
-            !/opt/nginx/**/*.obj
-            !/opt/nginx/**/*.pdb
-            !/opt/nginx/**/*.lib
-            !/opt/nginx/**/*.exp
+            ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/*
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/src/**/*
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/Makefile
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.8
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.err
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.c
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.h
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.o
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.obj
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.pdb
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.lib
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.exp
           # path: |
           #   objs/*
           #   !objs/src/**/*
@@ -297,7 +295,7 @@ jobs:
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
           # --with-http_geoip_module \ --with-stream_geoip_module \ No package GeoIP-devel available.
-          # --builddir=/opt/nginx \
+          # --builddir=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
           ./auto/configure \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
             --sbin-path=nginx \
@@ -345,18 +343,18 @@ jobs:
           
           make -j$(nproc)
           make install
-          # zip -r /workspace/opt_nginx.zip /opt/nginx
-          echo "yum update -y" >> /opt/nginx/00install.sh
+          # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           # GeoIP GeoIP-devel 
-          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd" >> /opt/nginx/00install.sh 
-          chmod +x /opt/nginx/00install.sh
-          mkdir /opt/nginx/temp
-          # mkdir /opt/nginx/logs
-          echo "" >> /opt/nginx/logs/access.log
-          echo "" >> /opt/nginx/logs/error.log
-          echo "" >> /opt/nginx/temp/qw0p
-          # tar cvf /workspace/opt_nginx.tar /opt/nginx
-          cd /opt/nginx/
+          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
+          chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp
+          # mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs
+          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
+          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
+          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/qw0p
+          # tar cvf /workspace/opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/
           zip -r -q -9 /workspace/opt_nginx.zip .
           # get glibc Version
           echo $(cut -d- -f2 <<<$(rpm -q glibc)) >> /workspace/glibc_version.txt
@@ -378,29 +376,29 @@ jobs:
           export glib_version="$(cat glibc_version.txt)"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${{ needs.before_build.outputs.NGINX_VERSION }}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
-          unzip opt_nginx.zip -d /opt/nginx
-          tree /opt/nginx
-          # cp -f opt_nginx.zip /opt/nginx-centos6-${version}_${build_timestamp}_${size_kb}KB.zip
-          # mv opt_nginx.tar /opt/nginx-centos6-${version}_${build_timestamp}_${size_kb}KB.tar
+          unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          tree ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          # cp -f opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}-centos6-${version}_${build_timestamp}_${size_kb}KB.zip
+          # mv opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}-centos6-${version}_${build_timestamp}_${size_kb}KB.tar
 
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
         with:
           name: nginx-centos6-${{ env.BUILD_VERSION_TIMESTAMP }}
-          # path: /opt/nginx*.tar
+          # path: ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}*.tar
           path: |
-            /opt/nginx/*
-            !/opt/nginx/src/**/*
-            !/opt/nginx/**/Makefile
-            !/opt/nginx/**/*.8
-            !/opt/nginx/**/*.err
-            !/opt/nginx/**/*.c
-            !/opt/nginx/**/*.h
-            !/opt/nginx/**/*.o
-            !/opt/nginx/**/*.obj
-            !/opt/nginx/**/*.pdb
-            !/opt/nginx/**/*.lib
-            !/opt/nginx/**/*.exp 
+            ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/*
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/src/**/*
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/Makefile
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.8
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.err
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.c
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.h
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.o
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.obj
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.pdb
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.lib
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.exp 
  
   build-in-centos7:
     runs-on: ubuntu-latest
@@ -488,16 +486,16 @@ jobs:
           
           make -j$(nproc)
           make install
-          # zip -r /workspace/opt_nginx.zip /opt/nginx
-          echo "yum update -y" >> /opt/nginx/00install.sh
-          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> /opt/nginx/00install.sh 
-          chmod +x /opt/nginx/00install.sh
-          mkdir /opt/nginx/temp
-          echo "" >> /opt/nginx/logs/access.log
-          echo "" >> /opt/nginx/logs/error.log
-          echo "" >> /opt/nginx/temp/qw0p
-          # tar cvf /workspace/opt_nginx.tar /opt/nginx
-          cd /opt/nginx/
+          # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
+          chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp
+          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
+          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
+          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/qw0p
+          # tar cvf /workspace/opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/
           zip -r -q -9 /workspace/opt_nginx.zip .
           # get glibc Version
           echo $(cut -d- -f2 <<<$(rpm -q glibc)) >> /workspace/glibc_version.txt
@@ -519,29 +517,29 @@ jobs:
           export glib_version="$(cat glibc_version.txt)"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${{ needs.before_build.outputs.NGINX_VERSION }}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
-          unzip opt_nginx.zip -d /opt/nginx
-          tree /opt/nginx
-          # cp -f opt_nginx.zip /opt/nginx-centos7-${version}_${build_timestamp}_${size_kb}KB.zip
-          # mv opt_nginx.tar /opt/nginx-centos7-${version}_${build_timestamp}_${size_kb}KB.tar
+          unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          tree ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          # cp -f opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}-centos7-${version}_${build_timestamp}_${size_kb}KB.zip
+          # mv opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}-centos7-${version}_${build_timestamp}_${size_kb}KB.tar
 
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
         with:
           name: nginx-centos7-${{ env.BUILD_VERSION_TIMESTAMP }}
-          # path: /opt/nginx*.tar
+          # path: ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}*.tar
           path: |
-            /opt/nginx/*
-            !/opt/nginx/src/**/*
-            !/opt/nginx/**/Makefile
-            !/opt/nginx/**/*.8
-            !/opt/nginx/**/*.err
-            !/opt/nginx/**/*.c
-            !/opt/nginx/**/*.h
-            !/opt/nginx/**/*.o
-            !/opt/nginx/**/*.obj
-            !/opt/nginx/**/*.pdb
-            !/opt/nginx/**/*.lib
-            !/opt/nginx/**/*.exp
+            ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/*
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/src/**/*
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/Makefile
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.8
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.err
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.c
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.h
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.o
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.obj
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.pdb
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.lib
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.exp
 
 #       - name: Update Latest
 #        run: |
@@ -635,16 +633,16 @@ jobs:
           make -j$(nproc)
           make install
 
-          echo "dnf update -y" >> /opt/nginx/00install.sh
-          echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> /opt/nginx/00install.sh 
-          chmod +x /opt/nginx/00install.sh
+          echo "dnf update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
+          chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
 
-          mkdir /opt/nginx/temp
-          echo "" >> /opt/nginx/logs/access.log
-          echo "" >> /opt/nginx/logs/error.log
-          echo "" >> /opt/nginx/temp/qw0p
-          # tar cvf /workspace/opt_nginx.tar /opt/nginx
-          cd /opt/nginx/
+          mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp
+          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
+          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
+          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/qw0p
+          # tar cvf /workspace/opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/
           zip -r -q -9 /workspace/opt_nginx.zip .
           # get glibc Version
           echo $(cut -d- -f2 <<<$(rpm -q glibc)) >> /workspace/glibc_version.txt
@@ -658,14 +656,14 @@ jobs:
           timedatectl status
           docker run --cpus="$(nproc --all)" --rm -v ${{ github.workspace }}:/workspace -w /workspace rockylinux:8 /bin/bash -c "/workspace/build.sh"
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
-          # unzip opt_nginx.zip -d /opt/nginx
+          # unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           # tree .
-          # cp -f opt_nginx.zip /opt/nginx-rocky8-${version}_${build_timestamp}_${size_kb}KB.zip
+          # cp -f opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}-rocky8-${version}_${build_timestamp}_${size_kb}KB.zip
           export glib_version="$(cat glibc_version.txt)"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${{ needs.before_build.outputs.NGINX_VERSION }}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
-          unzip opt_nginx.zip -d /opt/nginx
-          tree /opt/nginx
+          unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          tree ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
   
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
@@ -673,18 +671,18 @@ jobs:
           name: nginx-rocky8-${{ env.BUILD_VERSION_TIMESTAMP }}
           # path: /opt/*.zip
           path: |
-            /opt/nginx/*
-            !/opt/nginx/src/**/*
-            !/opt/nginx/**/Makefile
-            !/opt/nginx/**/*.8
-            !/opt/nginx/**/*.err
-            !/opt/nginx/**/*.c
-            !/opt/nginx/**/*.h
-            !/opt/nginx/**/*.o
-            !/opt/nginx/**/*.obj
-            !/opt/nginx/**/*.pdb
-            !/opt/nginx/**/*.lib
-            !/opt/nginx/**/*.exp
+            ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/*
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/src/**/*
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/Makefile
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.8
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.err
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.c
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.h
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.o
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.obj
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.pdb
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.lib
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.exp
 
   build-in-rocky9:
     runs-on: ubuntu-latest
@@ -791,16 +789,16 @@ jobs:
           sed -i 's/nginx/qw0p/Ig' docs/html/50x.html
           make -j$(nproc)
           make install
-          echo "dnf update -y" >> /opt/nginx/00install.sh
-          echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd libmaxminddb-devel" >> /opt/nginx/00install.sh 
-          chmod +x /opt/nginx/00install.sh
+          echo "dnf update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd libmaxminddb-devel" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
+          chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           
-          mkdir /opt/nginx/temp
-          echo "" >> /opt/nginx/logs/access.log
-          echo "" >> /opt/nginx/logs/error.log
-          echo "" >> /opt/nginx/temp/qw0p
-          # tar cvf /workspace/opt_nginx.tar /opt/nginx
-          cd /opt/nginx/
+          mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp
+          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
+          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
+          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/qw0p
+          # tar cvf /workspace/opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/
           zip -r -q -9 /workspace/opt_nginx.zip .
           # get glibc Version
           echo $(cut -d- -f2 <<<$(rpm -q glibc)) >> /workspace/glibc_version.txt
@@ -817,11 +815,11 @@ jobs:
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           export glib_version="$(cat glibc_version.txt)"
           echo "BUILD_VERSION_TIMESTAMP=${{ needs.before_build.outputs.NGINX_VERSION }}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
-          unzip opt_nginx.zip -d /opt/nginx
-          tree /opt/nginx
-          # unzip opt_nginx.zip -d /opt/nginx
+          unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          tree ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          # unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           # tree .
-          # cp -f opt_nginx.zip /opt/nginx-rocky9-${version}_${build_timestamp}_${size_kb}KB.zip
+          # cp -f opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}-rocky9-${version}_${build_timestamp}_${size_kb}KB.zip
   
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4
@@ -829,18 +827,18 @@ jobs:
           name: nginx-rocky9-${{ env.BUILD_VERSION_TIMESTAMP }}
           # path: /opt/*.zip
           path: |
-            /opt/nginx/*
-            !/opt/nginx/src/**/*
-            !/opt/nginx/**/Makefile
-            !/opt/nginx/**/*.8
-            !/opt/nginx/**/*.err
-            !/opt/nginx/**/*.c
-            !/opt/nginx/**/*.h
-            !/opt/nginx/**/*.o
-            !/opt/nginx/**/*.obj
-            !/opt/nginx/**/*.pdb
-            !/opt/nginx/**/*.lib
-            !/opt/nginx/**/*.exp
+            ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/*
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/src/**/*
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/Makefile
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.8
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.err
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.c
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.h
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.o
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.obj
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.pdb
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.lib
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.exp
   # add build in rockylinux 10 by docker            
   # build-in-rocky10: 
   #   runs-on: ubuntu-latest
@@ -927,7 +925,7 @@ jobs:
   #           --with-compat \
   #           --with-http_degradation_module \
   #           --add-module=/ngx_http_geoip2_module \
-  #         --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
+  #         --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
   #         sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
   #         export RANDOM_STRING="$(openssl rand -hex 2)"
@@ -938,11 +936,11 @@ jobs:
   #         sed -i 's/nginx/qw0p/Ig' docs/html/50x.html
   #         make -j$(nproc)
   #         make install
-  #         echo "dnf update -y" >> /opt/nginx/00install.sh
-  #         echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd libmaxminddb-devel" >> /opt/nginx/00install.sh 
-  #         chmod +x /opt/nginx/00install.sh
-  #         # zip -r /workspace/opt_nginx.zip /opt/nginx
-  #         cd /opt/nginx/
+  #         echo "dnf update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+  #         echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd libmaxminddb-devel" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
+  #         chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+  #         # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+  #         cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/
   #         zip -r -q -9 /workspace/opt_nginx.zip .
   #         EOF
   #         chmod +x build.sh
@@ -958,9 +956,9 @@ jobs:
   #         export build_timestamp="$(date +'%Y%m%d_%H%M')"
   #         export size_kb=$(du -k opt_nginx.zip | cut -f1)
   #         echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_${size_kb}KB" >> $GITHUB_ENV
-  #         # unzip opt_nginx.zip -d /opt/nginx
+  #         # unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
   #         # tree .
-  #         cp -f opt_nginx.zip /opt/nginx-rocky10-${version}_${build_timestamp}_${size_kb}KB.zip
+  #         cp -f opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}-rocky10-${version}_${build_timestamp}_${size_kb}KB.zip
   
   #     - name: Upload Nginx package
   #       uses: actions/upload-artifact@v4

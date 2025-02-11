@@ -123,6 +123,7 @@ jobs:
             --with-http_image_filter_module \
             --with-http_degradation_module \
             --with-http_v3_module \
+            --without-http-cache \
             --with-http_geoip_module \
             --with-stream_geoip_module \
             --with-cc-opt="$(dpkg-buildflags --get CFLAGS)" \
@@ -303,6 +304,7 @@ jobs:
             --with-compat \
             --with-http_degradation_module \
             --with-http_geoip_module \
+            --without-http-cache \
             --with-stream_geoip_module \
             --add-module=/nginx-module-vts \
           --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
@@ -444,6 +446,7 @@ jobs:
             --with-compat \
             --with-http_degradation_module \
             --with-http_geoip_module \
+            --without-http-cache \
             --with-stream_geoip_module \
             --add-module=/nginx-module-vts \
           --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
@@ -589,6 +592,7 @@ jobs:
             --with-compat \
             --with-http_degradation_module \
             --with-http_geoip_module \
+            --without-http-cache \
             --with-stream_geoip_module \
             --add-module=/nginx-module-vts \
           --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
@@ -748,6 +752,7 @@ jobs:
             --with-threads \
             --with-compat \
             --with-http_degradation_module \
+            --without-http-cache \
             --add-module=/ngx_http_geoip2_module \
             --add-module=/nginx-module-vts \
           --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
@@ -1067,6 +1072,7 @@ jobs:
                     --with-stream_ssl_module \
                     --with-stream_ssl_preread_module \
                     --with-stream_realip_module \
+                    --without-http-cache \
                     --add-module=c:/nginx-module-vts \
                     --with-openssl=objs/lib/openssl",
           "NGINX_CONFIGURE_CC_MSVC": "--with-cc=cl",

@@ -44,10 +44,10 @@ jobs:
         run: |
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
-          echo "NGINX_VERSION=${version}" >> $env:GITHUB_OUTPUT
+          echo "NGINX_VERSION=${version}" >> "$GITHUB_OUTPUT"
           export build_prefix="${{ github.event.inputs.buildPrefix }}"
           if [ "${{ github.event.inputs.buildPrefix }}" == "" ]; then build_prefix="/opt/nginx"; fi
-          echo "NGINX_BUILD_PREFIX=${build_prefix}" >> $env:GITHUB_OUTPUT
+          echo "NGINX_BUILD_PREFIX=${build_prefix}" >> "$GITHUB_OUTPUT"
           
           
   build-in-ubuntu:

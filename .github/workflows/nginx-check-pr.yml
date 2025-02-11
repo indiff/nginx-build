@@ -342,8 +342,8 @@ jobs:
           sed -i 's/nginx/qw0p/Ig' docs/html/50x.html
           
           make -j$(nproc)
-          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp
-          sudo chmod 777 ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/
+          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/{conf,html,temp,logs}
+          sudo chmod -R 777 ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/
           sudo make install
           # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh

@@ -342,13 +342,13 @@ jobs:
           sed -i 's/nginx/qw0p/Ig' docs/html/50x.html
           
           make -j$(nproc)
+          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp
           make install
           # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           # GeoIP GeoIP-devel 
           echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
           chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp
           # mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log

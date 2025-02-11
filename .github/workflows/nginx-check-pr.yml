@@ -272,11 +272,13 @@ jobs:
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
           # --with-http_geoip_module \ --with-stream_geoip_module \ No package GeoIP-devel available.
+          #  --conf-path=conf/nginx.conf \
+          #  --pid-path=logs/nginx.pid \
+          #  --http-log-path=logs/access.log \
+          #  --error-log-path=logs/error.log \
+          # --prefix=/opt/nginx 
           ./auto/configure \
-            --conf-path=conf/nginx.conf \
-            --pid-path=logs/nginx.pid \
-            --http-log-path=logs/access.log \
-            --error-log-path=logs/error.log \
+            --builddir=/opt/nginx
             --sbin-path=nginx \
             --with-http_realip_module \
             --with-http_addition_module \
@@ -306,7 +308,7 @@ jobs:
             --with-http_degradation_module \
             --without-http-cache \
             --add-module=/nginx-module-vts \
-          --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
+          --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
           export RANDOM_STRING="$(openssl rand -hex 2)"

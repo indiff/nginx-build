@@ -348,7 +348,7 @@ jobs:
           # GeoIP GeoIP-devel 
           echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
           chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp
+          mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp
           # mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log

@@ -231,7 +231,148 @@ jobs:
           #   !objs/**/*.pdb
           #   !objs/**/*.lib
           #   !objs/**/*.exp
-  
+
+  build-in-centos6:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout v4
+        uses: actions/checkout@v4
+
+      - name: Create build script
+        run: |
+          set -xe
+          cat << 'EOF' > build.sh
+          #!/bin/bash
+          set -xe
+          echo 'LANG=zh_CN.UTF-8' >> /etc/environment
+          echo 'LANGUAGE=zh_CN.UTF-8' >> /etc/environment
+          echo 'LC_ALL=zh_CN.UTF-8' >> /etc/environment
+          echo 'LC_CTYPE=zh_CN.UTF-8' >> /etc/environment
+          curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-6.repo
+          curl -o /etc/yum.repos.d/epel.repo https://mirrors.aliyun.com/repo/epel-6.repo
+          yum clean all
+          yum makecache
+          yum install -y epel-release
+          yum install -y tzdata
+          ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+          echo 'Asia/Shanghai' > /etc/timezone
+          yum update -y
+          yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+          # timedatectl set-timezone Asia/Shanghai
+          # git clone --depth 1 -b openssl-3.4 https://github.com/openssl/openssl /ssl
+          # cd /ssl
+          # ./config --release no-shared enable-ec_nistp_64_gcc_128
+          # make -sj$(nproc)
+          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /nginx-module-vts
+          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
+          cd /nginx-build
+          CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
+          LD_OPT="-Wl,-z,relro -Wl,-z,now"
+          ./auto/configure \
+            --conf-path=conf/nginx.conf \
+            --pid-path=logs/nginx.pid \
+            --http-log-path=logs/access.log \
+            --error-log-path=logs/error.log \
+            --sbin-path=nginx \
+            --with-http_realip_module \
+            --with-http_addition_module \
+            --with-http_sub_module \
+            --with-http_dav_module \
+            --with-http_flv_module \
+            --with-http_mp4_module \
+            --with-http_gunzip_module \
+            --with-http_gzip_static_module \
+            --with-http_random_index_module \
+            --with-http_secure_link_module \
+            --with-http_stub_status_module \
+            --with-mail \
+            --with-mail_ssl_module \
+            --with-select_module \
+            --with-poll_module \
+            --with-http_auth_request_module \
+            --with-http_v2_module \
+            --with-http_slice_module \
+            --with-stream \
+            --with-stream_ssl_module \
+            --with-stream_ssl_preread_module \
+            --with-stream_realip_module \
+            --with-file-aio \
+            --with-threads \
+            --with-compat \
+            --with-http_degradation_module \
+            --with-http_geoip_module \
+            --with-stream_geoip_module \
+            --add-module=/nginx-module-vts \
+          --prefix=/opt/nginx --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
+          
+          sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
+          export RANDOM_STRING="$(openssl rand -hex 2)"
+          sed -i "s/#define NGINX_VERSION[[:space:]]*\".*\"/#define NGINX_VERSION          \"$RANDOM_STRING\"/" src/core/nginx.h
+          sed -i 's/Server: nginx/Server: qw0p/Ig' src/http/ngx_http_header_filter_module.c
+          sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
+          sed -i 's/nginx/qw0p/Ig' docs/html/index.html
+          sed -i 's/nginx/qw0p/Ig' docs/html/50x.html
+          
+          make -j$(nproc)
+          make install
+          # zip -r /workspace/opt_nginx.zip /opt/nginx
+          echo "yum update -y" >> /opt/nginx/00install.sh
+          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> /opt/nginx/00install.sh 
+          chmod +x /opt/nginx/00install.sh
+          mkdir /opt/nginx/temp
+          echo "" >> /opt/nginx/logs/access.log
+          echo "" >> /opt/nginx/logs/error.log
+          echo "" >> /opt/nginx/temp/qw0p
+          # tar cvf /workspace/opt_nginx.tar /opt/nginx
+          cd /opt/nginx/
+          zip -r -q -9 /workspace/opt_nginx.zip .
+          # get glibc Version
+          echo $(cut -d- -f2 <<<$(rpm -q glibc)) >> /workspace/glibc_version.txt
+          EOF
+          chmod +x build.sh
+          
+      # - name: Upload build.sh
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: build.sh
+      #     path: build.sh     
+
+      - name: Build Nginx in Docker
+        run: |
+          sudo timedatectl set-timezone Asia/Shanghai
+          timedatectl status
+          docker run --cpus="$(nproc --all)" --rm -v ${{ github.workspace }}:/workspace -w /workspace centos6.10 /bin/bash -c "/workspace/build.sh"
+          curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
+          export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
+          export build_timestamp="$(date +'%Y%m%d_%H%M')"
+          export glib_version="$(cat glibc_version.txt)"
+          export size_kb=$(du -k opt_nginx.zip | cut -f1)
+          echo "BUILD_VERSION_TIMESTAMP=${version}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
+          unzip opt_nginx.zip -d /opt/nginx
+          tree /opt/nginx
+          # cp -f opt_nginx.zip /opt/nginx-centos6-${version}_${build_timestamp}_${size_kb}KB.zip
+          # mv opt_nginx.tar /opt/nginx-centos6-${version}_${build_timestamp}_${size_kb}KB.tar
+
+      - name: Upload Nginx package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nginx-centos6-${{ env.BUILD_VERSION_TIMESTAMP }}
+          # path: /opt/nginx*.tar
+          path: |
+            /opt/nginx/*
+            !/opt/nginx/src/**/*
+            !/opt/nginx/**/Makefile
+            !/opt/nginx/**/*.8
+            !/opt/nginx/**/*.err
+            !/opt/nginx/**/*.c
+            !/opt/nginx/**/*.h
+            !/opt/nginx/**/*.o
+            !/opt/nginx/**/*.obj
+            !/opt/nginx/**/*.pdb
+            !/opt/nginx/**/*.lib
+            !/opt/nginx/**/*.exp 
+ 
   build-in-centos7:
     runs-on: ubuntu-latest
 
@@ -1015,7 +1156,28 @@ jobs:
           git clone --depth 1 -b dev_sync_windows https://github.com/indiff/nginx-module-vts.git c:/nginx-module-vts
           
 
-      
+        # rmdir /s /q objs/lib/openssl
+        # rmdir /s /q objs/lib/pcre
+        # rmdir /s /q objs/lib/zlib
+        # rmdir /s /q objs/lib
+        # rmdir /s /q objs/src
+        # del /f /s /q Makefile
+        # del /f /s /q *.8
+        # del /f /s /q *.err
+        # del /f /s /q *.c
+        # del /f /s /q *.h
+        # del /f /s /q *.o
+        # del /f /s /q *.obj
+        # del /f /s /q *.pdb
+        # del /f /s /q *.lib
+        # del /f /s /q *.exp
+        # del /f /s /q *.ilk
+        # del /f /s /q *.res
+        # del /f /s /q *.pch
+        # cd objs
+        # 7z a -tzip -mx=9 "Nginx.MSVC.x64.Release.zip" . -r
+        # powershell -Command "(Get-Item 'Nginx.MSVC.x64.Release.zip').Length / 1KB | ForEach-Object { Write-Output('SIZE_KB=' + [Math]::Round($_, 2) + 'KB') } " >> $env:GITHUB_ENV
+        # del /f /q Nginx.MSVC.x64.Release.zip      
       - name: Configure and build msvc
         id: configure_build
         if: matrix.toolchain == 'msvc'
@@ -1030,33 +1192,12 @@ jobs:
             --with-openssl-opt="%NGINX_CONFIGURE_OPENSSL_OPT%"
           powershell -Command "(Get-Content objs/Makefile) -replace '-Yungx_config.h -Fpobjs/ngx_config.pch', '' | Set-Content objs/Makefile"
           nmake -f objs/Makefile
-          rmdir /s /q objs/lib/openssl
-          rmdir /s /q objs/lib/pcre
-          rmdir /s /q objs/lib/zlib
-          rmdir /s /q objs/lib
-          rmdir /s /q objs/src
-          del /f /s /q Makefile
-          del /f /s /q *.8
-          del /f /s /q *.err
-          del /f /s /q *.c
-          del /f /s /q *.h
-          del /f /s /q *.o
-          del /f /s /q *.obj
-          del /f /s /q *.pdb
-          del /f /s /q *.lib
-          del /f /s /q *.exp
-          del /f /s /q *.ilk
-          del /f /s /q *.res
-          del /f /s /q *.pch
-          cd objs
-          7z a -tzip -mx=9 "Nginx.MSVC.x64.Release.zip" . -r
-          powershell -Command "(Get-Item 'Nginx.MSVC.x64.Release.zip').Length / 1KB | ForEach-Object { Write-Output('SIZE_KB=' + [Math]::Round($_, 2) + 'KB') } " >> $env:GITHUB_ENV
-          del /f /q Nginx.MSVC.x64.Release.zip
+          systeminfo > build_systeminfo.txt
  
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nginx-msvc-${{ env.BUILD_VERSION_TIMESTAMP }}_${{ env.SIZE_KB }}
+          name: nginx-msvc-${{ env.BUILD_VERSION_TIMESTAMP }}
           overwrite: true
           compression-level: 9
           path: |
@@ -1065,6 +1206,7 @@ jobs:
             objs/*
             objs/logs/
             objs/temp/
+            !objs/contrib/**/*
             !objs/lib/**/*
             !objs/src/**/*
             !objs/**/Makefile

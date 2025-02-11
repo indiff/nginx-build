@@ -31,6 +31,9 @@ on:
   schedule:
     #- cron: '07 10 * * *' # 每天凌晨2点（UTC），对应每天上午10点（CST）, 这里对应的是中国时区的是 18 点
     - cron: '3 10 * * *' # UTC 时间 1:00 对应中国时间 9:00
+env:
+  NGINX_VERSION: ""
+  NGINX_BUILD_PREFIX: /opt/nginx
 jobs:
   load-info:
     runs-on: [ ubuntu-latest ]

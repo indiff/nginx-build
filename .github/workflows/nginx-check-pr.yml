@@ -1227,7 +1227,7 @@ jobs:
   publish_release:
     name: Publish release
     #if: ${{ !cancelled() && ( github.event_name == 'schedule' || github.event.inputs.doRelease == 'true' ) }}
-    needs: [build-in-ubuntu, build-in-centos7, build-in-rocky8, build-in-rocky9, build-in-windows] 
+    needs: [build-in-ubuntu, build-in-centos6, build-in-centos7, build-in-rocky8, build-in-rocky9, build-in-windows] 
     runs-on: ubuntu-latest
     steps:
       # - name: Free Disk-Space

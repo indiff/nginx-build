@@ -326,6 +326,7 @@ jobs:
           echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd" >> /opt/nginx/00install.sh 
           chmod +x /opt/nginx/00install.sh
           mkdir /opt/nginx/temp
+          mkdir /opt/nginx/logs
           echo "" >> /opt/nginx/logs/access.log
           echo "" >> /opt/nginx/logs/error.log
           echo "" >> /opt/nginx/temp/qw0p

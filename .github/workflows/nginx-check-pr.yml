@@ -271,6 +271,7 @@ jobs:
           cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
+          # --with-http_geoip_module \ No package GeoIP-devel available.
           ./auto/configure \
             --conf-path=conf/nginx.conf \
             --pid-path=logs/nginx.pid \
@@ -303,7 +304,6 @@ jobs:
             --with-threads \
             --with-compat \
             --with-http_degradation_module \
-            --with-http_geoip_module \
             --without-http-cache \
             --with-stream_geoip_module \
             --add-module=/nginx-module-vts \

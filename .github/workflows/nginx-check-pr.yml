@@ -31,22 +31,24 @@ on:
   schedule:
     #- cron: '07 10 * * *' # 每天凌晨2点（UTC），对应每天上午10点（CST）, 这里对应的是中国时区的是 18 点
     - cron: '3 10 * * *' # UTC 时间 1:00 对应中国时间 9:00
-env:
-  NGINX_VERSION: ""
-  NGINX_BUILD_PREFIX: /opt/nginx
+
 jobs:
-  load-info:
+  before_build:
     runs-on: [ ubuntu-latest ]
+    outputs:
+      NGINX_VERSION: ${{ steps.get.outputs.NGINX_VERSION }}
+      NGINX_BUILD_PREFIX: ${{ steps.get.outputs.NGINX_BUILD_PREFIX }}
     steps:
       - name: Get buildPrefix
+        id: get
         run: |
           curl -sLO https://github.com/nginx/nginx/raw/refs/heads/master/src/core/nginx.h
           export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' nginx.h | head -1)
-          echo "NGINX_VERSION=${version}" >> $GITHUB_ENV
+          echo "NGINX_VERSION=${version}" >> $env:GITHUB_OUTPUT
           export build_prefix="${{ github.event.inputs.buildPrefix }}"
           if [ "${{ github.event.inputs.buildPrefix }}" == "" ]; then build_prefix="/opt/nginx"; fi
-          echo "NGINX_BUILD_PREFIX=${build_prefix}" >> $GITHUB_ENV
-
+          echo "NGINX_BUILD_PREFIX=${build_prefix}" >> $env:GITHUB_OUTPUT
+          
           
   build-in-ubuntu:
     #if: ${{ ( github.repository_owner == 'nginx' || github.repository_owner == 'nginxinc' ) }}
@@ -256,7 +258,7 @@ jobs:
 
   build-in-centos6:
     runs-on: ubuntu-latest
-    needs: load-info
+    needs: before_build
 
     steps:
       - name: Checkout v4
@@ -296,7 +298,7 @@ jobs:
           # --with-http_geoip_module \ --with-stream_geoip_module \ No package GeoIP-devel available.
           # --builddir=/opt/nginx \
           ./auto/configure \
-            --prefix=${{ env.NGINX_BUILD_PREFIX }} \
+            --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
             --sbin-path=nginx \
             --conf-path=conf/nginx.conf \
             --pid-path=logs/nginx.pid \
@@ -374,7 +376,7 @@ jobs:
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           export glib_version="$(cat glibc_version.txt)"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
-          echo "BUILD_VERSION_TIMESTAMP=${{ env.NGINX_VERSION }}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
+          echo "BUILD_VERSION_TIMESTAMP=${{ needs.before_build.outputs.NGINX_VERSION }}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
           unzip opt_nginx.zip -d /opt/nginx
           tree /opt/nginx
           # cp -f opt_nginx.zip /opt/nginx-centos6-${version}_${build_timestamp}_${size_kb}KB.zip

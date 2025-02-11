@@ -77,7 +77,7 @@ jobs:
         run: |
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
-          
+          export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' src/core/nginx.h | head -1)
           mkdir -p t
           export DEB_BUILD_MAINT_OPTIONS="hardening=+all"
           #export DEB_CFLAGS_MAINT_APPEND="-Wp,-D_FORTIFY_SOURCE=2 -fPIC"
@@ -160,7 +160,7 @@ jobs:
           cat src/http/ngx_http_special_response.c | grep "NGINX_VER_BUILD" >> /opt/nginx/my_log.txt
           cat src/http/ngx_http_special_response.c | grep "nginx" >> /opt/nginx/my_log.txt
 
-          export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' src/core/nginx.h | head -1)
+          
           rm -rf objs/lib
           rm -rf objs/src
           rm -f Makefile

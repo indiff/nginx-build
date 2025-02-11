@@ -160,6 +160,7 @@ jobs:
           cat src/http/ngx_http_special_response.c | grep "NGINX_VER_BUILD" >> /opt/nginx/my_log.txt
           cat src/http/ngx_http_special_response.c | grep "nginx" >> /opt/nginx/my_log.txt
 
+          export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' src/core/nginx.h | head -1)
           rm -rf objs/lib
           rm -rf objs/src
           rm -f Makefile
@@ -181,8 +182,8 @@ jobs:
           echo "sudo apt-get update" >> /opt/nginx/00install.sh
           echo "sudo apt-get install libedit-dev libgd-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip uwsgi-plugin-python3" >> /opt/nginx/00install.sh 
           chmod +x /opt/nginx/00install.sh
-          zip -r -q /opt/opt_ubuntu_nginx.zip .
-          export version=$(grep -oP '#define NGINX_VERSION\s+"\K[\d.]+' src/core/nginx.h | head -1)
+          zip -r -q -9 /opt/opt_ubuntu_nginx.zip .
+          
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           export glibc_version="$(cut -d' ' -f2 <<<$(getconf GNU_LIBC_VERSION))"
           export size_kb="$(du -k /opt/opt_ubuntu_nginx.zip | cut -f1)"
@@ -851,7 +852,7 @@ jobs:
            $version=$((Select-String -Pattern 'NGINX_VERSION\s+\"([\d\.]+)\"' -Path "src/core/nginx.h").Matches.Groups[1].Value)
            echo "Version:$($version)"
            Write-Output "BUILD_VERSION=$($version)" >> $env:GITHUB_ENV
-           Write-Output "BUILD_VERSION_TIMESTAMP=$($version).$(Get-Date -Format "yyyyMMddHHmmss")" >> $env:GITHUB_ENV
+           Write-Output "BUILD_VERSION_TIMESTAMP=$($version)_$(Get-Date -Format "yyyyMMdd_HHmm")" >> $env:GITHUB_ENV
 
             
       - name: Set MSYSTEM
@@ -1014,26 +1015,7 @@ jobs:
           git clone --depth 1 -b dev_sync_windows https://github.com/indiff/nginx-module-vts.git c:/nginx-module-vts
           
 
-      # rmdir /s /q objs/lib/openssl
-      # rmdir /s /q objs/lib/pcre
-      # rmdir /s /q objs/lib/zlib
-      # rmdir /s /q objs/lib
-      # rmdir /s /q objs/src
-      # del /f /s /q Makefile
-      # del /f /s /q *.8
-      # del /f /s /q *.err
-      # del /f /s /q *.c
-      # del /f /s /q *.h
-      # del /f /s /q *.o
-      # del /f /s /q *.obj
-      # del /f /s /q *.pdb
-      # del /f /s /q *.lib
-      # del /f /s /q *.exp
-      # del /f /s /q *.ilk
-      # del /f /s /q *.res
-      # del /f /s /q *.pch
-      # cd objs
-      # 7z a -t7z -mx=9 "Nginx.MSVC.x64.Release.${{ env.BUILD_VERSION_TIMESTAMP }}.7z" . -r
+      
       - name: Configure and build msvc
         id: configure_build
         if: matrix.toolchain == 'msvc'
@@ -1048,11 +1030,33 @@ jobs:
             --with-openssl-opt="%NGINX_CONFIGURE_OPENSSL_OPT%"
           powershell -Command "(Get-Content objs/Makefile) -replace '-Yungx_config.h -Fpobjs/ngx_config.pch', '' | Set-Content objs/Makefile"
           nmake -f objs/Makefile
+          rmdir /s /q objs/lib/openssl
+          rmdir /s /q objs/lib/pcre
+          rmdir /s /q objs/lib/zlib
+          rmdir /s /q objs/lib
+          rmdir /s /q objs/src
+          del /f /s /q Makefile
+          del /f /s /q *.8
+          del /f /s /q *.err
+          del /f /s /q *.c
+          del /f /s /q *.h
+          del /f /s /q *.o
+          del /f /s /q *.obj
+          del /f /s /q *.pdb
+          del /f /s /q *.lib
+          del /f /s /q *.exp
+          del /f /s /q *.ilk
+          del /f /s /q *.res
+          del /f /s /q *.pch
+          cd objs
+          7z a -tzip -mx=9 "Nginx.MSVC.x64.Release.zip" . -r
+
+          powershell -Command "(Get-Item 'D:\Users\Administrator\Downloads\nginx-msvc-1.27.4.20250210114757.zip').Length / 1KB | ForEach-Object { Write-Output('SIZE_KB=' + [Math]::Round($_, 2) + 'KB') } " >> $env:GITHUB_ENV
  
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nginx-msvc-${{ env.BUILD_VERSION_TIMESTAMP }}
+          name: nginx-msvc-${{ env.BUILD_VERSION_TIMESTAMP }}_${{ env.SIZE_KB }}
           overwrite: true
           compression-level: 9
           path: |

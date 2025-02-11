@@ -343,7 +343,7 @@ jobs:
           
           make -j$(nproc)
           sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp
-          make install
+          sudo make install
           # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           # GeoIP GeoIP-devel 

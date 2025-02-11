@@ -1050,8 +1050,8 @@ jobs:
           del /f /s /q *.pch
           cd objs
           7z a -tzip -mx=9 "Nginx.MSVC.x64.Release.zip" . -r
-
-          powershell -Command "(Get-Item 'D:\Users\Administrator\Downloads\nginx-msvc-1.27.4.20250210114757.zip').Length / 1KB | ForEach-Object { Write-Output('SIZE_KB=' + [Math]::Round($_, 2) + 'KB') } " >> $env:GITHUB_ENV
+          powershell -Command "(Get-Item 'Nginx.MSVC.x64.Release.zip').Length / 1KB | ForEach-Object { Write-Output('SIZE_KB=' + [Math]::Round($_, 2) + 'KB') } " >> $env:GITHUB_ENV
+          del /f /q Nginx.MSVC.x64.Release.zip
  
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

@@ -372,7 +372,9 @@ jobs:
         run: |
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
-          docker run --cpus="$(nproc --all)" -u root --rm -v ${{ github.workspace }}:/workspace -w /workspace centos:centos6.10 /bin/bash -c "/workspace/build.sh"
+          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          sudo chown -R 777 ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          docker run --cpus="$(nproc --all)" -u root --rm -v ${{ github.workspace }}:/workspace -v ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} -w /workspace centos:centos6.10 /bin/bash -c "/workspace/build.sh"
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           export glib_version="$(cat glibc_version.txt)"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)

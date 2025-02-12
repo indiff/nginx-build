@@ -164,9 +164,10 @@ jobs:
           sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
           sed -i 's/nginx/qw0p/Ig' objs/html/index.html
           sed -i 's/nginx/qw0p/Ig' objs/html/50x.html
-          mkdir objs/temp/client_body_temp
-          mkdir objs/temp/proxy_temp
-          mkdir objs/temp/fastcgi_temp
+          mkdir -p objs/temp
+          mkdir -p objs/client_body_temp
+          mkdir -p objs/proxy_temp
+          mkdir -p objs/fastcgi_temp
           echo "" >> objs/logs/access.log
           echo "" >> objs/logs/error.log
           echo "" >> objs/temp/$RANDOM_STRING

@@ -351,7 +351,7 @@ jobs:
           # mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
-          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/qw0p
+          echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/$RANDOM_STRING
           # tar cvf /workspace/opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/
           zip -r -q -9 /workspace/opt_nginx.zip .
@@ -359,13 +359,12 @@ jobs:
           echo $(cut -d- -f2 <<<$(rpm -q glibc)) >> /workspace/glibc_version.txt
           EOF
           chmod +x build.sh
-          
 
       - name: Build Nginx in Docker
         run: |
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
-          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/{conf,html,temp,logs}
           sudo chown -R 777 ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           docker run --cpus="$(nproc --all)" -u root --rm -v ${{ github.workspace }}:/workspace -v ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} -w /workspace centos:centos6.10 /bin/bash -c "/workspace/build.sh"
           export build_timestamp="$(date +'%Y%m%d_%H%M')"

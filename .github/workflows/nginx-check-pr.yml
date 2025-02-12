@@ -342,8 +342,6 @@ jobs:
           sed -i 's/nginx/qw0p/Ig' docs/html/50x.html
           
           make -j$(nproc)
-          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/{conf,html,temp,logs}
-          sudo chmod -R 777 ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           sudo make install
           # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
@@ -362,11 +360,6 @@ jobs:
           EOF
           chmod +x build.sh
           
-      # - name: Upload build.sh
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: build.sh
-      #     path: build.sh     
 
       - name: Build Nginx in Docker
         run: |
@@ -379,11 +372,7 @@ jobs:
           export glib_version="$(cat glibc_version.txt)"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${{ needs.before_build.outputs.NGINX_VERSION }}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
-          # sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
-          # unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           tree ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
-          # cp -f opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}-centos6-${version}_${build_timestamp}_${size_kb}KB.zip
-          # mv opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}-centos6-${version}_${build_timestamp}_${size_kb}KB.tar
 
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4

@@ -379,8 +379,8 @@ jobs:
           export glib_version="$(cat glibc_version.txt)"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${{ needs.before_build.outputs.NGINX_VERSION }}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
-          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
-          unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          # sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          # unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           tree ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           # cp -f opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}-centos6-${version}_${build_timestamp}_${size_kb}KB.zip
           # mv opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}-centos6-${version}_${build_timestamp}_${size_kb}KB.tar

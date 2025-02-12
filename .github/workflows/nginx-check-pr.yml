@@ -164,8 +164,6 @@ jobs:
           sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
           sed -i 's/nginx/qw0p/Ig' objs/html/index.html
           sed -i 's/nginx/qw0p/Ig' objs/html/50x.html
-          mkdir objs/logs
-          mkdir objs/temp
           mkdir objs/temp/client_body_temp
           mkdir objs/temp/proxy_temp
           mkdir objs/temp/fastcgi_temp
@@ -177,7 +175,6 @@ jobs:
           make -j$(nproc) -k || make
           
           # make install
-          mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           tree -all . >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
           cat src/http/ngx_http_special_response.c | grep NGINX_VER >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
           cat src/http/ngx_http_header_filter_module.c | grep "Server:" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
@@ -483,7 +480,6 @@ jobs:
           echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
           chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/qw0p
@@ -630,8 +626,6 @@ jobs:
           echo "dnf update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
           chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-
-          mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/qw0p
@@ -787,8 +781,6 @@ jobs:
           echo "dnf update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "dnf install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd libmaxminddb-devel" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
           chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          
-          mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/qw0p

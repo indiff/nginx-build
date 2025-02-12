@@ -204,10 +204,11 @@ jobs:
           rm -f  *.pch
           sudo cp -r objs/ ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
-          sudo echo "sudo apt-get update" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          sudo echo "sudo apt-get install libedit-dev libgd-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip uwsgi-plugin-python3" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
+          # sudo echo "sudo apt-get update" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "sudo apt-get update" | sudo tee -a ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh > /dev/null
+          echo "sudo apt-get install libedit-dev libgd-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip uwsgi-plugin-python3" | sudo tee -a ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh > /dev/null
           sudo chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          sudo zip -r -q -9 /opt/opt_ubuntu_nginx.zip .
+          zip -r -q -9 /opt/opt_ubuntu_nginx.zip .
           
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           export glibc_version="$(cut -d' ' -f2 <<<$(getconf GNU_LIBC_VERSION))"

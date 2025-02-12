@@ -179,13 +179,13 @@ jobs:
           make -j$(nproc) -k || make
           
           # make install
-          tree -all . >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
-          cat src/http/ngx_http_special_response.c | grep NGINX_VER >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
-          cat src/http/ngx_http_header_filter_module.c | grep "Server:" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
-          cat src/http/ngx_http_header_filter_module.c | grep "NGINX_VER" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
-          cat src/http/ngx_http_special_response.c | grep "NGINX_VER" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
-          cat src/http/ngx_http_special_response.c | grep "NGINX_VER_BUILD" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
-          cat src/http/ngx_http_special_response.c | grep "nginx" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
+          # tree -all . >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
+          #cat src/http/ngx_http_special_response.c | grep NGINX_VER >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
+          #cat src/http/ngx_http_header_filter_module.c | grep "Server:" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
+          #cat src/http/ngx_http_header_filter_module.c | grep "NGINX_VER" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
+          #cat src/http/ngx_http_special_response.c | grep "NGINX_VER" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
+          #cat src/http/ngx_http_special_response.c | grep "NGINX_VER_BUILD" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
+          #cat src/http/ngx_http_special_response.c | grep "nginx" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
           
           rm -rf objs/lib
           rm -rf objs/src
@@ -202,12 +202,12 @@ jobs:
           rm -f  *.ilk
           rm -f  *.res
           rm -f  *.pch
-          cp -r objs/ ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
-          cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
-          echo "sudo apt-get update" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          echo "sudo apt-get install libedit-dev libgd-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip uwsgi-plugin-python3" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
-          chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          zip -r -q -9 /opt/opt_ubuntu_nginx.zip .
+          sudo cp -r objs/ ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          sudo cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          sudo echo "sudo apt-get update" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          sudo echo "sudo apt-get install libedit-dev libgd-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip uwsgi-plugin-python3" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
+          sudo chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          sudo zip -r -q -9 /opt/opt_ubuntu_nginx.zip .
           
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           export glibc_version="$(cut -d' ' -f2 <<<$(getconf GNU_LIBC_VERSION))"

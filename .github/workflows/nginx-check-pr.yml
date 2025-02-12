@@ -102,7 +102,8 @@ jobs:
         run: |
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
-          mkdir -p t
+          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/{conf,html,temp,logs}
+          sudo chown -R 777 ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           export DEB_BUILD_MAINT_OPTIONS="hardening=+all"
           #export DEB_CFLAGS_MAINT_APPEND="-Wp,-D_FORTIFY_SOURCE=2 -fPIC"
           export DEB_CFLAGS_MAINT_APPEND="-Wp,-fPIC"
@@ -170,7 +171,7 @@ jobs:
           mkdir objs/temp/fastcgi_temp
           echo "" >> objs/logs/access.log
           echo "" >> objs/logs/error.log
-          echo "" >> objs/temp/dummy
+          echo "" >> objs/temp/$RANDOM_STRING
           # define NGINX_VERSION      "1.27.4"
           # define NGINX_VER          "nginx/" NGINX_VERSION
           make -j$(nproc) -k || make
@@ -504,12 +505,13 @@ jobs:
         run: |
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
-          docker run --cpus="$(nproc --all)" --rm -v ${{ github.workspace }}:/workspace -w /workspace centos:7 /bin/bash -c "/workspace/build.sh"
+          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/{conf,html,temp,logs}
+          sudo chown -R 777 ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          docker run --cpus="$(nproc --all)" -u root --rm -v ${{ github.workspace }}:/workspace -v ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} -w /workspace centos:7 /bin/bash -c "/workspace/build.sh"
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           export glib_version="$(cat glibc_version.txt)"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${{ needs.before_build.outputs.NGINX_VERSION }}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
-          unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           tree ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           # cp -f opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}-centos7-${version}_${build_timestamp}_${size_kb}KB.zip
           # mv opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}-centos7-${version}_${build_timestamp}_${size_kb}KB.tar
@@ -646,7 +648,9 @@ jobs:
         run: |
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
-          docker run --cpus="$(nproc --all)" --rm -v ${{ github.workspace }}:/workspace -w /workspace rockylinux:8 /bin/bash -c "/workspace/build.sh"
+          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/{conf,html,temp,logs}
+          sudo chown -R 777 ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          docker run --cpus="$(nproc --all)" -u root --rm -v ${{ github.workspace }}:/workspace -v ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} -w /workspace rockylinux:8 /bin/bash -c "/workspace/build.sh"
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           # unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           # tree .
@@ -654,7 +658,6 @@ jobs:
           export glib_version="$(cat glibc_version.txt)"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${{ needs.before_build.outputs.NGINX_VERSION }}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
-          unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           tree ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
   
       - name: Upload Nginx package
@@ -802,12 +805,13 @@ jobs:
         run: |
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
-          docker run --cpus="$(nproc --all)" --rm -v ${{ github.workspace }}:/workspace -w /workspace rockylinux:9 /bin/bash -c "/workspace/build.sh"
+          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/{conf,html,temp,logs}
+          sudo chown -R 777 ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          docker run --cpus="$(nproc --all)" -u root --rm -v ${{ github.workspace }}:/workspace -v ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} -w /workspace rockylinux:9 /bin/bash -c "/workspace/build.sh"
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           export glib_version="$(cat glibc_version.txt)"
           echo "BUILD_VERSION_TIMESTAMP=${{ needs.before_build.outputs.NGINX_VERSION }}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
-          unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           tree ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           # unzip opt_nginx.zip -d ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           # tree .

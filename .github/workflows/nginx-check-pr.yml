@@ -302,7 +302,7 @@ jobs:
           #mkdir -p objs/lib
           #curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
           #tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
-          git clone --depth 1 --branch openssl-3.4 --recurse-submodules https://github.com/openssl/openssl.git /openssl
+          git clone --depth 1 --branch openssl-3.4 --recursive https://github.com/openssl/openssl.git /openssl
           cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"

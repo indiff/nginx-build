@@ -23,11 +23,12 @@ on:
       openssl3Ver:
         description: 'Select Openssl Version'
         type: choice
-        default: "3.4.0"
+        default: "3.4.1"
         required: false
         options: 
         - 3.0.15
         - 3.4.0
+        - 3.4.1
   schedule:
     #- cron: '07 10 * * *' # 每天凌晨2点（UTC），对应每天上午10点（CST）, 这里对应的是中国时区的是 18 点
     - cron: '3 10 * * *' # UTC 时间 1:00 对应中国时间 9:00
@@ -293,6 +294,10 @@ jobs:
           # make -sj$(nproc)
           git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /nginx-module-vts
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
+          export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
+          mkdir -p objs/lib
+          curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
+          tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
@@ -333,6 +338,7 @@ jobs:
             --with-http_degradation_module \
             --without-http-cache \
             --add-module=/nginx-module-vts \
+            --with-openssl=objs/lib/openssl \
           --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h

@@ -302,8 +302,8 @@ jobs:
           mkdir -p objs/lib
           curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
           # tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
-          tar -xvf openssl-${openssl3_ver}.tar.gz -C objs/lib
-          du -sh obj/lib/openssl-${openssl3_ver}/
+          tar -xvf openssl-${openssl3_ver}.tar.gz -C objs/lib/
+          du -sh objs/lib/openssl-${openssl3_ver}/
           cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"

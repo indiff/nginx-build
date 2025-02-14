@@ -299,12 +299,13 @@ jobs:
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
           if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
           #echo "openssl3 version: $openssl3_ver"
+          
+          cd /nginx-build
           mkdir -p objs/lib
           curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
           # tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           tar -xvf openssl-${openssl3_ver}.tar.gz
           du -sh ./openssl-${openssl3_ver}/
-          cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
           # --with-http_geoip_module \ --with-stream_geoip_module \ No package GeoIP-devel available.

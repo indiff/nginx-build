@@ -75,13 +75,15 @@ jobs:
         run: |
           # Free disk space
           df -h && sudo apt-get clean && docker system prune -a -f && sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc && df -h
+          sudo apt purge firefox firefox-locale-*  # 删除主程序和语言包
+          sudo apt autoremove  # 移除不再需要的依赖
           sudo apt-get update
           sudo apt-get upgrade
           gcc --version
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt update
-          # 示例安装GCC 13
-          sudo apt install gcc-13 g++-13
+          # 示例安装GCC 15
+          sudo apt install gcc-15
           gcc --version
           sudo apt-get install \
             libedit-dev \

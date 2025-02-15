@@ -290,8 +290,8 @@ jobs:
           yum update -y
           yum install -y pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
           # 安装 devtoolset-6
-          sudo yum install centos-release-scl
-          sudo yum install devtoolset-6
+          sudo yum -y install centos-release-scl
+          sudo yum -y install devtoolset-6
 
           # 临时启用 GCC 6.3.1
           scl enable devtoolset-6 bash

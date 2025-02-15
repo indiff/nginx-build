@@ -288,7 +288,7 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
-          yum install -y pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+          yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
           # 安装 devtoolset-6
           #sudo yum -y install centos-release-scl
           #sudo yum -y install devtoolset-6
@@ -731,7 +731,7 @@ jobs:
           dnf makecache
           dnf update -y
           dnf install -y epel-release
-          dnf install -y tzdata
+          dnf install -y tzdata sudo
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd

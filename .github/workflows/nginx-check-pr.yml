@@ -738,6 +738,7 @@ jobs:
           gcc --version
           sudo dnf install -y gcc-toolset-12-gcc gcc-toolset-12-gcc-c++
           scl enable gcc-toolset-12 bash
+          source /opt/rh/gcc-toolset-12/enable
           gcc --version
           
           # dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd libmaxminddb libmaxminddb-devel mmdb-bin

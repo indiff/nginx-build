@@ -290,11 +290,11 @@ jobs:
           yum update -y
           yum install -y pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
           # 安装 devtoolset-6
-          sudo yum -y install centos-release-scl
-          sudo yum -y install devtoolset-6
+          #sudo yum -y install centos-release-scl
+          #sudo yum -y install devtoolset-6
 
           # 临时启用 GCC 6.3.1
-          scl enable devtoolset-6 bash
+          #scl enable devtoolset-6 bash
 
           # 验证版本
           gcc --version  # 输出 gcc 6.3.1
@@ -735,6 +735,11 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd
+          gcc --version
+          sudo dnf install -y gcc-toolset-12-gcc gcc-toolset-12-gcc-c++
+          scl enable gcc-toolset-12 bash
+          gcc --version
+          
           # dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd libmaxminddb libmaxminddb-devel mmdb-bin
           # wget https://github.com/maxmind/geoip-api-c/releases/download/v1.6.12/GeoIP-1.6.12.tar.gz
           # tar -zxvf GeoIP-1.6.12.tar.gz

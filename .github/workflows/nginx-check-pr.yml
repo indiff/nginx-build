@@ -83,7 +83,7 @@ jobs:
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt update
           # 示例安装GCC 15
-          sudo apt install gcc-15
+          # sudo apt install gcc-15
           gcc --version
           sudo apt-get install \
             libedit-dev \

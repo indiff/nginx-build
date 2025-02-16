@@ -123,6 +123,11 @@ jobs:
           export DEB_CFLAGS_MAINT_APPEND="-fPIC -O3 -flto -march=native"
           # DEB_CFLAGS_MAINT_APPEND=-fPIC
           export DEB_LDFLAGS_MAINT_APPEND=""-Wl,--as-needed""
+          mkdir -p objs/lib
+          curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
+          tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+          tar -xvf openssl-${openssl3_ver}.tar.gz
+          du -sh objs/lib/openssl
           # --with-ipv6
           auto/configure \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
@@ -165,6 +170,7 @@ jobs:
             --without-http-cache \
             --with-http_geoip_module \
             --with-stream_geoip_module \
+            --with-openssl=objs/lib/openssl \
             --with-cc-opt="$(dpkg-buildflags --get CFLAGS)" \
             --with-ld-opt="$(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err

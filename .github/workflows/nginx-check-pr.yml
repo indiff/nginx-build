@@ -120,7 +120,7 @@ jobs:
           sudo chown -R 777 ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           export DEB_BUILD_MAINT_OPTIONS="hardening=+all"
           #export DEB_CFLAGS_MAINT_APPEND="-Wp,-D_FORTIFY_SOURCE=2 -fPIC"
-          export DEB_CFLAGS_MAINT_APPEND="-Wp,-fPIC"
+          export DEB_CFLAGS_MAINT_APPEND="-Wp,-fPIC -O3 -flto -march=native"
           DEB_CFLAGS_MAINT_APPEND=-fPIC
           export DEB_LDFLAGS_MAINT_APPEND=""-Wl,--as-needed""
           # --with-ipv6

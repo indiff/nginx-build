@@ -209,6 +209,7 @@ jobs:
           
           rm -rf objs/lib
           rm -rf objs/src
+          rm -rf objs/contrib
           rm -f Makefile
           rm -f  *.8
           rm -f  *.err
@@ -222,7 +223,8 @@ jobs:
           rm -f  *.ilk
           rm -f  *.res
           rm -f  *.pch
-          sudo cp -r objs/ ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          ./objs/nginx -V
+          sudo cp -ar objs/* ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           # sudo echo "sudo apt-get update" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "sudo apt-get update" | sudo tee -a ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh > /dev/null

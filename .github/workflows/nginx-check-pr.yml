@@ -773,7 +773,8 @@ jobs:
           dnf install -y tzdata sudo
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
-          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd perl-File-Compare
+          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed  zip systemd
+          sudo dnf install perl-Test-Simple perl-FindBin perl-File-Path perl-File-Spec perl-IPC-Cmd perl-Text-Template perl-File-Compare
           gcc --version
           sudo dnf install -y gcc-toolset-14-gcc gcc-toolset-14-gcc-c++ perl-FindBin
           scl enable gcc-toolset-14 bash

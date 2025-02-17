@@ -811,7 +811,7 @@ jobs:
           du -sh objs/lib/openssl
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           # LD_OPT="-L/usr/local/lib,-Wl,-z,relro -Wl,-z,now"
-          LD_OPT="-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1 -Wl,-E"
+          LD_OPT="-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -Wl,-E"
           ./auto/configure \
             --conf-path=conf/nginx.conf \
             --pid-path=logs/nginx.pid \

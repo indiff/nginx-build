@@ -774,7 +774,7 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed  zip systemd
-          sudo dnf install perl-Test-Simple perl-FindBin perl-IPC-Cmd perl-Text-Template perl-File-Compare perl-File-Copy
+          sudo dnf install -y  perl-Test-Simple perl-FindBin perl-IPC-Cmd perl-Text-Template perl-File-Compare perl-File-Copy
           gcc --version
           sudo dnf install -y gcc-toolset-14-gcc gcc-toolset-14-gcc-c++ perl-FindBin
           scl enable gcc-toolset-14 bash

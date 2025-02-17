@@ -773,7 +773,7 @@ jobs:
           dnf install -y tzdata sudo
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
-          dnf install -y gcc perl pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd
+          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd
           gcc --version
           sudo dnf install -y gcc-toolset-14-gcc gcc-toolset-14-gcc-c++ perl-FindBin
           scl enable gcc-toolset-14 bash
@@ -811,8 +811,8 @@ jobs:
           du -sh objs/lib/openssl
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           # LD_OPT="-L/usr/local/lib,-Wl,-z,relro -Wl,-z,now"
-          LD_OPT="-pthread -Wall -Wextra -O2"
-          LD_OPT="-Wl,-z,relro"
+          # LD_OPT="-pthread -Wall -Wextra -O2"
+          LD_OPT="-Wl,-z,relro -Wl,-z,now"
           ./auto/configure \
             --conf-path=conf/nginx.conf \
             --pid-path=logs/nginx.pid \

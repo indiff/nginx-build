@@ -811,7 +811,7 @@ jobs:
           du -sh objs/lib/openssl
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           # LD_OPT="-L/usr/local/lib,-Wl,-z,relro -Wl,-z,now"
-          LD_OPT="-Wl,-z,relro -Wl,--as-needed -Wl,-z,now -Wl,-E"
+          LD_OPT="-pthread -Wall -Wextra -O2"
           ./auto/configure \
             --conf-path=conf/nginx.conf \
             --pid-path=logs/nginx.pid \

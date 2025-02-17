@@ -773,13 +773,13 @@ jobs:
           dnf install -y tzdata sudo
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
-          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd
+          dnf install -y gcc perl pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd
           gcc --version
           sudo dnf install -y gcc-toolset-14-gcc gcc-toolset-14-gcc-c++ perl-FindBin
           scl enable gcc-toolset-14 bash
           source /opt/rh/gcc-toolset-14/enable
           gcc --version
-          
+          perl -v
           # dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd zip systemd libmaxminddb libmaxminddb-devel mmdb-bin
           # wget https://github.com/maxmind/geoip-api-c/releases/download/v1.6.12/GeoIP-1.6.12.tar.gz
           # tar -zxvf GeoIP-1.6.12.tar.gz

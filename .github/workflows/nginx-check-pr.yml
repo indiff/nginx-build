@@ -334,6 +334,7 @@ jobs:
           echo 'LC_CTYPE=zh_CN.UTF-8' >> /etc/environment
           #curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-6.repo
           curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-vault-6.10.repo
+          # https://vault.centos.org/6.10/os/x86_64/Packages/
           # curl -o /etc/yum.repos.d/epel.repo https://mirrors.aliyun.com/repo/epel-6.repo
           yum clean all
           yum makecache
@@ -878,8 +879,8 @@ jobs:
             --add-module=/ngx_http_geoip2_module \
             --add-module=/nginx-module-vts \
             --with-openssl=objs/lib/openssl \
-            --with-openssl=objs/lib/pcre2 \
-            --with-openssl=objs/lib/zlib \
+            --with-pcre=objs/lib/pcre2 \
+            --with-zlib=objs/lib/zlib \
           --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h

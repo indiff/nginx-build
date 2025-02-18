@@ -143,9 +143,9 @@ jobs:
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
           if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
           export pcre2_ver="${{ github.event.inputs.pcre2_ver }}"
-          if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then openssl3_ver="${{ env.pcre2_ver }}"; fi
+          if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
-          if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then openssl3_ver="${{ env.zlib_ver }}"; fi
+          if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
           mkdir -p objs/lib
           curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
           tar -C objs/lib --transform 's/pcre2-${pcre2_ver}/pcre2/' -xzf ./pcre2-${pcre2_ver}.tar.gz

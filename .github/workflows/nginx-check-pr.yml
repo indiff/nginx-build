@@ -131,6 +131,7 @@ jobs:
       - name: Configure and build
         id: configure_build
         run: |
+          set -xe
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
           sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/{conf,html,temp,logs}

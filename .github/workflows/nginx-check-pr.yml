@@ -149,11 +149,11 @@ jobs:
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
           mkdir -p objs/lib
           curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
-          tar -C objs/lib --transform 's/pcre2-${pcre2_ver}/pcre2/' -xzf ./pcre2-${pcre2_ver}.tar.gz
+          tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
           curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
           tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
-          tar -C objs/lib --transform 's/zlib-${zlib_ver}/zlib/' -xzf ./zlib-${zlib_ver}.tar.gz
+          tar -C objs/lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           # tar -xvf openssl-${openssl3_ver}.tar.gz
           du -sh objs/lib/openssl
           du -sh objs/lib/pcre2

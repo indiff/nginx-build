@@ -23,9 +23,10 @@ on:
       pcre2_ver:
         description: 'Select pcre2 Version'
         type: choice
-        default: "10.44"
+        default: "10.45"
         required: false
         options: 
+        - 10.45
         - 10.44
       zlib_ver:
         description: 'Select pcre2 Version'
@@ -48,7 +49,7 @@ on:
     - cron: '3 10 * * *' # UTC 时间 1:00 对应中国时间 9:00
 env:
   openssl3_ver: 3.4.1
-  pcre2_ver: 10.44
+  pcre2_ver: 10.45
   zlib_ver: 1.3.1
   openssl_ver: 1.1.1w
 jobs:
@@ -1107,11 +1108,13 @@ jobs:
         shell: C:\msys64\msys2_shell.cmd -defterm -no-start -where . -full-path -shell bash.exe -Eeo pipefail -x '{0}'
     env:
       # https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.44/pcre2-10.44.tar.gz
-      #pcre2_ver: 10.39
-      pcre2_ver: 10.44
+      #pcre2_ver: 10.39 # https://github.com/PCRE2Project/pcre2/
+      pcre2_ver: 10.45
+      # https://zlib.net/fossils # https://zlib.net/
       zlib_ver: 1.3.1
-      #openssl3_ver: 3.0.15
-      openssl3_ver: 3.4.0
+      #openssl3_ver: 3.0.15 # 
+      # https://github.com/openssl/openssl
+      openssl3_ver: 3.4.1
       openssl_ver: 1.1.1w
     steps:
       - name: Check out nginx sources

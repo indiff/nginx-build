@@ -684,7 +684,7 @@ jobs:
           dnf update -y
           dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd sudo
           gcc --version
-          sudo dnf install -y gcc-toolset-14-gcc gcc-toolset-14-gcc-c++ perl-FindBin
+          sudo dnf install -y gcc-toolset-14-gcc gcc-toolset-14-gcc-c++
           scl enable gcc-toolset-14 bash
           source /opt/rh/gcc-toolset-14/enable
           gcc --version

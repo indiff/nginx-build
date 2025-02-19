@@ -178,7 +178,6 @@ jobs:
             --with-http_random_index_module \
             --with-http_secure_link_module \
             --with-http_stub_status_module \
-            --with-http_proxy_module  \
             --with-mail \
             --with-mail_ssl_module \
             --with-select_module \
@@ -499,6 +498,8 @@ jobs:
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
           yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+          yum install -y  perl-Test-Simple perl-FindBin perl-IPC-Cmd perl-Text-Template perl-File-Compare perl-File-Copy perl-Data-Dumper
+
           # timedatectl set-timezone Asia/Shanghai
           # git clone --depth 1 -b openssl-3.4 https://github.com/openssl/openssl /ssl
           # cd /ssl

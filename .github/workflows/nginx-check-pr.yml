@@ -147,19 +147,17 @@ jobs:
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
-          mkdir -p objs/lib
+          mkdir -p lib
           curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
-          tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+          tar -C lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
           curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
-          tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+          tar -C lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
-          tar -C objs/lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
+          tar -C lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           # tar -xvf openssl-${openssl3_ver}.tar.gz
-          du -sh objs/lib/openssl
-          du -sh objs/lib/pcre2
-          du -sh objs/lib/zlib
-          # tar -xvf openssl-${openssl3_ver}.tar.gz
-          du -sh objs/lib/openssl
+          du -sh lib/openssl
+          du -sh lib/pcre2
+          du -sh lib/zlib
           # --with-ipv6
           auto/configure \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
@@ -203,9 +201,9 @@ jobs:
             --without-http-cache \
             --with-http_geoip_module \
             --with-stream_geoip_module \
-            --with-openssl=objs/lib/openssl \
-            --with-pcre=objs/lib/pcre2 \
-            --with-zlib=objs/lib/zlib \
+            --with-openssl=lib/openssl \
+            --with-pcre=lib/pcre2 \
+            --with-zlib=lib/zlib \
             --with-cc-opt="$(dpkg-buildflags --get CFLAGS)" \
             --with-ld-opt="$(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err
@@ -242,6 +240,7 @@ jobs:
           #cat src/http/ngx_http_special_response.c | grep "NGINX_VER_BUILD" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
           #cat src/http/ngx_http_special_response.c | grep "nginx" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
           
+          rm -rf lib
           rm -rf objs/lib
           rm -rf objs/src
           rm -rf objs/contrib
@@ -509,24 +508,22 @@ jobs:
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
           
-          mkdir -p objs/lib
+          mkdir -p lib
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
           if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
-          mkdir -p objs/lib
           curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
-          tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+          tar -C lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           export pcre2_ver="${{ github.event.inputs.pcre2_ver }}"
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
-          mkdir -p objs/lib
           curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
-          tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+          tar -C lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
           curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
-          tar -C objs/lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
-          du -sh objs/lib/openssl
-          du -sh objs/lib/pcre2
-          du -sh objs/lib/zlib
+          tar -C lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
+          du -sh lib/openssl
+          du -sh lib/pcre2
+          du -sh lib/zlib
           
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
@@ -566,9 +563,9 @@ jobs:
             --without-http-cache \
             --with-stream_geoip_module \
             --add-module=/nginx-module-vts \
-            --with-openssl=objs/lib/openssl \
-            --with-pcre=objs/lib/pcre2 \
-            --with-zlib=objs/lib/zlib \
+            --with-openssl=lib/openssl \
+            --with-pcre=lib/pcre2 \
+            --with-zlib=lib/zlib \
           --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h

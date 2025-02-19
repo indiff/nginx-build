@@ -683,6 +683,11 @@ jobs:
           echo 'Asia/Shanghai' > /etc/timezone
           dnf update -y
           dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+          gcc --version
+          sudo dnf install -y gcc-toolset-14-gcc gcc-toolset-14-gcc-c++ perl-FindBin
+          scl enable gcc-toolset-14 bash
+          source /opt/rh/gcc-toolset-14/enable
+          gcc --version
           git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /nginx-module-vts
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build

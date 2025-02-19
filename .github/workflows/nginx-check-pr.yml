@@ -501,7 +501,7 @@ jobs:
           cp -f CentOS-SCLo-scl.repo /etc/yum.repos.d/CentOS-SCLo-scl.repo
           cat /etc/yum.repos.d/CentOS-SCLo-scl.repo
           yum -y update
-          yum -y install devtoolset-11
+          yum -y install devtoolset-11 --nogpgcheck
           scl enable devtoolset-11 bash
           source /opt/rh/devtoolset-11/enable
           gcc -v

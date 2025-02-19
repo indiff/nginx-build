@@ -180,6 +180,7 @@ jobs:
             --with-http_random_index_module \
             --with-http_secure_link_module \
             --with-http_stub_status_module \
+            --with-http_proxy_module  \
             --with-mail \
             --with-mail_ssl_module \
             --with-select_module \
@@ -507,6 +508,26 @@ jobs:
           git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /nginx-module-vts
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
+          
+          mkdir -p objs/lib
+          export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
+          if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
+          mkdir -p objs/lib
+          curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
+          tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+          export pcre2_ver="${{ github.event.inputs.pcre2_ver }}"
+          if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
+          export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
+          if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
+          mkdir -p objs/lib
+          curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+          tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+          curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
+          tar -C objs/lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
+          du -sh objs/lib/openssl
+          du -sh objs/lib/pcre2
+          du -sh objs/lib/zlib
+          
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
           ./auto/configure \
@@ -545,6 +566,9 @@ jobs:
             --without-http-cache \
             --with-stream_geoip_module \
             --add-module=/nginx-module-vts \
+            --with-openssl=objs/lib/openssl \
+            --with-pcre=objs/lib/pcre2 \
+            --with-zlib=objs/lib/zlib \
           --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h

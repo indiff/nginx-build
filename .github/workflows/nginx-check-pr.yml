@@ -494,7 +494,7 @@ jobs:
           yum clean all
           yum makecache
           yum install -y epel-release
-          yum install centos-release-scl
+          yum install -y centos-release-scl
           curl -sLO https://github.com/indiff/nginx-build/raw/refs/heads/main/CentOS-SCLo-scl.repo
           cp -f CentOS-SCLo-scl.repo /etc/yum.repos.d/CentOS-SCLo-scl.repo
           yum -y install devtoolset-11

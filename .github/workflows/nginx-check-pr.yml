@@ -1456,6 +1456,8 @@ jobs:
               rm -rf "${the_dir}"
             fi         
           done
+          export buildPrefix="${{ github.event.inputs.buildPrefix }}"
+          if [ "${{ github.event.inputs.buildPrefix }}" == "" ]; then buildPrefix="/opt/nginx"; fi
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
           if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
           export pcre2_ver="${{ github.event.inputs.pcre2_ver }}"
@@ -1473,7 +1475,7 @@ jobs:
           checksums=$(cat ${cdir}/artifacts/checksums.sha256)
           gh release delete --cleanup-tag --yes "$TAGNAME" || true
           # sleep 15
-          NOTES="$(printf "## Zlib: $zlib_ver\n## Pcre2: $pcre2_ver\n## OpenSSL: $openssl3_ver\n## SHA256 Digest\n \`\`\`\n$checksums\n\`\`\`")"
+          NOTES="$(printf "|prefix|$buildPrefix|\n| Zlib| $zlib_ver|\n| Pcre2| $pcre2_ver|\n## OpenSSL: $openssl3_ver\n## SHA256 Digest\n \`\`\`\n$checksums\n\`\`\`")"
           gh release create "$TAGNAME" --target "main" --notes "${NOTES}" --title "$NAME" ${cdir}/artifacts/*
         env:
           GITHUB_TOKEN: ${{ github.token }}

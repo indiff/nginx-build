@@ -1313,6 +1313,7 @@ jobs:
           curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
           tar -C objs/lib --transform 's/pcre2-${pcre2_ver}/pcre/' -xzf ./pcre2-${pcre2_ver}.tar.gz
           # mkdir -p objs/lib/pcre/src
+          tree objs/lib/pcre
           echo '#include <stdint.h>' > objs/lib/pcre/src/inttypes.h
           curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
           tar -C objs/lib --transform 's/zlib-${zlib_ver}/zlib/' -xzf ./zlib-${zlib_ver}.tar.gz

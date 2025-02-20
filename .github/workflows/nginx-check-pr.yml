@@ -350,6 +350,16 @@ jobs:
           # 安装 devtoolset-6
           #sudo yum -y install centos-release-scl
           #sudo yum -y install devtoolset-6
+          
+          echo "[centos-sclo-rh]" > /etc/yum.repos.d/centos6-devtoolset.repo
+          echo "name=CentOS-6 - SCLo rh" >> /etc/yum.repos.d/centos6-devtoolset.repo
+          echo "baseurl=https://vault.centos.org/6.10/sclo/x86_64/rh" >> /etc/yum.repos.d/centos6-devtoolset.repo
+          echo "gpgcheck=0" >> /etc/yum.repos.d/centos6-devtoolset.repo
+          echo "enabled=1" >> /etc/yum.repos.d/centos6-devtoolset.repo
+          yum -y install devtoolset-9
+          scl enable devtoolset-9 bash
+          source /opt/rh/devtoolset-9/enable
+          gcc -v
 
           # 临时启用 GCC 6.3.1
           #scl enable devtoolset-6 bash
@@ -369,10 +379,21 @@ jobs:
           
           cd /nginx-build
           mkdir -p objs/lib
+          
+          export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
+          if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
+          echo "openssl3 version: $openssl3_ver"
+          export pcre2_ver="${{ github.event.inputs.pcre2_ver }}"
+          if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
+          export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
+          if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
+          curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+          tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+          curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
+          tar -C objs/lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
-          # tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
-          tar -xvf openssl-${openssl3_ver}.tar.gz
-          du -sh ./openssl-${openssl3_ver}/
+          tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+          
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
           # --with-http_geoip_module \ --with-stream_geoip_module \ No package GeoIP-devel available.
@@ -412,7 +433,9 @@ jobs:
             --with-http_degradation_module \
             --without-http-cache \
             --add-module=/nginx-module-vts \
-            --with-openssl=./openssl-${openssl3_ver} \
+            --with-openssl=objs/lib/openssl \
+            --with-zlib=objs/lib/zlib \
+            --with-pcre=objs/lib/pcre2 \
           --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h

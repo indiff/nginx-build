@@ -1309,12 +1309,11 @@ jobs:
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
-          mkdir objs
-          mkdir objs/lib
+          mkdir -p objs/lib
           curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
           tar -C objs/lib --transform 's/pcre2-${pcre2_ver}/pcre/' -xzf ./pcre2-${pcre2_ver}.tar.gz
           # mkdir -p objs/lib/pcre/src
-          # echo '#include <stdint.h>' > objs/lib/pcre/src/inttypes.h
+          echo '#include <stdint.h>' > objs/lib/pcre/src/inttypes.h
           curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
           tar -C objs/lib --transform 's/zlib-${zlib_ver}/zlib/' -xzf ./zlib-${zlib_ver}.tar.gz
           case "${{ matrix.toolchain }}" in
@@ -1338,7 +1337,7 @@ jobs:
           # define NGINX_VERSION      "1.27.4"
           # define NGINX_VER          "nginx/" NGINX_VERSION
           cp -R conf objs/conf
-          cp -R contrib objs/contrib
+          # cp -R contrib objs/contrib
           cp -R docs/html objs/html
           sed -i 's/nginx/qw0p/Ig' objs/html/index.html
           sed -i 's/nginx/qw0p/Ig' objs/html/50x.html

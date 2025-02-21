@@ -395,6 +395,7 @@ jobs:
           tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
+          CC_OPT="-O2 -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
           # --with-http_geoip_module \ --with-stream_geoip_module \ No package GeoIP-devel available.
           # --builddir=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \

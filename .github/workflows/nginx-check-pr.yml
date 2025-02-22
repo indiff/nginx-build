@@ -346,7 +346,8 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
-          yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+          # yum install -y pcre-devel zlib-devel openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+          yum install -y git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
           # 安装 devtoolset-6
           #sudo yum -y install centos-release-scl
           #sudo yum -y install devtoolset-6
@@ -360,6 +361,7 @@ jobs:
           scl enable devtoolset-9 bash
           source /opt/rh/devtoolset-9/enable
           gcc -v
+          make -v
 
           # 临时启用 GCC 6.3.1
           #scl enable devtoolset-6 bash
@@ -452,7 +454,7 @@ jobs:
           # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           # GeoIP GeoIP-devel 
-          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
+          echo "yum install -y GeoIP GeoIP-devel zip" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
           chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           # mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
@@ -478,6 +480,8 @@ jobs:
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${{ needs.before_build.outputs.NGINX_VERSION }}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
           tree ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          chmod +x needs.before_build.outputs.NGINX_BUILD_PREFIX/nginx
+          chmod +x needs.before_build.outputs.NGINX_BUILD_PREFIX/*.sh
 
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4

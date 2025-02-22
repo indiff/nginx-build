@@ -347,7 +347,8 @@ jobs:
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
           # yum install -y pcre-devel zlib-devel openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
-          yum install -y git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+          yum install -y pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+
           # 安装 devtoolset-6
           #sudo yum -y install centos-release-scl
           #sudo yum -y install devtoolset-6

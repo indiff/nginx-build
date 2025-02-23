@@ -481,8 +481,8 @@ jobs:
           export size_kb=$(du -k opt_nginx.zip | cut -f1)
           echo "BUILD_VERSION_TIMESTAMP=${{ needs.before_build.outputs.NGINX_VERSION }}_${build_timestamp}_glibc${glib_version}_${size_kb}KB" >> $GITHUB_ENV
           tree ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
-          chmod +x needs.before_build.outputs.NGINX_BUILD_PREFIX/nginx
-          chmod +x needs.before_build.outputs.NGINX_BUILD_PREFIX/*.sh
+          # chmod +x needs.before_build.outputs.NGINX_BUILD_PREFIX/nginx
+          # chmod +x needs.before_build.outputs.NGINX_BUILD_PREFIX/*.sh
 
       - name: Upload Nginx package
         uses: actions/upload-artifact@v4

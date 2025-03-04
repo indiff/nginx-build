@@ -529,17 +529,30 @@ jobs:
           # yum install -y centos-release-scl
           ls -lh /etc/yum.repos.d/
           # cat /etc/yum.repos.d/CentOS-SCLo-scl.repo
-          echo "[centos-sclo-rh]" > /etc/yum.repos.d/centos7-devtoolset.repo
-          echo "name=CentOS-7 - SCLo rh" >> /etc/yum.repos.d/centos7-devtoolset.repo
-          echo "baseurl=https://vault.centos.org/7.9.2009/sclo/x86_64/rh/" >> /etc/yum.repos.d/centos7-devtoolset.repo
-          echo "gpgcheck=0" >> /etc/yum.repos.d/centos7-devtoolset.repo
-          echo "enabled=1" >> /etc/yum.repos.d/centos7-devtoolset.repo
-          
+          # echo "[centos-sclo-rh]" > /etc/yum.repos.d/centos7-devtoolset.repo
+          # echo "name=CentOS-7 - SCLo rh" >> /etc/yum.repos.d/centos7-devtoolset.repo
+          # echo "baseurl=https://vault.centos.org/7.9.2009/sclo/x86_64/rh/" >> /etc/yum.repos.d/centos7-devtoolset.repo
+          # echo "gpgcheck=0" >> /etc/yum.repos.d/centos7-devtoolset.repo
+          # echo "enabled=1" >> /etc/yum.repos.d/centos7-devtoolset.repo
+          # yum -y update
+          # yum -y install devtoolset-11 --nogpgcheck
+          # scl enable devtoolset-11 bash
+          # source /opt/rh/devtoolset-11/enable
+          # gcc -v
+          # make -v
+
+          echo "[buildlogs-cdn-centos-x86_64]" > /etc/yum.repos.d/centos7-devtoolset-12.repo
+          echo "name=devtoolset-12" >> /etc/yum.repos.d/centos7-devtoolset-12.repo
+          echo "baseurl=https://buildlogs.cdn.centos.org/c7-devtoolset-12.x86_64" >> /etc/yum.repos.d/centos7-devtoolset-12.repo
+          echo "gpgcheck=0" >> /etc/yum.repos.d/centos7-devtoolset-12.repo
+          echo "enabled=1" >> /etc/yum.repos.d/centos7-devtoolset-12.repo
           yum -y update
-          yum -y install devtoolset-11 --nogpgcheck
-          scl enable devtoolset-11 bash
-          source /opt/rh/devtoolset-11/enable
+          yum -y install devtoolset-12 --nogpgcheck
+          scl enable devtoolset-12 bash
+          source /opt/rh/devtoolset-12/enable
           gcc -v
+          make -v
+
           yum -y install tzdata
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone

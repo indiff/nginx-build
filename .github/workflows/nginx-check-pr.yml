@@ -570,7 +570,7 @@ jobs:
           # make -sj$(nproc)
           mkdir -p /withlib
           git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /withlib/nginx-module-vts
-          git clone --depth 1 https://github.com/nginx/nginx.git /withlib/nginx-build
+          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
           
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"

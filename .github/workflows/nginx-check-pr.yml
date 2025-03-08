@@ -586,7 +586,7 @@ jobs:
             git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
             (cd /withlib/pcre2; git submodule update --init)
             # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
-            ./autogen.sh
+            sh autogen.sh
             cd /nginx-build
           else
             curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz

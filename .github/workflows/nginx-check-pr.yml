@@ -560,7 +560,7 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
-          yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+          yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd autoconf
           yum install -y  perl-Test-Simple perl-FindBin perl-IPC-Cmd perl-Text-Template perl-File-Compare perl-File-Copy perl-Data-Dumper
 
           # timedatectl set-timezone Asia/Shanghai
@@ -584,6 +584,9 @@ jobs:
           if [ ${pcre2_ver} == "nightly" ]; 
           then
             git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
+            (cd /withlib/pcre2; git submodule update --init)
+            autoconf
+            cd /nginx-build
           else
             curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
             tar -C /withlib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz

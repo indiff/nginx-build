@@ -581,10 +581,11 @@ jobs:
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
 
-          if [ ${pcre2_ver} == "nightly" ]; 
-          then
+          if [ ${pcre2_ver} == "nightly" ]; then
             git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
-            (cd /withlib/pcre2; git submodule update --init)
+            cd /withlib/pcre2
+            git submodule update --init
+            ls
             # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
             sh autogen.sh
             cd /nginx-build

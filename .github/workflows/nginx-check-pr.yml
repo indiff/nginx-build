@@ -159,6 +159,8 @@ jobs:
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
 
           sudo mkdir -p /withlib
+          sudo chown -R 777 /withlib
+
           git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /withlib/nginx-module-vts
 
           if [ ${pcre2_ver} == "nightly" ]; then

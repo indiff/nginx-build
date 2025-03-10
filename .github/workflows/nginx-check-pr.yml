@@ -158,42 +158,41 @@ jobs:
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
 
-          sudo mkdir -p /withlib
-          sudo chown -R 777 /withlib
 
-          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /withlib/nginx-module-vts
+          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /home/nginx-module-vts
 
           if [ ${pcre2_ver} == "nightly" ]; then
-            git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
-            cd /withlib/pcre2
+            git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /home/pcre2
+            cd /home/pcre2
             git submodule update --init
             ls
             # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
             sh autogen.sh
           else
             curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
-            tar -C /withlib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+            tar -C /home --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
           fi
 
           if [ ${openssl3_ver} == "nightly" ]; 
           then
-            git clone --depth 1 https://github.com/openssl/openssl.git /withlib/openssl
+            git clone --depth 1 https://github.com/openssl/openssl.git /home/openssl
           else
             curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
-            tar -C /withlib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+            tar -C /home --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           fi
 
           if [ ${zlib_ver} == "nightly" ]; 
           then
-            git clone --depth 1 https://github.com/madler/zlib.git /withlib/zlib
+            git clone --depth 1 https://github.com/madler/zlib.git /home/zlib
           else
             curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
-            tar -C /withlib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
+            tar -C /home --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           fi
 
-          du -sh /withlib/openssl
-          du -sh /withlib/pcre2
-          du -sh /withlib/zlib
+          du -sh /home/nginx-module-vts
+          du -sh /home/openssl
+          du -sh /home/pcre2
+          du -sh /home/zlib
           # --with-ipv6
           auto/configure \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
@@ -236,10 +235,10 @@ jobs:
             --without-http-cache \
             --with-http_geoip_module \
             --with-stream_geoip_module \
-            --add-module=/withlib/nginx-module-vts \
-            --with-openssl=/withlib/openssl \
-            --with-pcre=/withlib/pcre2 \
-            --with-zlib=/withlib/zlib \
+            --add-module=/home/nginx-module-vts \
+            --with-openssl=/home/openssl \
+            --with-pcre=/home/pcre2 \
+            --with-zlib=/home/zlib \
             --with-cc-opt="$(dpkg-buildflags --get CFLAGS)" \
             --with-ld-opt="$(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err
@@ -1413,18 +1412,39 @@ jobs:
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
+          
           mkdir -p objs/lib
-          curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
-          tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre/" -xzf ./pcre2-${pcre2_ver}.tar.gz
-          # mkdir -p objs/lib/pcre/src
-          # tree objs/lib/pcre
+          
+          if [ ${pcre2_ver} == "nightly" ]; then
+                git clone --depth 1 https://github.com/PCRE2Project/pcre2.git objs/lib/pcre2
+                cd objs/lib/pcre2
+                git submodule update --init
+                ls
+                # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
+                sh autogen.sh
+          else
+                curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+                tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+          fi
+          
+          if [ ${zlib_ver} == "nightly" ]; 
+            then
+                git clone --depth 1 https://github.com/madler/zlib.git objs/lib/zlib
+            else
+                curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
+                tar -C objs/lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
+          fi
           echo '#include <stdint.h>' > objs/lib/pcre/src/inttypes.h
-          curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
-          tar -C objs/lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           case "${{ matrix.toolchain }}" in
             msvc)
               curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
               tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+              if [ ${openssl3_ver} == "nightly" ];  then
+                git clone --depth 1 https://github.com/openssl/openssl.git objs/lib/openssl
+              else
+                curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
+                tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+              fi              
             ;;
             mingw*)
               curl -sLO https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${{ env.openssl_ver }}.tar.gz

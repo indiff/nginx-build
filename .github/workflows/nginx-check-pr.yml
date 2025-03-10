@@ -133,6 +133,9 @@ jobs:
             uwsgi \
             zip \
             unzip \
+            autoconf \
+            automake \
+            libtool \
             uwsgi-plugin-python3
 
       - name: Configure and build
@@ -154,17 +157,42 @@ jobs:
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
-          mkdir -p lib
-          curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
-          tar -C lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
-          curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
-          tar -C lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
-          curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
-          tar -C lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
-          # tar -xvf openssl-${openssl3_ver}.tar.gz
-          du -sh lib/openssl
-          du -sh lib/pcre2
-          du -sh lib/zlib
+
+
+          mkdir -p /withlib
+          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /withlib/nginx-module-vts
+
+          if [ ${pcre2_ver} == "nightly" ]; then
+            git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
+            cd /withlib/pcre2
+            git submodule update --init
+            ls
+            # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
+            sh autogen.sh
+          else
+            curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+            tar -C /withlib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+          fi
+
+          if [ ${openssl3_ver} == "nightly" ]; 
+          then
+            git clone --depth 1 https://github.com/openssl/openssl.git /withlib/openssl
+          else
+            curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
+            tar -C /withlib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+          fi
+
+          if [ ${zlib_ver} == "nightly" ]; 
+          then
+            git clone --depth 1 https://github.com/madler/zlib.git /withlib/zlib
+          else
+            curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
+            tar -C /withlib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
+          fi
+
+          du -sh /withlib/openssl
+          du -sh /withlib/pcre2
+          du -sh /withlib/zlib
           # --with-ipv6
           auto/configure \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
@@ -207,9 +235,10 @@ jobs:
             --without-http-cache \
             --with-http_geoip_module \
             --with-stream_geoip_module \
-            --with-openssl=lib/openssl \
-            --with-pcre=lib/pcre2 \
-            --with-zlib=lib/zlib \
+            --add-module=/withlib/nginx-module-vts \
+            --with-openssl=/withlib/openssl \
+            --with-pcre=/withlib/pcre2 \
+            --with-zlib=/withlib/zlib \
             --with-cc-opt="$(dpkg-buildflags --get CFLAGS)" \
             --with-ld-opt="$(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err
@@ -350,7 +379,7 @@ jobs:
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
           # yum install -y pcre-devel zlib-devel openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
-          yum install -y pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+          yum install -y pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd autoconf automake libtool
 
           # 安装 devtoolset-6
           #sudo yum -y install centos-release-scl
@@ -377,15 +406,11 @@ jobs:
           # cd /ssl
           # ./config --release no-shared enable-ec_nistp_64_gcc_128
           # make -sj$(nproc)
-          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /nginx-module-vts
-          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
+          mkdir -p /withlib
+          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /withlib/nginx-module-vts
+          
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
           if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
-          #echo "openssl3 version: $openssl3_ver"
-          
-          cd /nginx-build
-          mkdir -p objs/lib
-          
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
           if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
           echo "openssl3 version: $openssl3_ver"
@@ -393,12 +418,37 @@ jobs:
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
-          curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
-          tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
-          curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
-          tar -C objs/lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
-          curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
-          tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+          
+          if [ ${pcre2_ver} == "nightly" ]; then
+            git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
+            cd /withlib/pcre2
+            git submodule update --init
+            ls
+            # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
+            sh autogen.sh
+          else
+            curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+            tar -C /withlib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+          fi
+
+          if [ ${openssl3_ver} == "nightly" ]; 
+          then
+            git clone --depth 1 https://github.com/openssl/openssl.git /withlib/openssl
+          else
+            curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
+            tar -C /withlib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+          fi
+
+          if [ ${zlib_ver} == "nightly" ]; 
+          then
+            git clone --depth 1 https://github.com/madler/zlib.git /withlib/zlib
+          else
+            curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
+            tar -C /withlib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
+          fi
+          
+          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
+          cd /nginx-build
           
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           CC_OPT="-O2 -fPIC"
@@ -439,10 +489,10 @@ jobs:
             --with-compat \
             --with-http_degradation_module \
             --without-http-cache \
-            --add-module=/nginx-module-vts \
-            --with-openssl=objs/lib/openssl \
-            --with-zlib=objs/lib/zlib \
-            --with-pcre=objs/lib/pcre2 \
+            --add-module=/withlib/nginx-module-vts \
+            --with-openssl=/withlib/openssl \
+            --with-zlib=/withlib/zlib \
+            --with-pcre=/withlib/pcre2 \
           --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
@@ -529,20 +579,7 @@ jobs:
           yum clean all
           yum makecache
           yum install -y epel-release
-          # yum install -y centos-release-scl
           ls -lh /etc/yum.repos.d/
-          # cat /etc/yum.repos.d/CentOS-SCLo-scl.repo
-          # echo "[centos-sclo-rh]" > /etc/yum.repos.d/centos7-devtoolset.repo
-          # echo "name=CentOS-7 - SCLo rh" >> /etc/yum.repos.d/centos7-devtoolset.repo
-          # echo "baseurl=https://vault.centos.org/7.9.2009/sclo/x86_64/rh/" >> /etc/yum.repos.d/centos7-devtoolset.repo
-          # echo "gpgcheck=0" >> /etc/yum.repos.d/centos7-devtoolset.repo
-          # echo "enabled=1" >> /etc/yum.repos.d/centos7-devtoolset.repo
-          # yum -y update
-          # yum -y install devtoolset-11 --nogpgcheck
-          # scl enable devtoolset-11 bash
-          # source /opt/rh/devtoolset-11/enable
-          # gcc -v
-          # make -v
 
           echo "[buildlogs-cdn-centos-x86_64]" > /etc/yum.repos.d/centos7-devtoolset-12.repo
           echo "name=devtoolset-12" >> /etc/yum.repos.d/centos7-devtoolset-12.repo
@@ -563,19 +600,10 @@ jobs:
           yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd autoconf automake libtool
           yum install -y  perl-Test-Simple perl-FindBin perl-IPC-Cmd perl-Text-Template perl-File-Compare perl-File-Copy perl-Data-Dumper
 
-          # timedatectl set-timezone Asia/Shanghai
-          # git clone --depth 1 -b openssl-3.4 https://github.com/openssl/openssl /ssl
-          # cd /ssl
-          # ./config --release no-shared enable-ec_nistp_64_gcc_128
-          # make -sj$(nproc)
           mkdir -p /withlib
           git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /withlib/nginx-module-vts
-          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
-          cd /nginx-build
-          
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
           if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
-          
           export pcre2_ver="${{ github.event.inputs.pcre2_ver }}"
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
@@ -588,7 +616,6 @@ jobs:
             ls
             # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
             sh autogen.sh
-            cd /nginx-build
           else
             curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
             tar -C /withlib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
@@ -613,6 +640,9 @@ jobs:
           du -sh /withlib/openssl
           du -sh /withlib/pcre2
           du -sh /withlib/zlib
+
+          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
+          cd /nginx-build
           
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"

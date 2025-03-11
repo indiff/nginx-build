@@ -144,8 +144,9 @@ jobs:
           set -xe
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
-          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/{conf,html,temp,logs}
+          sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/{conf,html,temp,logs,withlib}
           sudo chown -R 777 ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          export WITHLIB=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/withlib
           export DEB_BUILD_MAINT_OPTIONS="hardening=+all"
           #export DEB_CFLAGS_MAINT_APPEND="-Wp,-D_FORTIFY_SOURCE=2 -fPIC"
           export DEB_CFLAGS_MAINT_APPEND="-fPIC -O3 -flto -march=native"
@@ -157,42 +158,40 @@ jobs:
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
-          sudo mkdir -p /home
-          sudo chown -R 777 /home
-          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /home/nginx-module-vts
+          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git ${WITHLIB}/nginx-module-vts
 
           if [ ${pcre2_ver} == "nightly" ]; then
-            git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /home/pcre2
-            cd /home/pcre2
+            git clone --depth 1 https://github.com/PCRE2Project/pcre2.git ${WITHLIB}/pcre2
+            cd ${WITHLIB}pcre2
             git submodule update --init
             ls
             # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
             sh autogen.sh
           else
             curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
-            tar -C /home --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+            tar -C ${WITHLIB} --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
           fi
 
           if [ ${openssl3_ver} == "nightly" ]; 
           then
-            git clone --depth 1 https://github.com/openssl/openssl.git /home/openssl
+            git clone --depth 1 https://github.com/openssl/openssl.git ${WITHLIB}/openssl
           else
             curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
-            tar -C /home --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+            tar -C ${WITHLIB} --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           fi
 
           if [ ${zlib_ver} == "nightly" ]; 
           then
-            git clone --depth 1 https://github.com/madler/zlib.git /home/zlib
+            git clone --depth 1 https://github.com/madler/zlib.git ${WITHLIB}/zlib
           else
             curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
-            tar -C /home --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
+            tar -C ${WITHLIB} --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           fi
 
-          du -sh /home/nginx-module-vts
-          du -sh /home/openssl
-          du -sh /home/pcre2
-          du -sh /home/zlib
+          du -sh ${WITHLIB}/nginx-module-vts
+          du -sh ${WITHLIB}/openssl
+          du -sh ${WITHLIB}/pcre2
+          du -sh ${WITHLIB}/zlib
           # --with-ipv6
           auto/configure \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
@@ -235,10 +234,10 @@ jobs:
             --without-http-cache \
             --with-http_geoip_module \
             --with-stream_geoip_module \
-            --add-module=/home/nginx-module-vts \
-            --with-openssl=/home/openssl \
-            --with-pcre=/home/pcre2 \
-            --with-zlib=/home/zlib \
+            --add-module=${WITHLIB}/nginx-module-vts \
+            --with-openssl=${WITHLIB}/openssl \
+            --with-pcre=${WITHLIB}/pcre2 \
+            --with-zlib=${WITHLIB}/zlib \
             --with-cc-opt="$(dpkg-buildflags --get CFLAGS)" \
             --with-ld-opt="$(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err
@@ -279,6 +278,7 @@ jobs:
           rm -rf objs/lib
           rm -rf objs/src
           rm -rf objs/contrib
+          rm -rf ${WITHLIB}
           rm -f Makefile
           rm -f  *.8
           rm -f  *.err
@@ -1430,7 +1430,6 @@ jobs:
           if [ ${zlib_ver} == "nightly" ]; 
             then
                 git clone --depth 1 https://github.com/madler/zlib.git objs/lib/zlib
-                echo '#include <stdint.h>' > objs/lib/pcre/src/inttypes.h
             else
                 curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
                 tar -C objs/lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz

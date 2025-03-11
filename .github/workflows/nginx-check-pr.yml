@@ -1042,6 +1042,8 @@ jobs:
           du -sh /withlib/openssl
           du -sh /withlib/pcre2
           du -sh /withlib/zlib
+          du -sh /withlib/nginx-module-vts
+          du -sh /withlib/ngx_http_geoip2_module
 
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
@@ -1085,9 +1087,9 @@ jobs:
             --without-http-cache \
             --add-module=/withlib/ngx_http_geoip2_module \
             --add-module=/withlib/nginx-module-vts \
-            --with-openssl=/withlib/lib/openssl \
-            --with-pcre=/withlib/lib/pcre2 \
-            --with-zlib=/withlib/lib/zlib \
+            --with-openssl=/withlib/openssl \
+            --with-pcre=/withlib/pcre2 \
+            --with-zlib=/withlib/zlib \
           --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h

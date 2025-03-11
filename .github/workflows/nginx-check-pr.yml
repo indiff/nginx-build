@@ -516,6 +516,8 @@ jobs:
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/$RANDOM_STRING
+          cp -rf docs/html ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/html
+          
           # tar cvf /workspace/opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/
           zip -r -q -9 /workspace/opt_nginx.zip .
@@ -706,6 +708,8 @@ jobs:
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/qw0p
+          cp -rf docs/html ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/html
+
           # tar cvf /workspace/opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/
           zip -r -q -9 /workspace/opt_nginx.zip .
@@ -1385,8 +1389,6 @@ jobs:
                     --http-proxy-temp-path=temp/proxy_temp \
                     --http-fastcgi-temp-path=temp/fastcgi_temp \
                     --with-cc-opt=-DFD_SETSIZE=1024 \
-                    --with-pcre=objs/lib/pcre \
-                    --with-zlib=objs/lib/zlib \
                     --with-select_module \
                     --with-http_realip_module \
                     --with-http_addition_module \
@@ -1409,6 +1411,8 @@ jobs:
                     --with-stream_realip_module \
                     --without-http-cache \
                     --add-module=c:/nginx-module-vts \
+                    --with-pcre=objs/lib/pcre2 \
+                    --with-zlib=objs/lib/zlib \
                     --with-openssl=objs/lib/openssl",
           "NGINX_CONFIGURE_CC_MSVC": "--with-cc=cl",
           "NGINX_CONFIGURE_CC_MINGW": "--with-cc=/${{ matrix.toolchain }}/bin/${{ matrix.env }}-w64-mingw32-gcc.exe",
@@ -1471,6 +1475,7 @@ jobs:
           else
                 curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
                 tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+                echo '#include <stdint.h>' > objs/lib/pcre2/src/inttypes.h
           fi
           
           if [ ${zlib_ver} == "nightly" ]; 
@@ -1480,7 +1485,7 @@ jobs:
                 curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
                 tar -C objs/lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
                 mkdir -p objs/lib/pcre/src
-                echo '#include <stdint.h>' > objs/lib/pcre/src/inttypes.h
+                
           fi
           
           case "${{ matrix.toolchain }}" in

@@ -790,31 +790,54 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           dnf update -y
-          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd sudo
+          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd sudo autoconf automake libtool
           gcc --version
           sudo dnf install -y gcc-toolset-14-gcc gcc-toolset-14-gcc-c++
           scl enable gcc-toolset-14 bash
           source /opt/rh/gcc-toolset-14/enable
-          gcc --version
-          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /nginx-module-vts
-          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
-          cd /nginx-build
-          mkdir -p lib
+          mkdir -p /withlib
+          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /withlib/nginx-module-vts
+          
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
           if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
-          curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
-          tar -C lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           export pcre2_ver="${{ github.event.inputs.pcre2_ver }}"
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
-          curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
-          tar -C lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
-          curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
-          tar -C lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
-          du -sh lib/openssl
-          du -sh lib/pcre2
-          du -sh lib/zlib
+
+          if [ ${pcre2_ver} == "nightly" ]; then
+            git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
+            cd /withlib/pcre2
+            git submodule update --init
+            ls
+            # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
+            sh autogen.sh
+          else
+            curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+            tar -C /withlib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+          fi
+
+          if [ ${openssl3_ver} == "nightly" ]; 
+          then
+            git clone --depth 1 https://github.com/openssl/openssl.git /withlib/openssl
+          else
+            curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
+            tar -C /withlib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+          fi
+
+          if [ ${zlib_ver} == "nightly" ]; 
+          then
+            git clone --depth 1 https://github.com/madler/zlib.git /withlib/zlib
+          else
+            curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
+            tar -C /withlib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
+          fi
+          
+          du -sh /withlib/openssl
+          du -sh /withlib/pcre2
+          du -sh /withlib/zlib
+          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
+          cd /nginx-build
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro -Wl,-z,now"
           ./auto/configure \
@@ -852,10 +875,10 @@ jobs:
             --with-http_geoip_module \
             --without-http-cache \
             --with-stream_geoip_module \
-            --add-module=/nginx-module-vts \
-            --with-openssl=lib/openssl \
-            --with-pcre=lib/pcre2 \
-            --with-zlib=lib/zlib \
+            --add-module=/withlib/nginx-module-vts \
+            --with-openssl=/withlib/openssl \
+            --with-pcre=/withlib/pcre2 \
+            --with-zlib=/withlib/zlib \
           --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
@@ -865,7 +888,6 @@ jobs:
           sed -i 's/<center>nginx<\/center>/<center>qw0p<\/center>/Ig' src/http/ngx_http_special_response.c
           sed -i 's/nginx/qw0p/Ig' docs/html/index.html
           sed -i 's/nginx/qw0p/Ig' docs/html/50x.html
-
           
           make -j$(nproc)
           make install
@@ -980,31 +1002,53 @@ jobs:
           # make install
           # sh -c "echo /usr/local/lib  >> /etc/ld.so.conf.d/local.conf"
           # ldconfig
-          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /nginx-module-vts
-          git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git /ngx_http_geoip2_module
-          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
-          cd /nginx-build
-          mkdir -p objs/lib
+
+          mkdir -p /withlib
+          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /withlib/nginx-module-vts
+          git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git /withlib/ngx_http_geoip2_module
+
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
           if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
-          mkdir -p objs/lib
-          curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
-          tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           export pcre2_ver="${{ github.event.inputs.pcre2_ver }}"
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
-          mkdir -p objs/lib
-          curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
-          tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
-          curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
-          tar -C objs/lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
-          du -sh objs/lib/openssl
-          du -sh objs/lib/pcre2
-          du -sh objs/lib/zlib
+
+          if [ ${pcre2_ver} == "nightly" ]; then
+            git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
+            cd /withlib/pcre2
+            git submodule update --init
+            ls
+            # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
+            sh autogen.sh
+          else
+            curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+            tar -C /withlib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+          fi
+
+          if [ ${openssl3_ver} == "nightly" ]; 
+          then
+            git clone --depth 1 https://github.com/openssl/openssl.git /withlib/openssl
+          else
+            curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
+            tar -C /withlib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+          fi
+
+          if [ ${zlib_ver} == "nightly" ]; 
+          then
+            git clone --depth 1 https://github.com/madler/zlib.git /withlib/zlib
+          else
+            curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
+            tar -C /withlib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
+          fi
           
-          # tar -xvf openssl-${openssl3_ver}.tar.gz
-          du -sh objs/lib/openssl
+          du -sh /withlib/openssl
+          du -sh /withlib/pcre2
+          du -sh /withlib/zlib
+
+          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
+          cd /nginx-build
+          
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           # LD_OPT="-L/usr/local/lib,-Wl,-z,relro -Wl,-z,now"
           # LD_OPT="-pthread -Wall -Wextra -O2"
@@ -1042,11 +1086,11 @@ jobs:
             --with-compat \
             --with-http_degradation_module \
             --without-http-cache \
-            --add-module=/ngx_http_geoip2_module \
-            --add-module=/nginx-module-vts \
-            --with-openssl=objs/lib/openssl \
-            --with-pcre=objs/lib/pcre2 \
-            --with-zlib=objs/lib/zlib \
+            --add-module=/withlib/ngx_http_geoip2_module \
+            --add-module=/withlib/nginx-module-vts \
+            --with-openssl=/withlib/lib/openssl \
+            --with-pcre=/withlib/lib/pcre2 \
+            --with-zlib=/withlib/lib/zlib \
           --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} --with-http_ssl_module --with-cc-opt="$CC_OPT" --with-ld-opt="$LD_OPT"
           
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
@@ -1414,7 +1458,7 @@ jobs:
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
-          
+          export CD="$(pwd)"
           mkdir -p objs/lib
           
           if [ ${pcre2_ver} == "nightly" ]; then
@@ -1424,6 +1468,7 @@ jobs:
                 ls
                 # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
                 # sh autogen.sh
+                cd ${CD}
           else
                 curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
                 tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz

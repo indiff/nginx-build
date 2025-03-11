@@ -162,7 +162,7 @@ jobs:
 
           if [ ${pcre2_ver} == "nightly" ]; then
             git clone --depth 1 https://github.com/PCRE2Project/pcre2.git ${WITHLIB}/pcre2
-            cd ${WITHLIB}pcre2
+            cd ${WITHLIB}/pcre2
             git submodule update --init
             ls
             # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
@@ -1439,8 +1439,6 @@ jobs:
           
           case "${{ matrix.toolchain }}" in
             msvc)
-              curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
-              tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
               if [ ${openssl3_ver} == "nightly" ];  then
                 git clone --depth 1 https://github.com/openssl/openssl.git objs/lib/openssl
               else

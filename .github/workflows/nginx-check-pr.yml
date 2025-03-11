@@ -147,6 +147,7 @@ jobs:
           sudo mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/{conf,html,temp,logs,withlib}
           sudo chown -R 777 ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           export WITHLIB=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/withlib
+          export CD=$(pwd)
           export DEB_BUILD_MAINT_OPTIONS="hardening=+all"
           #export DEB_CFLAGS_MAINT_APPEND="-Wp,-D_FORTIFY_SOURCE=2 -fPIC"
           export DEB_CFLAGS_MAINT_APPEND="-fPIC -O3 -flto -march=native"
@@ -193,6 +194,7 @@ jobs:
           du -sh ${WITHLIB}/pcre2
           du -sh ${WITHLIB}/zlib
           # --with-ipv6
+          cd ${CD}
           auto/configure \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
             --conf-path=conf/nginx.conf \

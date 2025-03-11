@@ -517,7 +517,7 @@ jobs:
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/$RANDOM_STRING
           cp -rf docs/html ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/html
-          
+
           # tar cvf /workspace/opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/
           zip -r -q -9 /workspace/opt_nginx.zip .
@@ -1469,9 +1469,14 @@ jobs:
                 cd objs/lib/pcre2
                 git submodule update --init
                 ls
-                # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
-                # sh autogen.sh
+                cmake -B build .
+                cmake --build build/
                 cd ${CD}
+
+                #pcre2_ver="${{ env.pcre2_ver }}";
+                #curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+                #tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+                #echo '#include <stdint.h>' > objs/lib/pcre2/src/inttypes.h
           else
                 curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
                 tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz

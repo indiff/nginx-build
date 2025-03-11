@@ -977,7 +977,7 @@ jobs:
           dnf install -y tzdata sudo
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
-          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed  zip systemd
+          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed  zip systemd autoconf automake libtool
           sudo dnf install -y  perl-Test-Simple perl-FindBin perl-IPC-Cmd perl-Text-Template perl-File-Compare perl-File-Copy
           gcc --version
           sudo dnf install -y gcc-toolset-14-gcc gcc-toolset-14-gcc-c++ perl-FindBin
@@ -1002,18 +1002,17 @@ jobs:
           # make install
           # sh -c "echo /usr/local/lib  >> /etc/ld.so.conf.d/local.conf"
           # ldconfig
-
           mkdir -p /withlib
           git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /withlib/nginx-module-vts
           git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git /withlib/ngx_http_geoip2_module
-
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
+          
           if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
           export pcre2_ver="${{ github.event.inputs.pcre2_ver }}"
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
-
+          
           if [ ${pcre2_ver} == "nightly" ]; then
             git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
             cd /withlib/pcre2
@@ -1026,16 +1025,14 @@ jobs:
             tar -C /withlib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
           fi
 
-          if [ ${openssl3_ver} == "nightly" ]; 
-          then
+          if [ ${openssl3_ver} == "nightly" ]; then
             git clone --depth 1 https://github.com/openssl/openssl.git /withlib/openssl
           else
             curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
             tar -C /withlib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           fi
 
-          if [ ${zlib_ver} == "nightly" ]; 
-          then
+          if [ ${zlib_ver} == "nightly" ]; then
             git clone --depth 1 https://github.com/madler/zlib.git /withlib/zlib
           else
             curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz

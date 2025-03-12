@@ -1288,7 +1288,8 @@ jobs:
     needs: before_build
     strategy:
       matrix:
-        os: [ windows-2025 ]
+        os: [ windows-latest ]
+        # os: [ windows-2025 ]
         include:
           - toolchain: msvc
             env: x64
@@ -1469,8 +1470,10 @@ jobs:
                 cd objs/lib/pcre2
                 git submodule update --init
                 ls
-                cmake -B build .
-                cmake --build build/
+                # cmake -B build .
+                # cmake --build build/
+                cmake -DPCRE2_SUPPORT_JIT=ON -DPCRE2_BUILD_PCRE2_16=ON -DPCRE2_BUILD_PCRE2_32=ON -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=ON -DCMAKE_C_FLAGS="/W3" -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -B build -A x64
+                cmake --build build --config Release
                 cd ${CD}
 
                 #pcre2_ver="${{ env.pcre2_ver }}";

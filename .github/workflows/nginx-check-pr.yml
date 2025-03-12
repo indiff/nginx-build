@@ -1288,8 +1288,8 @@ jobs:
     needs: before_build
     strategy:
       matrix:
-        os: [ windows-latest ]
-        # os: [ windows-2025 ]
+        # os: [ windows-latest ]
+        os: [ windows-2025 ]
         include:
           - toolchain: msvc
             env: x64
@@ -1452,6 +1452,11 @@ jobs:
           mkdir C:/TEMP/
           mkdir C:/tmp/
           mkdir -p t/
+
+      - name: Configure build for amd64
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64
 
       - name: Download and unpack dependencies
         run: | #     nginx/src/os/win32/nginx.rc

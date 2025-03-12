@@ -1475,8 +1475,9 @@ jobs:
                 cd objs/lib/pcre2
                 git submodule update --init
                 whereis cmake # cmake: /usr/share/cmake
-                "/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe" -B build .
-                "/c/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe" --build build --config Release
+                sed -i '1i\set(CMAKE_C_COMPILER "/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.43.34808/bin/HostX64/x64/cl.exe")' CMakeLists.txt
+                cmake -B build .
+                cmake --build build --config Release
                 cd ${CD}
 
                 #pcre2_ver="${{ env.pcre2_ver }}";

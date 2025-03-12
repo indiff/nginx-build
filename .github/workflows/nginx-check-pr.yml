@@ -1474,10 +1474,8 @@ jobs:
                 git clone --depth 1 https://github.com/PCRE2Project/pcre2.git objs/lib/pcre2
                 cd objs/lib/pcre2
                 git submodule update --init
-                ls
-                # cmake -B build .
-                # cmake --build build/
-                cmake -DPCRE2_SUPPORT_JIT=ON -DPCRE2_BUILD_PCRE2_16=ON -DPCRE2_BUILD_PCRE2_32=ON -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=ON -DCMAKE_C_FLAGS="/W3" -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -B build -A x64
+                # ls
+                cmake -DCMAKE_C_COMPILER=cl.exe -B build .
                 cmake --build build --config Release
                 cd ${CD}
 

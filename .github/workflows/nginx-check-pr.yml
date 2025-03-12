@@ -1476,8 +1476,8 @@ jobs:
                 git submodule update --init
                 whereis cmake # cmake: /usr/share/cmake
                 sed -i '1i\set(CMAKE_C_COMPILER "/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.43.34808/bin/HostX64/x64/cl.exe")' CMakeLists.txt
-                cmake -B build .
-                cmake --build build --config Release
+                cmake -DPCRE2_BUILD_TESTS=OFF -B build .
+                # cmake --build build --config Release
                 cd ${CD}
 
                 #pcre2_ver="${{ env.pcre2_ver }}";

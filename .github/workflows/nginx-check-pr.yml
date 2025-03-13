@@ -1453,7 +1453,7 @@ jobs:
           mkdir C:/tmp/
           mkdir -p t/
 
-      - name: Configure build for amd64
+      - name: Configure and build for pcre2 nightly
         if: ${{ github.event.inputs.pcre2_ver == 'nightly' }}
         shell: pwsh
         run: |
@@ -1461,8 +1461,8 @@ jobs:
           git clone --depth 1 https://github.com/PCRE2Project/pcre2.git objs/lib/pcre2
           cd objs/lib/pcre2
           git submodule update --init
-          cmake -DPCRE2_BUILD_TESTS=OFF -DPCRE2_DEBUG=OFF -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -B build .
-          cmake --build build --config Release
+          cmake -DCMAKE_C_FLAGS="/W3" -DPCRE2_SUPPORT_JIT=ON -DPCRE2_NEWLINE=ANYCRLF -DPCRE2_STATIC_PIC=ON -DPCRE2_BUILD_TESTS=OFF -DPCRE2_DEBUG=OFF -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -B build -A x64
+          # cmake --build build --config Release
           
 
       - name: Download and unpack dependencies
@@ -1478,7 +1478,8 @@ jobs:
           mkdir -p objs/lib
           
           if [ ${pcre2_ver} == "nightly" ]; then
-                echo "goto"
+                echo "ignore"
+                echo '#include <stdint.h>' > objs/lib/pcre2/src/inttypes.h
                 # git clone --depth 1 https://github.com/PCRE2Project/pcre2.git objs/lib/pcre2
                 # cd objs/lib/pcre2
                 # git submodule update --init
@@ -1493,7 +1494,7 @@ jobs:
                 #pcre2_ver="${{ env.pcre2_ver }}";
                 #curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
                 #tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
-                #echo '#include <stdint.h>' > objs/lib/pcre2/src/inttypes.h
+                
           else
                 curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
                 tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz

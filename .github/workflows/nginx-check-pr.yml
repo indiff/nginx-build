@@ -1314,11 +1314,6 @@ jobs:
           ref: master
           repository: nginx/nginx
           fetch-depth: 1
-      - name: Check out nginx tests
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-        with:
-          repository: nginx/nginx-tests
-          path: nginx-tests
 
       - name: Load Version and Set timezone
         id: version_timestamp
@@ -1458,15 +1453,17 @@ jobs:
         shell: pwsh
         run: |
           mkdir -p objs/lib
-          git clone --depth 1 https://github.com/PCRE2Project/pcre2.git objs/lib/pcre2
-          cd objs/lib/pcre2
+          git clone --depth 1 https://github.com/PCRE2Project/pcre2.git objs/lib/pcre2_git
+          cd objs/lib/pcre2_git
           git submodule update --init
           cmake -DCMAKE_C_FLAGS="/W3" -DPCRE2_SUPPORT_JIT=ON -DPCRE2_NEWLINE=ANYCRLF -DPCRE2_STATIC_PIC=ON -DPCRE2_BUILD_TESTS=OFF -DPCRE2_DEBUG=OFF -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -B build -A x64
           # cmake --build build --config Release
+          cd ${{ github.workspace }}
           
 
       - name: Download and unpack dependencies
         run: | #     nginx/src/os/win32/nginx.rc
+          cd ${{ github.workspace }}
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
           if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
           echo "openssl3 version: $openssl3_ver"
@@ -1490,25 +1487,17 @@ jobs:
                 # cmake -DPCRE2_BUILD_TESTS=OFF -DPCRE2_DEBUG=OFF -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -B build .
                 # cmake --build build --config Release
                 # cd ${CD}
-
-                #pcre2_ver="${{ env.pcre2_ver }}";
-                #curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
-                #tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
-                
           else
                 curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
                 tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
                 echo '#include <stdint.h>' > objs/lib/pcre2/src/inttypes.h
           fi
           
-          if [ ${zlib_ver} == "nightly" ]; 
-            then
+          if [ ${zlib_ver} == "nightly" ]; then
                 git clone --depth 1 https://github.com/madler/zlib.git objs/lib/zlib
-            else
+          else
                 curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
                 tar -C objs/lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
-                mkdir -p objs/lib/pcre/src
-                
           fi
           
           case "${{ matrix.toolchain }}" in
@@ -1551,8 +1540,6 @@ jobs:
           echo "" >> objs/logs/error.log
           echo "" >> objs/temp/dummy
           git clone --depth 1 -b dev_sync_windows https://github.com/indiff/nginx-module-vts.git c:/nginx-module-vts
-          
-
         # rmdir /s /q objs/lib/openssl
         # rmdir /s /q objs/lib/pcre
         # rmdir /s /q objs/lib/zlib

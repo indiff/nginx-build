@@ -1476,7 +1476,8 @@ jobs:
                 git submodule update --init
                 whereis cmake # cmake: /usr/share/cmake
                 sed -i '1i\set(CMAKE_C_COMPILER "/c/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.43.34808/bin/HostX64/x64/cl.exe")' CMakeLists.txt
-                cmake -B build .
+                sed -i '1i\set(CMAKE_C_COMPILER_LINKER_ID "MSVC")' CMakeLists.txt
+                cmake -DPCRE2_DEBUG=OFF -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -B build .
                 cmake --build build --config Release
                 cd ${CD}
 

@@ -1463,7 +1463,6 @@ jobs:
 
       - name: Download and unpack dependencies
         run: | #     nginx/src/os/win32/nginx.rc
-          cd ${{ github.workspace }}
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
           if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
           echo "openssl3 version: $openssl3_ver"

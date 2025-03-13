@@ -1456,7 +1456,7 @@ jobs:
           git clone --depth 1 https://github.com/PCRE2Project/pcre2.git objs/lib/pcre2
           cd objs/lib/pcre2
           git submodule update --init
-          echo "#include <stdint.h>" > objs/lib/pcre2/src/inttypes.h
+          echo "#include <stdint.h>" > src/inttypes.h
           cmake -DCMAKE_C_FLAGS="/W3" -DPCRE2_SUPPORT_JIT=ON -DPCRE2_NEWLINE=ANYCRLF -DPCRE2_STATIC_PIC=ON -DPCRE2_BUILD_TESTS=OFF -DPCRE2_DEBUG=OFF -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -B build -A x64
           # cmake --build build --config Release
           cd ${{ github.workspace }}

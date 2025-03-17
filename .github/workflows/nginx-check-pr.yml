@@ -159,10 +159,10 @@ jobs:
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
-          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git ${WITHLIB}/nginx-module-vts
+          sudo git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git ${WITHLIB}/nginx-module-vts
 
           if [ ${pcre2_ver} == "nightly" ]; then
-            git clone --depth 1 https://github.com/PCRE2Project/pcre2.git ${WITHLIB}/pcre2
+            sudo git clone --depth 1 https://github.com/PCRE2Project/pcre2.git ${WITHLIB}/pcre2
             cd ${WITHLIB}/pcre2
             git submodule update --init
             ls
@@ -170,23 +170,23 @@ jobs:
             sh autogen.sh
           else
             curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
-            tar -C ${WITHLIB} --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
+            sudo tar -C ${WITHLIB} --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
           fi
 
           if [ ${openssl3_ver} == "nightly" ]; 
           then
-            git clone --depth 1 https://github.com/openssl/openssl.git ${WITHLIB}/openssl
+            sudo git clone --depth 1 https://github.com/openssl/openssl.git ${WITHLIB}/openssl
           else
             curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
-            tar -C ${WITHLIB} --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
+            sudo tar -C ${WITHLIB} --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           fi
 
           if [ ${zlib_ver} == "nightly" ]; 
           then
-            git clone --depth 1 https://github.com/madler/zlib.git ${WITHLIB}/zlib
+            sudo git clone --depth 1 https://github.com/madler/zlib.git ${WITHLIB}/zlib
           else
             curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
-            tar -C ${WITHLIB} --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
+            sudo tar -C ${WITHLIB} --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           fi
 
           du -sh ${WITHLIB}/nginx-module-vts

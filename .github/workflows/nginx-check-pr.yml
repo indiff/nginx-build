@@ -453,17 +453,19 @@ jobs:
           cd /withlib/luajit2
           make -j$(nproc)
           make install
-          # tell nginx's build system where to find LuaJIT 2.1:
-          export LUAJIT_LIB=/usr/local/lib/
-          export LUAJIT_INC=/usr/local/include/luajit-2.1
           
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
+          mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lib
+          cp -f /usr/local/lib/liblua* ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lib/
+          # tell nginx's build system where to find LuaJIT 2.1:
+          export LUAJIT_LIB=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lib/
+          export LUAJIT_INC=/usr/local/include/luajit-2.1
           
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           CC_OPT="-O2 -fPIC"
           # LD_OPT="-Wl,-z,relro -Wl,-z,now"
-          LD_OPT="-Wl,-z,relro,-rpath,/usr/local/lib"
+          LD_OPT="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lib"
           # --with-http_geoip_module \ --with-stream_geoip_module \ No package GeoIP-devel available.
           # --builddir=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
           ./auto/configure \
@@ -679,15 +681,17 @@ jobs:
           cd /withlib/luajit2
           make -j$(nproc)
           make install
-          # tell nginx's build system where to find LuaJIT 2.1:
-          export LUAJIT_LIB=/usr/local/lib/
-          export LUAJIT_INC=/usr/local/include/luajit-2.1
 
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
+          mkdir -p ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lib
+          cp -f /usr/local/lib/liblua* ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lib/
+          # tell nginx's build system where to find LuaJIT 2.1:
+          export LUAJIT_LIB=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lib/
+          export LUAJIT_INC=/usr/local/include/luajit-2.1
           
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
-          LD_OPT="-Wl,-z,relro,-rpath,/usr/local/lib"
+          LD_OPT="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lib"
           ./auto/configure \
             --conf-path=conf/nginx.conf \
             --pid-path=logs/nginx.pid \

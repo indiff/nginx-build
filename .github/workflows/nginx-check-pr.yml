@@ -278,22 +278,11 @@ jobs:
           
           rm -rf lib
           rm -rf objs/lib
-          rm -rf objs/src
-          rm -rf objs/contrib
-          rm -rf ${WITHLIB}
-          rm -f Makefile
-          rm -f  *.8
-          rm -f  *.err
-          rm -f  *.c
-          rm -f  *.h
-          rm -f  *.o
-          rm -f  *.obj
-          rm -f  *.pdb
-          rm -f  *.lib
-          rm -f  *.exp
-          rm -f  *.ilk
-          rm -f  *.res
-          rm -f  *.pch
+          sudo rm -rf objs/src
+          sudo rm -rf objs/contrib
+          sudo rm -rf ${WITHLIB}
+          sudo rm -f Makefile
+          sudo rm -f  *.8 *.err *.c *.h *.o *.obj *.pdb *.lib  *.exp *.ilk *.res *.pch
           ./objs/nginx -V
           sudo cp -ar objs/* ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}

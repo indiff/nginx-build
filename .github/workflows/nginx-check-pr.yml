@@ -265,7 +265,7 @@ jobs:
           echo "" >> objs/temp/$RANDOM_STRING
           # define NGINX_VERSION      "1.27.4"
           # define NGINX_VER          "nginx/" NGINX_VERSION
-          make -j$(nproc) -k || make
+          sudo make -j$(nproc) -k || sudo make
           
           # make install
           # tree -all . >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/my_log.txt
@@ -722,11 +722,6 @@ jobs:
           make -j$(nproc)
           make install
 
-          cd /withlib/lua-resty-core
-          make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
-          cd /withlib/lua-resty-lrucache
-          make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
-
           # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
@@ -735,9 +730,14 @@ jobs:
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/qw0p
           cp -rf docs/html ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/html
-
           sed -i '34a\# add necessary `lua_package_path` directive to `nginx.conf`, in the http context' ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/conf/nginx.conf
           sed -i '34a\lua_package_path "${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lib/lua/?.lua;;";' ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/conf/nginx.conf
+
+          cd /withlib/lua-resty-core
+          make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          cd /withlib/lua-resty-lrucache
+          make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+
 
           # tar cvf /workspace/opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/

@@ -667,7 +667,7 @@ jobs:
           cd /nginx-build
           
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
-          LD_OPT="-Wl,-z,relro -Wl,-rpath,/usr/local/lib,now"
+          LD_OPT="-Wl,-z,relro,-rpath,/usr/local/lib"
           ./auto/configure \
             --conf-path=conf/nginx.conf \
             --pid-path=logs/nginx.pid \

@@ -164,10 +164,10 @@ jobs:
           if [ ${pcre2_ver} == "nightly" ]; then
             sudo git clone --depth 1 https://github.com/PCRE2Project/pcre2.git ${WITHLIB}/pcre2
             cd ${WITHLIB}/pcre2
-            git submodule update --init
+            sudo git submodule update --init
             ls
             # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
-            sh autogen.sh
+            sudo sh autogen.sh
           else
             curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
             sudo tar -C ${WITHLIB} --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
@@ -278,11 +278,8 @@ jobs:
           
           rm -rf lib
           rm -rf objs/lib
-          sudo rm -rf objs/src
-          sudo rm -rf objs/contrib
-          sudo rm -rf ${WITHLIB}
-          sudo rm -f Makefile
-          sudo rm -f  *.8 *.err *.c *.h *.o *.obj *.pdb *.lib  *.exp *.ilk *.res *.pch
+          sudo rm -rf objs/src objs/contrib ${WITHLIB}
+          sudo rm -f  Makefile *.8 *.err *.c *.h *.o *.obj *.pdb *.lib  *.exp *.ilk *.res *.pch
           ./objs/nginx -V
           sudo cp -ar objs/* ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}

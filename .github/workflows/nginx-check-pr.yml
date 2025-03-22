@@ -641,15 +641,33 @@ jobs:
             tar -C /withlib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           fi
           
+          git clone --depth 1 https://github.com/openresty/luajit2.git /withlib/luajit2
+          git clone --depth 1 https://github.com/vision5/ngx_devel_kit.git /withlib/ngx_devel_kit
+          git clone --depth 1 https://github.com/openresty/lua-nginx-module.git /withlib/lua-nginx-module
+          git clone --depth 1 https://github.com/openresty/lua-resty-core.git /withlib/lua-resty-core
+          git clone --depth 1 https://github.com/openresty/lua-resty-lrucache.git /withlib/lua-resty-lrucache
+
           du -sh /withlib/openssl
           du -sh /withlib/pcre2
           du -sh /withlib/zlib
+          du -sh /withlib/luajit2
+          du -sh /withlib/ngx_devel_kit
+          du -sh /withlib/lua-nginx-module
+          du -sh /withlib/lua-resty-core
+          du -sh /withlib/lua-resty-lrucache
+
+          cd /withlib/luajit2
+          make -j$(nproc)
+          make install
+          # tell nginx's build system where to find LuaJIT 2.1:
+          export LUAJIT_LIB=/usr/local/lib/
+          export LUAJIT_INC=/usr/local/include/luajit-2.1
 
           git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
           
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
-          LD_OPT="-Wl,-z,relro -Wl,-z,now"
+          LD_OPT="-Wl,-z,relro -Wl,-rpath,/usr/local/lib,now"
           ./auto/configure \
             --conf-path=conf/nginx.conf \
             --pid-path=logs/nginx.pid \
@@ -686,6 +704,8 @@ jobs:
             --without-http-cache \
             --with-stream_geoip_module \
             --add-module=/withlib/nginx-module-vts \
+            --add-module=/withlib/ngx_devel_kit \
+            --add-module=/withlib/lua-nginx-module \
             --with-openssl=/withlib/openssl \
             --with-pcre=/withlib/pcre2 \
             --with-zlib=/withlib/zlib \
@@ -701,6 +721,12 @@ jobs:
           
           make -j$(nproc)
           make install
+
+          cd /withlib/lua-resty-core
+          make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          cd /withlib/lua-resty-lrucache
+          make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+
           # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
@@ -709,6 +735,9 @@ jobs:
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/qw0p
           cp -rf docs/html ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/html
+
+          sed -i '34a\# add necessary `lua_package_path` directive to `nginx.conf`, in the http context' ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/conf/nginx.conf
+          sed -i '34a\lua_package_path "${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lib/lua/?.lua;;";' ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/conf/nginx.conf
 
           # tar cvf /workspace/opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/

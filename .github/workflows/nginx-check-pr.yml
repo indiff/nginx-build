@@ -694,9 +694,8 @@ jobs:
           # tell nginx's build system where to find LuaJIT 2.1:
           export LUAJIT_LIB=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib/
           export LUAJIT_INC=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/include/luajit-2.1 
-          
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/include"
-          LD_OPT="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib,-L${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib"
+          LD_OPT="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib -L${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib"
           # --with-http_geoip_module \
           #  --with-stream_geoip_module \
           ./auto/configure \

@@ -667,6 +667,14 @@ jobs:
           git clone --depth 1 https://github.com/openresty/lua-resty-core.git /withlib/lua-resty-core
           git clone --depth 1 https://github.com/openresty/lua-resty-lrucache.git /withlib/lua-resty-lrucache
 
+          git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git /withlib/ngx_http_geoip2_module
+          git clone --depth 1 --recursive https://github.com/maxmind/libmaxminddb.git /withlib/libmaxminddb
+          cd /withlib/libmaxminddb
+          ./bootstrap
+          make -j$(nproc) --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb
+          make install
+          ldconfig
+
           du -sh /withlib/openssl
           du -sh /withlib/pcre2
           du -sh /withlib/zlib
@@ -688,6 +696,8 @@ jobs:
           
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
           LD_OPT="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib"
+          # --with-http_geoip_module \
+          #  --with-stream_geoip_module \
           ./auto/configure \
             --conf-path=conf/nginx.conf \
             --pid-path=logs/nginx.pid \
@@ -720,9 +730,8 @@ jobs:
             --with-threads \
             --with-compat \
             --with-http_degradation_module \
-            --with-http_geoip_module \
             --without-http-cache \
-            --with-stream_geoip_module \
+            --add-module=/withlib/ngx_http_geoip2_module \
             --add-module=/withlib/nginx-module-vts \
             --add-module=/withlib/ngx_devel_kit \
             --add-module=/withlib/lua-nginx-module \
@@ -744,7 +753,24 @@ jobs:
 
           # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
+          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "/usr/bin/geoipupdate -f GeoIP.conf -d db" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "cat >> /etc/systemd/system/nginx.service << EOF" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "[Unit]" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "Description=The NGINX HTTP and reverse proxy server" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "After=network.target" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "[Service]" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "ExecStartPre=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/nginx -t" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "ExecStart=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/nginx" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "ExecReload=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/nginx -s reload" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "ExecStop=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/nginx -s quit" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "PIDFile=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/nginx.pid" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "Restart=on-failure" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "Type=forking" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "[Install]" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "WantedBy=multi-user.target" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "EOF" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+
           chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
@@ -807,6 +833,7 @@ jobs:
             !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.pdb
             !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.lib
             !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.exp
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.a
 
 #       - name: Update Latest
 #        run: |
@@ -1671,6 +1698,9 @@ jobs:
           shopt -s nullglob
           sudo timedatectl set-timezone Asia/Shanghai
           timedatectl status
+          # get geoip2 update latest 
+          rpm_url=$(echo "$(curl -s https://api.github.com/repos/maxmind/geoipupdate/releases/latest)" | jq -r '.assets[] | select(.name | endswith("amd64.rpm")) | .browser_download_url' | head -n 1)
+          curl -skLO $rpm_url
           # repack zip for dir
           cdir="$(pwd)"
           for dir in artifacts/*/; do
@@ -1678,6 +1708,8 @@ jobs:
             if [[ -d "${cdir}/artifacts/${the_dir}" ]]; then
               echo "Directory exists ${the_dir}."
               cd "${cdir}/artifacts/${the_dir}"
+              # copy the latest geoupupdate
+              cp -f ${cdir}/geoipupdate*.rpm .
               zip -r -q -9 "${cdir}/artifacts/${the_dir}.zip" .
               cd ..
               rm -rf "${the_dir}"

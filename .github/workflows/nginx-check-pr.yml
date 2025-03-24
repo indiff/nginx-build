@@ -440,6 +440,16 @@ jobs:
           git clone --depth 1 https://github.com/openresty/lua-nginx-module.git /withlib/lua-nginx-module
           git clone --depth 1 https://github.com/openresty/lua-resty-core.git /withlib/lua-resty-core
           git clone --depth 1 https://github.com/openresty/lua-resty-lrucache.git /withlib/lua-resty-lrucache
+          
+          
+          git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git /withlib/ngx_http_geoip2_module
+          git clone --depth 1 --recursive https://github.com/maxmind/libmaxminddb.git /withlib/libmaxminddb
+          cd /withlib/libmaxminddb
+          ./bootstrap
+          ./configure  --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb
+          make -j$(nproc)
+          make install
+          ldconfig
 
           du -sh /withlib/openssl
           du -sh /withlib/pcre2
@@ -460,10 +470,13 @@ jobs:
           export LUAJIT_LIB=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib/
           export LUAJIT_INC=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/include/luajit-2.1
           
-          CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
-          CC_OPT="-O2 -fPIC"
+          #CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC"
+          #CC_OPT="-O2 -fPIC"
           # LD_OPT="-Wl,-z,relro -Wl,-z,now"
-          LD_OPT="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib"
+          #LD_OPT="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib"
+          CC_OPT="-O2 -fPIC -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/include"
+          LD_OPT="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib -L${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib"
+
           # --with-http_geoip_module \ --with-stream_geoip_module \ No package GeoIP-devel available.
           # --builddir=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
           ./auto/configure \
@@ -500,6 +513,7 @@ jobs:
             --with-compat \
             --with-http_degradation_module \
             --without-http-cache \
+            --add-module=/withlib/ngx_http_geoip2_module \
             --add-module=/withlib/nginx-module-vts \
             --add-module=/withlib/ngx_devel_kit \
             --add-module=/withlib/lua-nginx-module \
@@ -521,13 +535,34 @@ jobs:
           # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           # GeoIP GeoIP-devel 
-          echo "yum install -y GeoIP GeoIP-devel zip" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
+          echo "yum install -y wget sed perl-IPC-Cmd zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh 
           chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          
+          echo "cat >> /etc/systemd/system/nginx.service << EOF" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "[Unit]" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "Description=The NGINX HTTP and reverse proxy server" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "After=network.target" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "[Service]" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "ExecStartPre=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/nginx -t" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "ExecStart=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/nginx" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "ExecReload=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/nginx -s reload" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "ExecStop=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/nginx -s quit" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "PIDFile=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/nginx.pid" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "Restart=on-failure" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "Type=forking" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "[Install]" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "WantedBy=multi-user.target" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "EOF" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "systemctl daemon-reload" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "rpm -ivh geoipupdate*.rpm" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "/usr/bin/geoipupdate -f GeoIP.conf -d GeoIP" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          
           # mkdir ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/error.log
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/temp/$RANDOM_STRING
           cp -rf docs/html/* ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/html
+          
           
           sed -i '34a\	lua_package_path "${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lib/lua/?.lua;;";' ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/conf/nginx.conf
           sed -i '34a\	# add necessary `lua_package_path` directive to `nginx.conf`, in the http context' ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/conf/nginx.conf
@@ -578,7 +613,9 @@ jobs:
             !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.obj
             !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.pdb
             !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.lib
-            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.exp 
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.exp
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.a
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.la
  
   build-in-centos7:
     runs-on: ubuntu-latest
@@ -753,9 +790,7 @@ jobs:
 
           # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          echo "rpm -ivh geoipupdate*.rpm" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          echo "/usr/bin/geoipupdate -f GeoIP.conf -d GeoIP" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "yum install -y wget sed perl-IPC-Cmd zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "cat >> /etc/systemd/system/nginx.service << EOF" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "[Unit]" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "Description=The NGINX HTTP and reverse proxy server" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
@@ -771,6 +806,9 @@ jobs:
           echo "[Install]" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "WantedBy=multi-user.target" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "EOF" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "systemctl daemon-reload" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "rpm -ivh geoipupdate*.rpm" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "/usr/bin/geoipupdate -f GeoIP.conf -d GeoIP" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
 
           chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/logs/access.log
@@ -835,6 +873,7 @@ jobs:
             !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.lib
             !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.exp
             !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.a
+            !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.la
 
 #       - name: Update Latest
 #        run: |

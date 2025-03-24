@@ -696,7 +696,7 @@ jobs:
           export LUAJIT_INC=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/include/luajit-2.1 
           
           CC_OPT="$(rpm --eval '%{optflags}') $(pcre-config --cflags) -fPIC -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/include"
-          LD_OPT="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib,-L${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib"
+          LD_OPT="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib,-L${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib"
           # --with-http_geoip_module \
           #  --with-stream_geoip_module \
           ./auto/configure \
@@ -755,7 +755,8 @@ jobs:
           # zip -r /workspace/opt_nginx.zip ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           echo "yum update -y" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "yum install -y pcre-devel zlib-devel openssl openssl-devel wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          echo "/usr/bin/geoipupdate -f GeoIP.conf -d db" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "rpm -ivh geoipupdate*.rpm" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+          echo "/usr/bin/geoipupdate -f GeoIP.conf -d GeoIP" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "cat >> /etc/systemd/system/nginx.service << EOF" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "[Unit]" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
           echo "Description=The NGINX HTTP and reverse proxy server" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh

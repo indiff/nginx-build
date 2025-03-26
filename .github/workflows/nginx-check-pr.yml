@@ -1497,7 +1497,7 @@ jobs:
       
       - name: Set the defaults and set up environment
         run: |
-          ENV_JSON=$(cat <<EOF
+          ENV_JSON=$(cat <<'EOF'
           {
           "NGINX_CONFIGURE_CMD_WIN": "auto/configure \
                     --builddir=objs \

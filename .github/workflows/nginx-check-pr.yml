@@ -1510,7 +1510,7 @@ jobs:
                     --http-client-body-temp-path=temp/client_body_temp \
                     --http-proxy-temp-path=temp/proxy_temp \
                     --http-fastcgi-temp-path=temp/fastcgi_temp \
-                    --with-cc-opt="-DFD_SETSIZE=1024 -L${{ github.workspace }}/objs/lua/lib -L${{ github.workspace }}/objs/libmaxminddb/lib" \
+                    --with-cc-opt='-DFD_SETSIZE=1024 -L${{ github.workspace }}/objs/lua/lib -L${{ github.workspace }}/objs/libmaxminddb/lib' \
                     --with-select_module \
                     --with-http_realip_module \
                     --with-http_addition_module \

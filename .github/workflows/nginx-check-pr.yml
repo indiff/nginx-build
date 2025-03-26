@@ -1510,7 +1510,7 @@ jobs:
                     --http-client-body-temp-path=temp/client_body_temp \
                     --http-proxy-temp-path=temp/proxy_temp \
                     --http-fastcgi-temp-path=temp/fastcgi_temp \
-                    --with-cc-opt="-DFD_SETSIZE=1024 -L%${{ github.workspace }}/objs/lua/lib -L%${{ github.workspace }}/objs/libmaxminddb/lib" \
+                    --with-cc-opt="-DFD_SETSIZE=1024 -L${{ github.workspace }}/objs/lua/lib -L${{ github.workspace }}/objs/libmaxminddb/lib" \
                     --with-select_module \
                     --with-http_realip_module \
                     --with-http_addition_module \
@@ -1539,7 +1539,7 @@ jobs:
                     --with-pcre=objs/lib/pcre2 \
                     --with-zlib=objs/lib/zlib \
                     --with-openssl=objs/lib/openssl",
-          "NGINX_CONFIGURE_CC_MSVC": "--with-cc=cl -I%${{ github.workspace }}/objs/lua/include/luajit-2.1 -I%${{ github.workspace }}/objs/libmaxminddb/include",
+          "NGINX_CONFIGURE_CC_MSVC": "--with-cc=cl -I${{ github.workspace }}/objs/lua/include/luajit-2.1 -I${{ github.workspace }}/objs/libmaxminddb/include",
           "NGINX_CONFIGURE_CC_MINGW": "--with-cc=/${{ matrix.toolchain }}/bin/${{ matrix.env }}-w64-mingw32-gcc.exe",
           "NGINX_CONFIGURE_ADD_STATIC": "--with-stream --with-mail",
           "NGINX_CONFIGURE_ADD_DYNAMIC": "--with-stream=dynamic --with-mail=dynamic",

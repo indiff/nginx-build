@@ -1510,7 +1510,7 @@ jobs:
                     --http-client-body-temp-path=temp/client_body_temp \
                     --http-proxy-temp-path=temp/proxy_temp \
                     --http-fastcgi-temp-path=temp/fastcgi_temp \
-                    --with-cc-opt=-DFD_SETSIZE=1024 -Lobjs/lua/lib -L/objs/libmaxminddb/lib \
+                    --with-cc-opt=-DFD_SETSIZE=1024 \
                     --with-select_module \
                     --with-http_realip_module \
                     --with-http_addition_module \
@@ -1533,13 +1533,10 @@ jobs:
                     --with-stream_realip_module \
                     --without-http-cache \
                     --add-module=c:/nginx-module-vts \
-                    --add-module=objs/lib/ngx_http_geoip2_module \
-                    --add-module=objs/lib/ngx_devel_kit \
-                    --add-module=objs/lib/lua-nginx-module \
                     --with-pcre=objs/lib/pcre2 \
                     --with-zlib=objs/lib/zlib \
                     --with-openssl=objs/lib/openssl",
-          "NGINX_CONFIGURE_CC_MSVC": "--with-cc=cl -Iobjs/lua/include/luajit-2.1 -Iobjs/libmaxminddb/include",
+          "NGINX_CONFIGURE_CC_MSVC": "--with-cc=cl",
           "NGINX_CONFIGURE_CC_MINGW": "--with-cc=/${{ matrix.toolchain }}/bin/${{ matrix.env }}-w64-mingw32-gcc.exe",
           "NGINX_CONFIGURE_ADD_STATIC": "--with-stream --with-mail",
           "NGINX_CONFIGURE_ADD_DYNAMIC": "--with-stream=dynamic --with-mail=dynamic",
@@ -1636,33 +1633,33 @@ jobs:
             ;;
           esac
           
-          git clone --depth 1 https://github.com/openresty/luajit2.git ${{ github.workspace }}/objs/lib/luajit2
-          git clone --depth 1 https://github.com/vision5/ngx_devel_kit.git ${{ github.workspace }}/objs/lib/ngx_devel_kit
-          git clone --depth 1 https://github.com/openresty/lua-nginx-module.git ${{ github.workspace }}/objs/lib/lua-nginx-module
-          git clone --depth 1 https://github.com/openresty/lua-resty-core.git ${{ github.workspace }}/objs/lib/lua-resty-core
-          git clone --depth 1 https://github.com/openresty/lua-resty-lrucache.git ${{ github.workspace }}/objs/lib/lua-resty-lrucache
-          git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git ${{ github.workspace }}/objs/lib/ngx_http_geoip2_module
-          git clone --depth 1 --recursive https://github.com/maxmind/libmaxminddb.git ${{ github.workspace }}/objs/lib/libmaxminddb
+          # git clone --depth 1 https://github.com/openresty/luajit2.git ${{ github.workspace }}/objs/lib/luajit2
+          # git clone --depth 1 https://github.com/vision5/ngx_devel_kit.git ${{ github.workspace }}/objs/lib/ngx_devel_kit
+          # git clone --depth 1 https://github.com/openresty/lua-nginx-module.git ${{ github.workspace }}/objs/lib/lua-nginx-module
+          # git clone --depth 1 https://github.com/openresty/lua-resty-core.git ${{ github.workspace }}/objs/lib/lua-resty-core
+          # git clone --depth 1 https://github.com/openresty/lua-resty-lrucache.git ${{ github.workspace }}/objs/lib/lua-resty-lrucache
+          # git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git ${{ github.workspace }}/objs/lib/ngx_http_geoip2_module
+          # git clone --depth 1 --recursive https://github.com/maxmind/libmaxminddb.git ${{ github.workspace }}/objs/lib/libmaxminddb
           
 
             
             
-          cd ${{ github.workspace }}/objs/lib/libmaxminddb
-          ./bootstrap
-          ./configure  --prefix=${{ github.workspace }}/objs/libmaxminddb
-          make -j$(nproc)
-          make install
+          # cd ${{ github.workspace }}/objs/lib/libmaxminddb
+          # ./bootstrap
+          # ./configure  --prefix=${{ github.workspace }}/objs/libmaxminddb
+          # make -j$(nproc)
+          # make install
           
-          cd ${{ github.workspace }}/objs/lib/luajit2
-          make -j$(nproc)
-          make install PREFIX=${{ github.workspace }}/objs/lua
-          export LUAJIT_LIB=${{ github.workspace }}/objs/lua/lib
-          export LUAJIT_INC=${{ github.workspace }}/objs/lua/include/luajit-2.1
+          # cd ${{ github.workspace }}/objs/lib/luajit2
+          # make -j$(nproc)
+          # make install PREFIX=${{ github.workspace }}/objs/lua
+          # export LUAJIT_LIB=${{ github.workspace }}/objs/lua/lib
+          # export LUAJIT_INC=${{ github.workspace }}/objs/lua/include/luajit-2.1
           
-          cd ${{ github.workspace }}/objs/lib/lua-resty-core
-          make install PREFIX=${{ github.workspace }}/objs
-          cd ${{ github.workspace }}/objs/lib/lua-resty-lrucache
-          make install PREFIX=${{ github.workspace }}/objs
+          # cd ${{ github.workspace }}/objs/lib/lua-resty-core
+          # make install PREFIX=${{ github.workspace }}/objs
+          # cd ${{ github.workspace }}/objs/lib/lua-resty-lrucache
+          # make install PREFIX=${{ github.workspace }}/objs
           
           cd $OLD_CD
           cp -R objs objs.deps

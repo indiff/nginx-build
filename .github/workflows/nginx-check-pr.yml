@@ -1861,10 +1861,8 @@ jobs:
 
           for TAG in ${TAGS[@]}; do
               echo "Deleting ${TAG}"
-              echo "gh release delete --cleanup-tag --yes '${TAG}'"
-              gh release delete --cleanup-tag --yes '${TAG}'
+              gh release delete --cleanup-tag --yes "${TAG}"
           done
-          echo 'git push --tags --prune'
           git push --tags --prune
         env:
           GITHUB_TOKEN: ${{ github.token }}

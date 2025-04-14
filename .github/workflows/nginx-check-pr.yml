@@ -666,8 +666,21 @@ jobs:
           yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd autoconf automake libtool
           yum install -y  perl-Test-Simple perl-FindBin perl-IPC-Cmd perl-Text-Template perl-File-Compare perl-File-Copy perl-Data-Dumper
 
+
+          # update git
+          yum -y remove git
+          yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
+          yum -y install git
+          git --version
+
+          # update my gcc
+          curl -sLo /opt/indiff-gcc.zip https://github.com/indiff/gcc-build/releases/download/20250414_0940/gcc-indiff-centos7-x86_64-20250414_0938.xz
+          unzip /opt/indiff-gcc.zip -d /opt/indiff-gcc
+
+          export CC=/opt/indiff-gcc/bin/gcc
+
           mkdir -p /withlib
-          git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git /withlib/nginx-module-vts
+          git clone --filter=blob:none --depth 1 https://github.com/vozlt/nginx-module-vts.git /withlib/nginx-module-vts
           export openssl3_ver="${{ github.event.inputs.openssl3Ver }}"
           if [ "${{ github.event.inputs.openssl3Ver }}" == "" ]; then openssl3_ver="${{ env.openssl3_ver }}"; fi
           export pcre2_ver="${{ github.event.inputs.pcre2_ver }}"
@@ -676,7 +689,7 @@ jobs:
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
 
           if [ ${pcre2_ver} == "nightly" ]; then
-            git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
+            git clone --filter=blob:none --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
             cd /withlib/pcre2
             git submodule update --init
             ls
@@ -689,7 +702,7 @@ jobs:
 
           if [ ${openssl3_ver} == "nightly" ]; 
           then
-            git clone --depth 1 https://github.com/openssl/openssl.git /withlib/openssl
+            git clone --filter=blob:none --depth 1 https://github.com/openssl/openssl.git /withlib/openssl
           else
             curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
             tar -C /withlib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
@@ -697,20 +710,20 @@ jobs:
 
           if [ ${zlib_ver} == "nightly" ]; 
           then
-            git clone --depth 1 https://github.com/madler/zlib.git /withlib/zlib
+            git clone --filter=blob:none --depth 1 https://github.com/madler/zlib.git /withlib/zlib
           else
             curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
             tar -C /withlib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           fi
           
-          git clone --depth 1 https://github.com/openresty/luajit2.git /withlib/luajit2
-          git clone --depth 1 https://github.com/vision5/ngx_devel_kit.git /withlib/ngx_devel_kit
-          git clone --depth 1 https://github.com/openresty/lua-nginx-module.git /withlib/lua-nginx-module
-          git clone --depth 1 https://github.com/openresty/lua-resty-core.git /withlib/lua-resty-core
-          git clone --depth 1 https://github.com/openresty/lua-resty-lrucache.git /withlib/lua-resty-lrucache
+          git clone --filter=blob:none --depth 1 https://github.com/openresty/luajit2.git /withlib/luajit2
+          git clone --filter=blob:none --depth 1 https://github.com/vision5/ngx_devel_kit.git /withlib/ngx_devel_kit
+          git clone --filter=blob:none --depth 1 https://github.com/openresty/lua-nginx-module.git /withlib/lua-nginx-module
+          git clone --filter=blob:none --depth 1 https://github.com/openresty/lua-resty-core.git /withlib/lua-resty-core
+          git clone --filter=blob:none --depth 1 https://github.com/openresty/lua-resty-lrucache.git /withlib/lua-resty-lrucache
 
-          git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git /withlib/ngx_http_geoip2_module
-          git clone --depth 1 --recursive https://github.com/maxmind/libmaxminddb.git /withlib/libmaxminddb
+          git clone --filter=blob:none --depth 1 https://github.com/leev/ngx_http_geoip2_module.git /withlib/ngx_http_geoip2_module
+          git clone --filter=blob:none --depth 1 --recursive https://github.com/maxmind/libmaxminddb.git /withlib/libmaxminddb
           cd /withlib/libmaxminddb
           ./bootstrap
           ./configure  --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb
@@ -731,7 +744,7 @@ jobs:
           make -j$(nproc)
           make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua
 
-          git clone --depth 1 https://github.com/nginx/nginx.git /nginx-build
+          git clone --filter=blob:none --depth 1 https://github.com/nginx/nginx.git /nginx-build
           cd /nginx-build
           # tell nginx's build system where to find LuaJIT 2.1:
           export LUAJIT_LIB=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib/

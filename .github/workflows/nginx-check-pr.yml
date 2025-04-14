@@ -223,6 +223,7 @@ jobs:
             --with-poll_module \
             --with-http_auth_request_module \
             --with-http_v2_module \
+            --with-http_v3_module \
             --with-http_slice_module \
             --with-stream \
             --with-stream_ssl_module \
@@ -506,6 +507,7 @@ jobs:
             --with-poll_module \
             --with-http_auth_request_module \
             --with-http_v2_module \
+            --with-http_v3_module \
             --with-http_slice_module \
             --with-stream \
             --with-stream_ssl_module \
@@ -761,6 +763,7 @@ jobs:
             --with-poll_module \
             --with-http_auth_request_module \
             --with-http_v2_module \
+            --with-http_v3_module \
             --with-http_slice_module \
             --with-stream \
             --with-stream_ssl_module \
@@ -987,6 +990,7 @@ jobs:
             --with-poll_module \
             --with-http_auth_request_module \
             --with-http_v2_module \
+            --with-http_v3_module \
             --with-http_slice_module \
             --with-stream \
             --with-stream_ssl_module \
@@ -1199,6 +1203,7 @@ jobs:
             --with-poll_module \
             --with-http_auth_request_module \
             --with-http_v2_module \
+            --with-http_v3_module \
             --with-http_slice_module \
             --with-stream \
             --with-stream_ssl_module \
@@ -1530,6 +1535,7 @@ jobs:
                     --with-mail_ssl_module \
                     --with-http_auth_request_module \
                     --with-http_v2_module \
+                    --with-http_v3_module \
                     --with-http_slice_module \
                     --with-stream_ssl_module \
                     --with-stream_ssl_preread_module \

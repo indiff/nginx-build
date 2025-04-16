@@ -218,7 +218,6 @@ jobs:
           export LD=/opt/indiff-gcc/bin/ld
           export CC=/opt/indiff-gcc/bin/gcc
           LD_OPT="-Wl,-z,relro"
-          # "$(dpkg-buildflags --get LDFLAGS)"
           auto/configure  \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
             --conf-path=conf/nginx.conf \
@@ -269,7 +268,6 @@ jobs:
             --with-ld-opt=”$LD_OPT" \
           || cat objs/autoconf.err
 
-          #  --with-cc-opt="$(dpkg-buildflags --get CFLAGS)"
           cp -R conf objs/conf
           cp -R contrib objs/contrib
           cp -R docs/html objs/html

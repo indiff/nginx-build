@@ -109,11 +109,12 @@ jobs:
           sudo apt-get update
           sudo apt-get upgrade
           gcc --version
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          # 测试地址有时候不稳定下载不了
+          # sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
           sudo apt update
-          # sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
           sudo apt upgrade
-          # 示例安装GCC 14
+          # 安装GCC 14
           sudo apt install gcc-14
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14
           # update my gcc

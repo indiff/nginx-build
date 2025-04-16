@@ -217,6 +217,8 @@ jobs:
           CC_OPT="gcc -O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -pipe -w -fPIC "
           export LD=/opt/indiff-gcc/bin/ld
           export CC=/opt/indiff-gcc/bin/gcc
+          LD_OPT="-Wl,-z,relro"
+          # "$(dpkg-buildflags --get LDFLAGS
           auto/configure  \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
             --conf-path=conf/nginx.conf \
@@ -264,7 +266,7 @@ jobs:
             --with-pcre=${WITHLIB}/pcre2 \
             --with-zlib=${WITHLIB}/zlib \
             --with-cc-opt="$CC_OPT" \
-            --with-ld-opt="$(dpkg-buildflags --get LDFLAGS)" \
+            --with-ld-opt=”$LD_OPT" \
           || cat objs/autoconf.err
 
           #  --with-cc-opt="$(dpkg-buildflags --get CFLAGS)"

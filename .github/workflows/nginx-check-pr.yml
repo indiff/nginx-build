@@ -61,6 +61,8 @@ env:
   # https://zlib.net/ https://github.com/madler/zlib
   zlib_ver: 1.3.1
   openssl_ver: 1.1.1w
+  gcc_indiff: "https://github.com/indiff/gcc-build/releases/download/20250416_0300/gcc-indiff-centos7-x86_64-20250415_2346.xz"
+  gcc_indiff_ubuntu: "https://github.com/indiff/gcc-build/releases/download/20250416_0300/gcc-indiff-ubuntu-x86_64-20250416_0018.xz"
 jobs:
   before_build:
     runs-on: [ ubuntu-latest ]
@@ -114,6 +116,11 @@ jobs:
           # 示例安装GCC 14
           sudo apt install gcc-14
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14
+          # update my gcc
+          curl -sLo /opt/indiff-gcc.zip ${{ env.gcc_indiff_ubuntu }}
+          unzip /opt/indiff-gcc.zip -d /opt/indiff-gcc
+          sudo update-alternatives --install /opt/indiff-gcc/bin/gcc gcc /usr/bin/gcc-15 15
+
           gcc --version
           sudo apt-get install \
             libedit-dev \
@@ -674,9 +681,8 @@ jobs:
           git --version
 
           # update my gcc
-          curl -sLo /opt/indiff-gcc.zip https://github.com/indiff/gcc-build/releases/download/20250414_0940/gcc-indiff-centos7-x86_64-20250414_0938.xz
+          curl -sLo /opt/indiff-gcc.zip ${{ env.gcc_indiff }}
           unzip /opt/indiff-gcc.zip -d /opt/indiff-gcc
-
           export CC=/opt/indiff-gcc/bin/gcc
 
           mkdir -p /withlib

@@ -123,10 +123,13 @@ jobs:
           # /usr/bin/gcc 系统中 GCC 的默认路径 
           # 100 优先级（数字越大优先级越高）。
           sudo update-alternatives --install /usr/bin/gcc gcc /opt/indiff-gcc/bin/gcc 100
-          sudo update-alternatives --install /usr/bin/g++ g++ /opt/indiff-gcc/bin/g++ 100           
+          sudo update-alternatives --install /usr/bin/g++ g++ /opt/indiff-gcc/bin/g++ 100
+          sudo update-alternatives --install /usr/bin/ld ld /opt/indiff-gcc/bin/ld 100
+          
 
           gcc --version
           g++ --version
+          ld --version
 
           sudo apt-get install \
             libedit-dev \
@@ -212,7 +215,7 @@ jobs:
           # --with-ipv6
           cd ${CD}
           CC_OPT="gcc -O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -pipe -w -fPIC "
-          auto/configure \
+          auto/configure LD=/opt/indiff-gcc/bin/ld \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
             --conf-path=conf/nginx.conf \
             --pid-path=logs/nginx.pid \
@@ -261,7 +264,7 @@ jobs:
             --with-cc-opt="$CC_OPT" \
             --with-ld-opt="$(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err
-          
+
           #  --with-cc-opt="$(dpkg-buildflags --get CFLAGS)"
           cp -R conf objs/conf
           cp -R contrib objs/contrib

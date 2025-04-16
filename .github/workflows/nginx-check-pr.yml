@@ -120,7 +120,7 @@ jobs:
           # update my gcc
           curl -sLo /opt/indiff-gcc.zip ${{ env.gcc_indiff_ubuntu_url }}
           unzip /opt/indiff-gcc.zip -d /opt/indiff-gcc
-          sudo update-alternatives --install /opt/indiff-gcc/bin/gcc gcc /usr/bin/gcc-15 15
+          sudo update-alternatives --install /opt/indiff-gcc/bin/gcc gcc
 
           gcc --version
           sudo apt-get install \

@@ -215,7 +215,9 @@ jobs:
           # --with-ipv6
           cd ${CD}
           CC_OPT="gcc -O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -pipe -w -fPIC "
-          auto/configure LD=/opt/indiff-gcc/bin/ld \
+          export LD=/opt/indiff-gcc/bin/ld
+          export CC=/opt/indiff-gcc/bin/gcc
+          auto/configure  \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
             --conf-path=conf/nginx.conf \
             --pid-path=logs/nginx.pid \

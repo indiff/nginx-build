@@ -382,9 +382,45 @@ jobs:
           echo 'LC_ALL=zh_CN.UTF-8' >> /etc/environment
           echo 'LC_CTYPE=zh_CN.UTF-8' >> /etc/environment
           #curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-6.repo
-          curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-vault-6.10.repo
-          # https://vault.centos.org/6.10/os/x86_64/Packages/
-          # curl -o /etc/yum.repos.d/epel.repo https://mirrors.aliyun.com/repo/epel-6.repo
+          #curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-vault-6.10.repo
+
+          # 定义镜像列表  "http://mirrors.aliyun.com/centos-vault/7.9.2009"
+          MIRRORS=(
+              "http://mirror.rackspace.com/centos-vault/6.10"
+              "https://mirror.nsc.liu.se/centos-store/6.10"
+              "https://linuxsoft.cern.ch/centos-vault/6.10"
+              "https://archive.kernel.org/centos-vault/6.10"
+              "https://vault.centos.org/6.10"
+          )
+
+          FASTEST_MIRROR="https://vault.centos.org/6.10"
+          echo "[base]" > /etc/yum.repos.d/CentOS-Base.repo
+          echo "name=CentOS-Base" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "baseurl=${FASTEST_MIRROR}/os/\$basearch/" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "gpgcheck=0" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "[updates]"  >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "name=CentOS-updates" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "baseurl=${FASTEST_MIRROR}/updates/\$basearch/" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "gpgcheck=0" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "[extras]"  >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "name=CentOS-extras" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "baseurl=${FASTEST_MIRROR}/extras/\$basearch/" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "gpgcheck=0" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "[centosplus]"  >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "name=CentOS-centosplus" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "baseurl=${FASTEST_MIRROR}/centosplus/\$basearch/" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "gpgcheck=0" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "[contrib]"  >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "name=CentOS-contrib" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "baseurl=${FASTEST_MIRROR}/contrib/\$basearch/" >> /etc/yum.repos.d/CentOS-Base.repo
+          echo "gpgcheck=0" >> /etc/yum.repos.d/CentOS-Base.repo
+
+          FASTEST_MIRROR="https://packages.endpointdev.com/rhel/6"
+          echo "[endpointdev]" > /etc/yum.repos.d/endpointdev.repo
+          echo "name=endpointdev" >> /etc/yum.repos.d/endpointdev.repo
+          echo "baseurl=${FASTEST_MIRROR}/os/\$basearch/" >> /etc/yum.repos.d/endpointdev.repo
+          echo "gpgcheck=0" >> /etc/yum.repos.d/endpointdev.repo
+           
           yum clean all
           yum makecache
           yum install -y epel-release

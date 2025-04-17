@@ -215,11 +215,13 @@ jobs:
           du -sh ${WITHLIB}/zlib
           # --with-ipv6
           cd ${CD}
-          CC_OPT="gcc -O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -pipe -w -fPIC "
+          # CC_OPT="gcc -O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -pipe -w -fPIC "
           # use ubuntu gcc
           # export LD=/opt/indiff-gcc/bin/ld
           # export CC=/opt/indiff-gcc/bin/gcc
-          export LD_OPT="-Wl,-z,relro"
+          CC_OPT="-O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -pipe -w -fPIC $(DEB_BUILD_MAINT_OPTIONS=hardening=+all DEB_CFLAGS_MAINT_APPEND=-fPIC DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed dpkg-buildflags --get CFLAGS)",
+          LD_OPT="$(DEB_BUILD_MAINT_OPTIONS=hardening=+all DEB_CFLAGS_MAINT_APPEND=-fPIC DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed dpkg-buildflags --get LDFLAGS)"
+
           auto/configure  \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
             --conf-path=conf/nginx.conf \

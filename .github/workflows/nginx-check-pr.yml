@@ -114,19 +114,20 @@ jobs:
           sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
           sudo apt update
           sudo apt upgrade
-          # 安装GCC 14
-          sudo apt install gcc-14
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14
-          # update my gcc
-          curl -sLo /opt/indiff-gcc.zip ${{ env.gcc_indiff_ubuntu_url }}
-          unzip /opt/indiff-gcc.zip -d /opt/indiff-gcc
-          # /usr/bin/gcc 系统中 GCC 的默认路径 
-          # 100 优先级（数字越大优先级越高）。
-          sudo update-alternatives --install /usr/bin/gcc gcc /opt/indiff-gcc/bin/gcc 100
-          sudo update-alternatives --install /usr/bin/g++ g++ /opt/indiff-gcc/bin/g++ 100
-          sudo update-alternatives --install /usr/bin/ld ld /opt/indiff-gcc/bin/ld 100
+          # 安装GCC 15
+          sudo apt install gcc-15
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-15 15
           
-
+          
+          # update my gcc
+          # curl -sLo /opt/indiff-gcc.zip ${{ env.gcc_indiff_ubuntu_url }}
+          # unzip /opt/indiff-gcc.zip -d /opt/indiff-gcc
+          # # /usr/bin/gcc 系统中 GCC 的默认路径 
+          # # 100 优先级（数字越大优先级越高）。
+          # sudo update-alternatives --install /usr/bin/gcc gcc /opt/indiff-gcc/bin/gcc 100
+          # sudo update-alternatives --install /usr/bin/g++ g++ /opt/indiff-gcc/bin/g++ 100
+          # sudo update-alternatives --install /usr/bin/ld ld /opt/indiff-gcc/bin/ld 100
+          
           gcc --version
           g++ --version
           ld --version
@@ -217,7 +218,7 @@ jobs:
           CC_OPT="gcc -O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -pipe -w -fPIC "
           export LD=/opt/indiff-gcc/bin/ld
           export CC=/opt/indiff-gcc/bin/gcc
-          LD_OPT="-Wl,-z,relro"
+          export LD_OPT="-Wl,-z,relro"
           auto/configure  \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
             --conf-path=conf/nginx.conf \

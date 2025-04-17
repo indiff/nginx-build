@@ -216,8 +216,9 @@ jobs:
           # --with-ipv6
           cd ${CD}
           CC_OPT="gcc -O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -pipe -w -fPIC "
-          export LD=/opt/indiff-gcc/bin/ld
-          export CC=/opt/indiff-gcc/bin/gcc
+          # use ubuntu gcc
+          # export LD=/opt/indiff-gcc/bin/ld
+          # export CC=/opt/indiff-gcc/bin/gcc
           export LD_OPT="-Wl,-z,relro"
           auto/configure  \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \

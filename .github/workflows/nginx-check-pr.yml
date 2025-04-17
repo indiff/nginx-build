@@ -265,7 +265,7 @@ jobs:
             --with-pcre=${WITHLIB}/pcre2 \
             --with-zlib=${WITHLIB}/zlib \
             --with-cc-opt="$CC_OPT" \
-            --with-ld-opt=”$LD_OPT" \
+            --with-ld-opt="$LD_OPT" \
           || cat objs/autoconf.err
 
           cp -R conf objs/conf

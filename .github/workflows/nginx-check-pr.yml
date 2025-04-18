@@ -1900,7 +1900,14 @@ jobs:
           checksums=$(cat ${cdir}/artifacts/checksums.sha256)
           gh release delete --cleanup-tag --yes "$TAGNAME" || true
           # sleep 15
-          NOTES="$(printf "|prefix|$buildPrefix|\n|:--:|:--:|\n| Zlib| $zlib_ver|\n| Pcre2| $pcre2_ver|\n| OpenSSL| $openssl3_ver|\n## SHA256 Digest\n \`\`\`\n$checksums\n\`\`\`")"
+          # 使用 GitHub API 获取最后一次提交信息
+          commit_info=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/indiff/nginx-build/commits \
+          | jq -r '.[0] | "\(.commit.author.name) \(.commit.message) \(.commit.author.date)"')
+          # 输出变量
+          echo "Commit Info: $commit_info"
+          NOTES="$(printf "|prefix|$buildPrefix|\n|:--:|:--:|\n| Zlib| $zlib_ver|\n| Pcre2| $pcre2_ver|\n| OpenSSL| $openssl3_ver|\n > $commit_info\n ## SHA256 Digest\n \`\`\`\n$checksums\n\`\`\`")"
           gh release create "$TAGNAME" --target "main" --notes "${NOTES}" --title "$NAME" ${cdir}/artifacts/*
         env:
           GITHUB_TOKEN: ${{ github.token }}

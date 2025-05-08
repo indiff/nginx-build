@@ -62,7 +62,7 @@ env:
   zlib_ver: 1.3.1
   openssl_ver: 1.1.1w
   gcc_indiff_ubuntu_url: "https://github.com/indiff/gcc-build/releases/download/20250416_1126/gcc-indiff-ubuntu-x86_64-20250416_1125.xz"
-  gcc_indiff_centos7_url: "https://github.com/indiff/gcc-build/releases/download/20250507_1537_16.0.0/gcc-indiff-centos7-16.0.0-x86_64-20250507_1534.xz"
+  gcc_indiff_centos7_url: "https://github.com/indiff/gcc-build/releases/download/20250418_1107_/gcc-indiff-centos7-16.0.0-x86_64-20250418_1032.xz"
 jobs:
   before_build:
     runs-on: [ ubuntu-latest ]

@@ -786,7 +786,7 @@ jobs:
           git clone --filter=blob:none --depth 1 --recursive https://github.com/maxmind/libmaxminddb.git /withlib/libmaxminddb
           cd /withlib/libmaxminddb
           ./bootstrap
-          ./configure  --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb
+          ./configure --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb || cat config.log
           make -j$(nproc)
           make install
           ldconfig

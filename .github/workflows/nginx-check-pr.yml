@@ -735,9 +735,10 @@ jobs:
           git --version
 
           # update my gcc
-          curl -sLo /opt/indiff-gcc.zip ${{ env.gcc_indiff_centos7_url }}
-          unzip /opt/indiff-gcc.zip -d /opt/indiff-gcc
-          export CC=/opt/indiff-gcc/bin/gcc
+          curl -sLo /opt/gcc-indiff.zip ${{ env.gcc_indiff_centos7_url }}
+          unzip /opt/gcc-indiff.zip -d /opt/gcc-indiff
+          export CC=/opt/gcc-indiff/bin/gcc
+          cp -rf /opt/gcc-indiff/lib/libzstd* /opt/gcc-indiff/lib64/
 
           mkdir -p /withlib
           git clone --filter=blob:none --depth 1 https://github.com/vozlt/nginx-module-vts.git /withlib/nginx-module-vts

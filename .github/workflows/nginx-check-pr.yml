@@ -738,7 +738,10 @@ jobs:
           curl -sLo /opt/gcc-indiff.zip ${{ env.gcc_indiff_centos7_url }}
           unzip /opt/gcc-indiff.zip -d /opt/gcc-indiff
           export CC=/opt/gcc-indiff/bin/gcc
-          cp -rf /opt/gcc-indiff/lib/libzstd* /opt/gcc-indiff/lib64/
+          # cp -rf /opt/gcc-indiff/lib/libzstd* /opt/gcc-indiff/lib64/
+          cp -f /opt/gcc-indiff/lib/libzstd.so /opt/gcc-indiff/lib64/
+          cp -f /opt/gcc-indiff/lib/libzstd.so.1 /opt/gcc-indiff/lib64/
+          cp -f /opt/gcc-indiff/lib/libzstd.a /opt/gcc-indiff/lib64/
 
           mkdir -p /withlib
           git clone --filter=blob:none --depth 1 https://github.com/vozlt/nginx-module-vts.git /withlib/nginx-module-vts

@@ -260,7 +260,6 @@ jobs:
             --with-http_xslt_module \
             --with-http_image_filter_module \
             --with-http_degradation_module \
-            --with-http_v3_module \
             --without-http-cache \
             --with-http_geoip_module \
             --with-stream_geoip_module \
@@ -1579,7 +1578,7 @@ jobs:
           vcpkg install libmaxminddb luajit
           tree C:\vcpkg\packages\
       
-      
+      # --with-http_v3_module \ 这是最稳妥的方案，因为QUIC在Windows上的支持不完善。
       - name: Set the defaults and set up environment
         run: |
           ENV_JSON=$(cat <<EOF
@@ -1612,7 +1611,6 @@ jobs:
                     --with-mail_ssl_module \
                     --with-http_auth_request_module \
                     --with-http_v2_module \
-                    --with-http_v3_module \
                     --with-http_slice_module \
                     --with-stream_ssl_module \
                     --with-stream_ssl_preread_module \
@@ -1726,8 +1724,6 @@ jobs:
           # git clone --depth 1 https://github.com/openresty/lua-resty-lrucache.git ${{ github.workspace }}/objs/lib/lua-resty-lrucache
           # git clone --depth 1 https://github.com/leev/ngx_http_geoip2_module.git ${{ github.workspace }}/objs/lib/ngx_http_geoip2_module
           # git clone --depth 1 --recursive https://github.com/maxmind/libmaxminddb.git ${{ github.workspace }}/objs/lib/libmaxminddb
-          
-
             
             
           # cd ${{ github.workspace }}/objs/lib/libmaxminddb
@@ -1870,6 +1866,8 @@ jobs:
           # get geoip2 update latest 
           rpm_url=$(echo "$(curl -s https://api.github.com/repos/maxmind/geoipupdate/releases/latest)" | jq -r '.assets[] | select(.name | endswith("amd64.rpm")) | .browser_download_url' | head -n 1)
           curl -skLO $rpm_url
+          deb_url=$(echo "$(curl -s https://api.github.com/repos/maxmind/geoipupdate/releases/latest)" | jq -r '.assets[] | select(.name | endswith("amd64.deb")) | .browser_download_url' | head -n 1)
+          curl -skLO $deb_url
           # repack zip for dir
           cdir="$(pwd)"
           for dir in artifacts/*/; do
@@ -1877,8 +1875,13 @@ jobs:
             if [[ -d "${cdir}/artifacts/${the_dir}" ]]; then
               echo "Directory exists ${the_dir}."
               cd "${cdir}/artifacts/${the_dir}"
-              # copy the latest geoupupdate
-              cp -f ${cdir}/geoipupdate*.rpm .
+              # 仅非 windows 和 ubuntu 包复制 geoipupdate*.rpm
+              if [[ "${the_dir}" != *windows* && "${the_dir}" != *ubuntu* ]]; then
+                cp -f ${cdir}/geoipupdate*.rpm .
+              fi
+              if [[ "${the_dir}" == *ubuntu* ]]; then
+                cp -f ${cdir}/geoipupdate*.deb .
+              fi
               zip -r -q -9 "${cdir}/artifacts/${the_dir}.zip" .
               cd ..
               rm -rf "${the_dir}"

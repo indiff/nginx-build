@@ -40,9 +40,10 @@ on:
       openssl3Ver:
         description: 'Select Openssl Version'
         type: choice
-        default: "3.5.2"
+        default: "3.5.3"
         required: false
         options: 
+          - 3.5.3
           - 3.5.2
           - 3.5.0
           - 3.4.1

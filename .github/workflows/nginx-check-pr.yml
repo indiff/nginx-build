@@ -55,7 +55,7 @@ on:
     - cron: '3 8 * * *' # UTC 时间 1:00 对应中国时间 9:00
 env:
   # https://github.com/openssl/openssl
-  openssl3_ver: 3.5.2
+  openssl3_ver: 3.5.3
   # https://github.com/PCRE2Project/pcre2/releases
   # https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.44/pcre2-10.44.tar.gz
   pcre2_ver: 10.45

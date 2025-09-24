@@ -431,8 +431,8 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
-          # yum install -y pcre-devel zlib-devel openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd perl-Time-Piece
-          yum install -y pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd autoconf automake libtool
+          # yum install -y pcre-devel zlib-devel openssl openssl-devel git wget sed GeoIP GeoIP-devel zip systemd 
+          yum install -y pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd autoconf automake libtool perl-Time-Piece
 
           # 安装 devtoolset-6
           #sudo yum -y install centos-release-scl

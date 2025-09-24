@@ -431,7 +431,7 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
-          # yum install -y pcre-devel zlib-devel openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd
+          # yum install -y pcre-devel zlib-devel openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd perl-Time-Piece
           yum install -y pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd autoconf automake libtool
 
           # 安装 devtoolset-6
@@ -727,7 +727,7 @@ jobs:
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
           yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd autoconf automake libtool
-          yum install -y  perl-Test-Simple perl-FindBin perl-IPC-Cmd perl-Text-Template perl-File-Compare perl-File-Copy perl-Data-Dumper
+          yum install -y  perl-Test-Simple perl-FindBin perl-IPC-Cmd perl-Text-Template perl-File-Compare perl-File-Copy perl-Data-Dumper perl-Time-Piece
 
 
           # update git
@@ -998,7 +998,7 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           dnf update -y
-          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd sudo autoconf automake libtool
+          dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd sudo autoconf automake libtool perl-Time-Piece
           gcc --version
           sudo dnf install -y gcc-toolset-14-gcc gcc-toolset-14-gcc-c++
           scl enable gcc-toolset-14 bash
@@ -1187,7 +1187,7 @@ jobs:
           ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           echo 'Asia/Shanghai' > /etc/timezone
           dnf install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed  zip systemd autoconf automake libtool
-          sudo dnf install -y  perl-Test-Simple perl-FindBin perl-IPC-Cmd perl-Text-Template perl-File-Compare perl-File-Copy
+          sudo dnf install -y  perl-Test-Simple perl-FindBin perl-IPC-Cmd perl-Text-Template perl-File-Compare perl-File-Copy perl-Time-Piece
           gcc --version
           sudo dnf install -y gcc-toolset-14-gcc gcc-toolset-14-gcc-c++ perl-FindBin
           scl enable gcc-toolset-14 bash

@@ -745,11 +745,11 @@ jobs:
           unzip /opt/lld-indiff.zip -d /opt/gcc-indiff
           export CC=/opt/gcc-indiff/bin/gcc
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/gcc-indiff/lib:/opt/gcc-indiff/lib64
-          export LDFLAGS = -fuse-ld=lld
+          export LDFLAGS="-fuse-ld=lld"
 
           # 或者直接设置链接标志
-          export CFLAGS += -fuse-ld=lld
-          export CXXFLAGS += -fuse-ld=lld
+          export CFLAGS="-fuse-ld=lld -O2 "
+          export CXXFLAGS="-fuse-ld=lld -O2 "
           # cp -f /opt/gcc-indiff/lib/libzstd.so /opt/gcc-indiff/lib64/
           # cp -f /opt/gcc-indiff/lib/libzstd.so.1 /opt/gcc-indiff/lib64/
           # cp -f /opt/gcc-indiff/lib/libzstd.a /opt/gcc-indiff/lib64/

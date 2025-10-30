@@ -743,6 +743,10 @@ jobs:
           curl -sLo /opt/lld-indiff.zip https://github.com/indiff/gcc-build/releases/download/20251030_1232_16.0.0/lld-indiff-centos7-x86_64-20251030_1232.xz
           unzip /opt/gcc-indiff.zip -d /opt/gcc-indiff
           unzip /opt/lld-indiff.zip -d /opt/gcc-indiff
+          ln -sf /opt/gcc-indiff/bin/ld.lld /usr/bin/ld.lld
+          # 验证
+          ls -la /usr/bin/ld.lld
+          which ld.lld
           export CC=/opt/gcc-indiff/bin/gcc
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/gcc-indiff/lib:/opt/gcc-indiff/lib64
           export LDFLAGS="-fuse-ld=lld"

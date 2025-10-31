@@ -808,8 +808,8 @@ jobs:
           /opt/gcc-indiff/x86_64-redhat-linux-gnu/bin/ld -v
 
           # 或者直接设置链接标志
-          export CFLAGS="-fuse-ld=lld -O2 "
-          export CXXFLAGS="-fuse-ld=lld -O2 "
+          # export CFLAGS="-fuse-ld=lld -O2 "
+          # export CXXFLAGS="-fuse-ld=lld -O2 "
           # cp -f /opt/gcc-indiff/lib/libzstd.so /opt/gcc-indiff/lib64/
           # cp -f /opt/gcc-indiff/lib/libzstd.so.1 /opt/gcc-indiff/lib64/
           # cp -f /opt/gcc-indiff/lib/libzstd.a /opt/gcc-indiff/lib64/
@@ -885,9 +885,8 @@ jobs:
           export LUAJIT_LIB=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib/
           export LUAJIT_INC=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/include/luajit-2.1
           # $(rpm --eval '%{optflags}') $(pcre-config --cflags) 
-          
-          export CC_OPT="-O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -m64 -mtune=generic -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -Wl,--gc-sections -pipe -w -fPIC -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/include"
-          export LD_OPT="-Wl,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib -L${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib"
+          CC_OPT="-O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -m64 -mtune=generic -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -Wl,--gc-sections -pipe -w -fPIC -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/include"
+          LD_OPT="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib -L${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib"
           # --with-http_geoip_module \
           #  --with-stream_geoip_module \
           # /withlib/lua-nginx-module/src/ngx_http_lua_util.c:4589:32: error: 'ngx_quic_input_handler' undeclared (first use in this function); did you mean 'ngx_quic_pto_handler'?

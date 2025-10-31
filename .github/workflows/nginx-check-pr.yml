@@ -802,9 +802,10 @@ jobs:
           # 验证
           ls -la /usr/bin/ld.lld
           which ld.lld
-          /opt/gcc-indiff/x86_64-redhat-linux-gnu/bin/ld -v
+          
           export CC=/opt/gcc-indiff/bin/gcc
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/gcc-indiff/lib:/opt/gcc-indiff/lib64
+          /opt/gcc-indiff/x86_64-redhat-linux-gnu/bin/ld -v
 
           # 或者直接设置链接标志
           export CFLAGS="-fuse-ld=lld -O2 "

@@ -788,24 +788,24 @@ jobs:
 
           # update my gcc
           curl -sLo /opt/gcc-indiff.zip ${{ env.gcc_indiff_centos7_url }}
-          curl -sLo /opt/lld-indiff.zip https://github.com/indiff/gcc-build/releases/download/20251030_1232_16.0.0/lld-indiff-centos7-x86_64-20251030_1232.xz
+          # curl -sLo /opt/lld-indiff.zip https://github.com/indiff/gcc-build/releases/download/20251030_1232_16.0.0/lld-indiff-centos7-x86_64-20251030_1232.xz
           unzip /opt/gcc-indiff.zip -d /opt/gcc-indiff
-          unzip /opt/lld-indiff.zip -d /opt/gcc-indiff
-          ln -sf /opt/gcc-indiff/bin/ld.lld /usr/bin/ld.lld
-          ln -sf /opt/gcc-indiff/bin/ld.lld /usr/bin/ld
-          ln -sf /opt/gcc-indiff/bin/ld.lld /bin/ld
-          ln -sf /opt/gcc-indiff/bin/gcc /bin/gcc
-          ln -sf /opt/gcc-indiff/bin/g++ /bin/g++
-          mv /opt/gcc-indiff/x86_64-redhat-linux-gnu/bin/ld /opt/gcc-indiff/x86_64-redhat-linux-gnu/bin/ld.bak
-          cp /opt/gcc-indiff/bin/ld.lld /opt/gcc-indiff/x86_64-redhat-linux-gnu/bin/ld.lld
-          ln -sf /opt/gcc-indiff/bin/ld.lld /opt/gcc-indiff/x86_64-redhat-linux-gnu/bin/ld
-          # 验证
-          ls -la /usr/bin/ld.lld
-          which ld.lld
+          # unzip /opt/lld-indiff.zip -d /opt/gcc-indiff
+          # ln -sf /opt/gcc-indiff/bin/ld.lld /usr/bin/ld.lld
+          # ln -sf /opt/gcc-indiff/bin/ld.lld /usr/bin/ld
+          # ln -sf /opt/gcc-indiff/bin/ld.lld /bin/ld
+          # ln -sf /opt/gcc-indiff/bin/gcc /bin/gcc
+          # ln -sf /opt/gcc-indiff/bin/g++ /bin/g++
+          # mv /opt/gcc-indiff/x86_64-redhat-linux-gnu/bin/ld /opt/gcc-indiff/x86_64-redhat-linux-gnu/bin/ld.bak
+          # cp /opt/gcc-indiff/bin/ld.lld /opt/gcc-indiff/x86_64-redhat-linux-gnu/bin/ld.lld
+          # ln -sf /opt/gcc-indiff/bin/ld.lld /opt/gcc-indiff/x86_64-redhat-linux-gnu/bin/ld
+          # ls -la /usr/bin/ld.lld
+          # which ld.lld
           
           export CC=/opt/gcc-indiff/bin/gcc
+          export CXX=/opt/gcc-indiff/bin/g++
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/gcc-indiff/lib:/opt/gcc-indiff/lib64
-          /opt/gcc-indiff/x86_64-redhat-linux-gnu/bin/ld -v
+          # /opt/gcc-indiff/x86_64-redhat-linux-gnu/bin/ld -v
 
           # 或者直接设置链接标志
           # export CFLAGS="-fuse-ld=lld -O2 "

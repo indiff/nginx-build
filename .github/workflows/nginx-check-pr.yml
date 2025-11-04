@@ -1654,6 +1654,7 @@ jobs:
         if: true
         shell: pwsh
         run: |
+          git pull "c:\vcpkg"
           vcpkg install libmaxminddb luajit
           tree C:\vcpkg\packages\
       

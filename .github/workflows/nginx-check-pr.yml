@@ -1882,12 +1882,11 @@ jobs:
           
           set LUAJIT_LIB=${{ github.workspace }}/objs/lua/lib
           set LUAJIT_INC=${{ github.workspace }}/objs/lua/include/luajit-2.1
-          
           bash.exe ^
             %NGINX_CONFIGURE_CMD_WIN% ^
             %NGINX_CONFIGURE_CC_MSVC% ^
             %NGINX_CONFIGURE_ADD_STATIC% ^
-            --with-pcre-opt="--enable-pcre2-8 --enable-pcre2-16 --enable-pcre2-32" ^
+            --with-pcre-opt="-DPCRE2_BUILD_PCRE2_8=ON -DPCRE2_BUILD_PCRE2_16=ON -DPCRE2_BUILD_PCRE2_32=ON -DPCRE2_STATIC=ON -DPCRE2_BUILD_TESTS=OFF" ^
             --with-openssl-opt="%NGINX_CONFIGURE_OPENSSL_OPT%"
           powershell -Command "(Get-Content objs/Makefile) -replace '-Yungx_config.h -Fpobjs/ngx_config.pch', '' | Set-Content objs/Makefile"
           nmake -f objs/Makefile

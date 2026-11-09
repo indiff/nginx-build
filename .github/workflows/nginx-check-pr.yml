@@ -1007,6 +1007,7 @@ jobs:
 #          GITHUB_TOKEN: ${{ github.token }} 
 
   build-in-rocky8:
+    if: false
     runs-on: ubuntu-latest
     needs: before_build
 
@@ -1189,6 +1190,7 @@ jobs:
             !${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/**/*.exp
 
   build-in-rocky9:
+    if: false
     runs-on: ubuntu-latest
     needs: before_build
 

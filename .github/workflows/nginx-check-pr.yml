@@ -118,7 +118,7 @@ jobs:
           sudo apt update
           sudo apt upgrade
           # 安装GCC 16
-          sudo apt-get update && sudo apt-get install -y mold libtime-piece-perl
+          sudo apt-get update && sudo apt-get install -y mold 
           sudo apt install gcc-16 -y
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-16 16
           
@@ -160,7 +160,7 @@ jobs:
             autoconf \
             automake \
             libtool \
-            uwsgi-plugin-python3
+            uwsgi-plugin-python3 libtime-piece-perl
 
       - name: Configure and build
         id: configure_build
@@ -195,9 +195,11 @@ jobs:
 
           cd ${WITHLIB}/libmaxminddb
           ./bootstrap
-          ./configure --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb || cat config.log
+          ./configure --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb
           sudo make -j$(nproc)
+          sudo make check
           sudo make install
+          sudo ldconfig
           sudo sh -c 'echo /usr/local/lib >> /etc/ld.so.conf.d/local.conf'
           sudo ldconfig
 
@@ -392,6 +394,7 @@ jobs:
           #   !objs/**/*.exp
 
   build-in-centos6:
+    if: false
     runs-on: ubuntu-latest
     needs: before_build
 

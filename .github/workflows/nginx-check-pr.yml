@@ -200,8 +200,7 @@ jobs:
           sudo make check
           sudo make install
           sudo ldconfig
-          sudo sh -c 'echo /usr/local/lib >> /etc/ld.so.conf.d/local.conf'
-          sudo ldconfig
+         
 
           cd ${WITHLIB}/luajit2
           sudo make -j$(nproc)
@@ -247,6 +246,11 @@ jobs:
           # export CC=/opt/indiff-gcc/bin/gcc
           CC_OPT="-O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -pipe -w -fPIC $(DEB_BUILD_MAINT_OPTIONS=hardening=+all DEB_CFLAGS_MAINT_APPEND=-fPIC DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed dpkg-buildflags --get CFLAGS)",
           LD_OPT="$(DEB_BUILD_MAINT_OPTIONS=hardening=+all DEB_CFLAGS_MAINT_APPEND=-fPIC DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed dpkg-buildflags --get LDFLAGS)"
+          export PKG_CONFIG_PATH="${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib/pkgconfig:$PKG_CONFIG_PATH"
+          export LD_LIBRARY_PATH="${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddbb/lib:$LD_LIBRARY_PATH"
+          
+          echo ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib | sudo tee /etc/ld.so.conf.d/libmaxminddb.conf
+          sudo ldconfig
 
           auto/configure  \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
@@ -295,8 +299,8 @@ jobs:
             --with-openssl=${WITHLIB}/openssl \
             --with-pcre=${WITHLIB}/pcre2 \
             --with-zlib=${WITHLIB}/zlib \
-            --with-cc-opt="$(dpkg-buildflags --get CFLAGS)" \
-            --with-ld-opt="$(dpkg-buildflags --get LDFLAGS)" \
+            --with-cc-opt="-I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/include $(dpkg-buildflags --get CFLAGS)" \
+            --with-ld-opt="-L${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib -Wl,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib $(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err
 
           cp -R conf objs/conf
@@ -781,6 +785,8 @@ jobs:
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
 
+          sleep $(( RANDOM % 21 + 10 ))
+          
           if [ ${pcre2_ver} == "nightly" ]; then
             git clone --filter=blob:none --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
             cd /withlib/pcre2
@@ -1042,6 +1048,8 @@ jobs:
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
 
+          sleep $(( RANDOM % 21 + 10 ))
+          
           if [ ${pcre2_ver} == "nightly" ]; then
             git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
             cd /withlib/pcre2
@@ -1250,7 +1258,8 @@ jobs:
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
-          
+
+          sleep $(( RANDOM % 21 + 10 ))
           if [ ${pcre2_ver} == "nightly" ]; then
             git clone --depth 1 https://github.com/PCRE2Project/pcre2.git /withlib/pcre2
             cd /withlib/pcre2

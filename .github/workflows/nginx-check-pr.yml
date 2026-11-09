@@ -215,7 +215,7 @@ jobs:
             # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
             sudo sh autogen.sh
           else
-            curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+            curl --retry 5 -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
             sudo tar -C ${WITHLIB} --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
           fi
 
@@ -223,7 +223,7 @@ jobs:
           then
             sudo git clone --depth 1 https://github.com/openssl/openssl.git ${WITHLIB}/openssl
           else
-            curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
+            curl --retry 5 -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
             sudo tar -C ${WITHLIB} --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           fi
 
@@ -231,7 +231,7 @@ jobs:
           then
             sudo git clone --depth 1 https://github.com/madler/zlib.git ${WITHLIB}/zlib
           else
-            curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
+            curl --retry 5 -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
             sudo tar -C ${WITHLIB} --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           fi
 
@@ -789,7 +789,7 @@ jobs:
             # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
             sh autogen.sh
           else
-            curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+            curl --retry 5 -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
             tar -C /withlib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
           fi
 
@@ -797,7 +797,7 @@ jobs:
           then
             git clone --filter=blob:none --depth 1 https://github.com/openssl/openssl.git /withlib/openssl
           else
-            curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
+            curl --retry 5 -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
             tar -C /withlib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           fi
 
@@ -805,7 +805,7 @@ jobs:
           then
             git clone --filter=blob:none --depth 1 https://github.com/madler/zlib.git /withlib/zlib
           else
-            curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
+            curl --retry 5 -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
             tar -C /withlib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           fi
           
@@ -1050,7 +1050,7 @@ jobs:
             # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
             sh autogen.sh
           else
-            curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+            curl --retry 5 -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
             tar -C /withlib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
           fi
 
@@ -1058,7 +1058,7 @@ jobs:
           then
             git clone --depth 1 https://github.com/openssl/openssl.git /withlib/openssl
           else
-            curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
+            curl --retry 5 -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
             tar -C /withlib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           fi
 
@@ -1066,7 +1066,7 @@ jobs:
           then
             git clone --depth 1 https://github.com/madler/zlib.git /withlib/zlib
           else
-            curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
+            curl --retry 5 -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
             tar -C /withlib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           fi
           
@@ -1259,21 +1259,21 @@ jobs:
             # sh /withlib/pcre2/autogen.sh # 这种写法不能执行
             sh autogen.sh
           else
-            curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+            curl --retry 5 -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
             tar -C /withlib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
           fi
 
           if [ ${openssl3_ver} == "nightly" ]; then
             git clone --depth 1 https://github.com/openssl/openssl.git /withlib/openssl
           else
-            curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
+            curl --retry 5 -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
             tar -C /withlib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
           fi
 
           if [ ${zlib_ver} == "nightly" ]; then
             git clone --depth 1 https://github.com/madler/zlib.git /withlib/zlib
           else
-            curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
+            curl --retry 5 -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
             tar -C /withlib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           fi
           
@@ -1720,11 +1720,11 @@ jobs:
           
           if [ ${pcre2_ver} == "nightly" ]; then
                 pcre2_ver="${{ env.pcre2_ver }}"
-                curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+                curl --retry 5 -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
                 tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
                 echo '#include <stdint.h>' > objs/lib/pcre2/src/inttypes.h
           else
-                curl -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
+                curl --retry 5 -sLO https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${pcre2_ver}/pcre2-${pcre2_ver}.tar.gz
                 tar -C objs/lib --transform "s/pcre2-${pcre2_ver}/pcre2/" -xzf ./pcre2-${pcre2_ver}.tar.gz
                 echo '#include <stdint.h>' > objs/lib/pcre2/src/inttypes.h
           fi
@@ -1732,7 +1732,7 @@ jobs:
           if [ ${zlib_ver} == "nightly" ]; then
                 git clone --depth 1 https://github.com/madler/zlib.git objs/lib/zlib
           else
-                curl -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
+                curl --retry 5 -sLO https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
                 tar -C objs/lib --transform "s/zlib-${zlib_ver}/zlib/" -xzf ./zlib-${zlib_ver}.tar.gz
           fi
           
@@ -1741,7 +1741,7 @@ jobs:
               if [ ${openssl3_ver} == "nightly" ];  then
                 git clone --depth 1 https://github.com/openssl/openssl.git objs/lib/openssl
               else
-                curl -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
+                curl --retry 5 -sLO https://github.com/openssl/openssl/releases/download/openssl-${openssl3_ver}/openssl-${openssl3_ver}.tar.gz
                 tar -C objs/lib --transform "s/openssl-${openssl3_ver}/openssl/" -xzf ./openssl-${openssl3_ver}.tar.gz
               fi              
             ;;

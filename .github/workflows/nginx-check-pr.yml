@@ -751,7 +751,7 @@ jobs:
           echo 'Asia/Shanghai' > /etc/timezone
           yum update -y
           yum install -y gcc pcre-devel zlib-devel make openssl openssl-devel git wget sed perl-IPC-Cmd GeoIP GeoIP-devel zip systemd autoconf automake libtool
-          yum install -y  perl-Test-Simple perl-FindBin perl-IPC-Cmd perl-Text-Template perl-File-Compare perl-File-Copy perl-Data-Dumper
+          yum install -y  perl-Test-Simple perl-FindBin perl-IPC-Cmd  perl-Time-Piece perl-Text-Template perl-File-Compare perl-File-Copy perl-Data-Dumper
 
 
           # update git

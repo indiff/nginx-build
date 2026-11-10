@@ -184,8 +184,9 @@ jobs:
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
 
-          curl -sLo /opt/indiff-gcc.zip ${{ env.gcc_indiff_ubuntu_url }}
-          unzip /opt/indiff-gcc.zip -d /opt/indiff-gcc
+          curl -sLo /opt/indiff-gcc.tar.xz "${{ env.gcc_indiff_ubuntu_url }}"
+          cd /opt
+          tar -xvf /opt/indiff-gcc.tar.xz
           export CC=/opt/gcc-indiff/bin/gcc
           export CXX=/opt/gcc-indiff/bin/g++
 

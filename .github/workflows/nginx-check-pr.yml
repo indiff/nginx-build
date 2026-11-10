@@ -117,10 +117,11 @@ jobs:
           # sudo apt update
           # sudo apt upgrade
           # 安装GCC 16
-          sudo apt-get update && sudo apt-get install -y mold 
-          sudo apt install gcc-16 g++-16 -y
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-16 16
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-16 16
+          # sudo apt-get update 
+          # sudo apt-get install -y mold 
+          # sudo apt install gcc-16 g++-16 -y
+          # sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-16 16
+          # sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-16 16
           
           # update my gcc
           # curl -sLo /opt/indiff-gcc.zip ${{ env.gcc_indiff_ubuntu_url }}
@@ -182,6 +183,13 @@ jobs:
           if [ "${{ github.event.inputs.pcre2_ver }}" == "" ]; then pcre2_ver="${{ env.pcre2_ver }}"; fi
           export  zlib_ver="${{ github.event.inputs.zlib_ver }}"
           if [ "${{ github.event.inputs.zlib_ver }}" == "" ]; then zlib_ver="${{ env.zlib_ver }}"; fi
+
+          curl -sLo /opt/indiff-gcc.zip ${{ env.gcc_indiff_ubuntu_url }}
+          unzip /opt/indiff-gcc.zip -d /opt/indiff-gcc
+          export CC=/opt/gcc-indiff/bin/gcc
+          export CXX=/opt/gcc-indiff/bin/g++
+
+          
           sudo git clone --depth 1 https://github.com/vozlt/nginx-module-vts.git ${WITHLIB}/nginx-module-vts
 
           sudo git clone --filter=blob:none --depth 1 https://github.com/openresty/luajit2.git ${WITHLIB}/luajit2

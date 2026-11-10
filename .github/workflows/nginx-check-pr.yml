@@ -343,10 +343,43 @@ jobs:
           ./objs/nginx -V
           sudo cp -ar objs/* ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
-          # sudo echo "sudo apt-get update" >> ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
-          echo "sudo apt-get update" | sudo tee -a ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh > /dev/null
-          echo "sudo apt-get install libedit-dev libgd-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip uwsgi-plugin-python3" | sudo tee -a ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh > /dev/null
+          cat > ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh <<'EOF'
+          #!/bin/bash
+          set -e
+          sudo apt-get update
+          sudo apt-get install -y libedit-dev libgd-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip uwsgi-plugin-python3
+          NGINX_BUILD_PREFIX="${NGINX_BUILD_PREFIX:-/opt/nginx}"
+          
+          # 创建 systemd nginx.service
+          cat > /etc/systemd/system/nginx.service <<'SERVICE_EOF'
+          [Unit]
+          Description=Custom Nginx Service
+          Documentation=https://nginx.org/en/docs/
+          After=network.target
+          
+          [Service]
+          Type=forking
+          PIDFile=/opt/nginx/logs/nginx.pid
+          ExecStart=/opt/nginx/nginx -c /opt/nginx/conf/nginx.conf
+          ExecReload=/opt/nginx/nginx -c /opt/nginx/conf/nginx.conf -s reload
+          ExecStop=/opt/nginx/nginx -c /opt/nginx/conf/nginx.conf -s stop
+          PrivateTmp=true
+          
+          [Install]
+          WantedBy=multi-user.target
+          SERVICE_EOF
+          
+          # systemd 重载、开机自启
+          systemctl daemon-reload
+          systemctl enable nginx
+          
+          echo "nginx.service installed successfully."
+          echo "Config file: /etc/systemd/system/nginx.service"
+          echo "Nginx binary: /opt/nginx/nginx"
+          EOF
+          
           sudo chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
+
           zip -r -q -9 /opt/opt_ubuntu_nginx.zip .
           
           export build_timestamp="$(date +'%Y%m%d_%H%M')"

@@ -121,7 +121,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y mold 
           sudo apt install gcc-16 -y
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-16 16
-          
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-16 16
           
           # update my gcc
           # curl -sLo /opt/indiff-gcc.zip ${{ env.gcc_indiff_ubuntu_url }}
@@ -251,7 +251,8 @@ jobs:
           
           echo ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib | sudo tee /etc/ld.so.conf.d/libmaxminddb.conf
           sudo ldconfig
-
+          # --with-http_v3_module \
+          
           auto/configure  \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
             --conf-path=conf/nginx.conf \
@@ -277,7 +278,6 @@ jobs:
             --with-poll_module \
             --with-http_auth_request_module \
             --with-http_v2_module \
-            --with-http_v3_module \
             --with-http_slice_module \
             --with-stream \
             --with-stream_ssl_module \
@@ -299,8 +299,8 @@ jobs:
             --with-openssl=${WITHLIB}/openssl \
             --with-pcre=${WITHLIB}/pcre2 \
             --with-zlib=${WITHLIB}/zlib \
-            --with-cc-opt="-I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/include $(dpkg-buildflags --get CFLAGS)" \
-            --with-ld-opt="-L${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib -Wl,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib $(dpkg-buildflags --get LDFLAGS)" \
+            --with-cc-opt="-O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -m64 -mtune=generic -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -Wl,--gc-sections -pipe -w -fPIC -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/include $(dpkg-buildflags --get CFLAGS)" \
+            --with-ld-opt="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib -L${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib $(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err
 
           cp -R conf objs/conf

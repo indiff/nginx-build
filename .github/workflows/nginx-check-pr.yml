@@ -109,14 +109,13 @@ jobs:
           # df -h && sudo apt-get clean && docker system prune -a -f && sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc && df -h
           # sudo apt purge firefox firefox-locale-*  # 删除主程序和语言包
           # sudo apt autoremove  # 移除不再需要的依赖
-          sudo apt-get update
-          sudo apt-get upgrade
+          # sudo apt-get update
+          # sudo apt-get upgrade
           gcc --version
           # 测试地址有时候不稳定下载不了
-          # sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
-          sudo apt update
-          sudo apt upgrade
+          # sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
+          # sudo apt update
+          # sudo apt upgrade
           # 安装GCC 16
           sudo apt-get update && sudo apt-get install -y mold 
           sudo apt install gcc-16 g++-16 -y
@@ -246,8 +245,8 @@ jobs:
           # export CC=/opt/indiff-gcc/bin/gcc
           CC_OPT="-O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -pipe -w -fPIC $(DEB_BUILD_MAINT_OPTIONS=hardening=+all DEB_CFLAGS_MAINT_APPEND=-fPIC DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed dpkg-buildflags --get CFLAGS)",
           LD_OPT="$(DEB_BUILD_MAINT_OPTIONS=hardening=+all DEB_CFLAGS_MAINT_APPEND=-fPIC DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed dpkg-buildflags --get LDFLAGS)"
-          export PKG_CONFIG_PATH="${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib/pkgconfig:$PKG_CONFIG_PATH"
-          export LD_LIBRARY_PATH="${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddbb/lib:$LD_LIBRARY_PATH"
+          export PKG_CONFIG_PATH="${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib/pkgconfig/luajit.pc:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib/pkgconfig:$PKG_CONFIG_PATH"
+          export LD_LIBRARY_PATH="${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddbb/lib:$LD_LIBRARY_PATH"
           
           echo ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib | sudo tee /etc/ld.so.conf.d/libmaxminddb.conf
           sudo ldconfig
@@ -299,7 +298,7 @@ jobs:
             --with-openssl=${WITHLIB}/openssl \
             --with-pcre=${WITHLIB}/pcre2 \
             --with-zlib=${WITHLIB}/zlib \
-            --with-cc-opt="-O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -m64 -mtune=generic -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -Wl,--gc-sections -pipe -w -fPIC -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/include $(dpkg-buildflags --get CFLAGS)" \
+            --with-cc-opt="-O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -m64 -mtune=generic -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -Wl,--gc-sections -pipe -w -fPIC -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/include/luajit-2.1 -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/include $(dpkg-buildflags --get CFLAGS)" \
             --with-ld-opt="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib -L${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib $(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err
 

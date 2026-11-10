@@ -302,6 +302,8 @@ jobs:
             --add-module=${WITHLIB}/ngx_devel_kit \
             --add-module=${WITHLIB}/lua-nginx-module \
             --add-module=${WITHLIB}/nginx-module-vts \
+            --add-module=${WITHLIB}/lua-resty-core \
+            --add-module=${WITHLIB}/lua-resty-lrucache \
             --with-openssl=${WITHLIB}/openssl \
             --with-pcre=${WITHLIB}/pcre2 \
             --with-zlib=${WITHLIB}/zlib \
@@ -934,6 +936,8 @@ jobs:
             --add-module=/withlib/nginx-module-vts \
             --add-module=/withlib/ngx_devel_kit \
             --add-module=/withlib/lua-nginx-module \
+            --add-module=/withlib/lua-resty-core \
+            --add-module=/withlib/lua-resty-lrucache \
             --with-openssl=/withlib/openssl \
             --with-pcre=/withlib/pcre2 \
             --with-zlib=/withlib/zlib \

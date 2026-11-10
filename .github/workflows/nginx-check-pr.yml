@@ -299,7 +299,6 @@ jobs:
             --with-http_degradation_module \
             --without-http-cache \
             --add-module=${WITHLIB}/ngx_http_geoip2_module \
-            --add-module=${WITHLIB}/nginx-module-vts \
             --add-module=${WITHLIB}/ngx_devel_kit \
             --add-module=${WITHLIB}/lua-nginx-module \
             --add-module=${WITHLIB}/nginx-module-vts \

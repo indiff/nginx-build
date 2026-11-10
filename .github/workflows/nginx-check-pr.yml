@@ -298,6 +298,7 @@ jobs:
             --with-pcre=${WITHLIB}/pcre2 \
             --with-zlib=${WITHLIB}/zlib \
             --with-http_ssl_module \
+            --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
             --with-cc-opt="-O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -m64 -mtune=generic -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -Wl,--gc-sections -pipe -w -fPIC -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/include/luajit-2.1 -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/include $(dpkg-buildflags --get CFLAGS)" \
             --with-ld-opt="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib -L${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib $(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err

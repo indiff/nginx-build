@@ -302,8 +302,6 @@ jobs:
             --add-module=${WITHLIB}/ngx_devel_kit \
             --add-module=${WITHLIB}/lua-nginx-module \
             --add-module=${WITHLIB}/nginx-module-vts \
-            --add-module=${WITHLIB}/lua-resty-core \
-            --add-module=${WITHLIB}/lua-resty-lrucache \
             --with-openssl=${WITHLIB}/openssl \
             --with-pcre=${WITHLIB}/pcre2 \
             --with-zlib=${WITHLIB}/zlib \
@@ -390,6 +388,12 @@ jobs:
           
           sudo chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
 
+          cd ${WITHLIB}/lua-resty-core
+          sudo make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          cd ${WITHLIB}/lua-resty-lrucache
+          sudo make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          
           zip -r -q -9 /opt/opt_ubuntu_nginx.zip .
           
           export build_timestamp="$(date +'%Y%m%d_%H%M')"
@@ -936,8 +940,6 @@ jobs:
             --add-module=/withlib/nginx-module-vts \
             --add-module=/withlib/ngx_devel_kit \
             --add-module=/withlib/lua-nginx-module \
-            --add-module=/withlib/lua-resty-core \
-            --add-module=/withlib/lua-resty-lrucache \
             --with-openssl=/withlib/openssl \
             --with-pcre=/withlib/pcre2 \
             --with-zlib=/withlib/zlib \
@@ -989,7 +991,6 @@ jobs:
           make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           cd /withlib/lua-resty-lrucache
           make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
-
 
           # tar cvf /workspace/opt_nginx.tar ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/

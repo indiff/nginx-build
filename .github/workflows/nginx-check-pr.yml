@@ -526,7 +526,7 @@ jobs:
           
           echo "[centos-sclo-rh]" > /etc/yum.repos.d/centos6-devtoolset.repo
           echo "name=CentOS-6 - SCLo rh" >> /etc/yum.repos.d/centos6-devtoolset.repo
-          echo "baseurl=https://vault.centos.org/6.10/sclo/x86_64/rh" >> /etc/yum.repos.d/centos6-devtoolset.repo
+          echo "baseurl=https://archive.kernel.org/6.10/sclo/x86_64/rh" >> /etc/yum.repos.d/centos6-devtoolset.repo
           echo "gpgcheck=0" >> /etc/yum.repos.d/centos6-devtoolset.repo
           echo "enabled=1" >> /etc/yum.repos.d/centos6-devtoolset.repo
           yum -y install devtoolset-9

@@ -136,7 +136,7 @@ jobs:
           g++ --version
           ld --version
 
-          sudo apt-get install \
+          sudo apt-get install --fix-missing \
             libedit-dev \
             libgd-dev \
             libgeoip-dev \

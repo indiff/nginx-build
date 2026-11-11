@@ -135,10 +135,10 @@ jobs:
           gcc --version
           g++ --version
           ld --version
-
+          
+          # libgd-dev \
           sudo apt-get install --fix-missing \
             libedit-dev \
-            libgd-dev \
             libgeoip-dev \
             libpcre2-dev \
             libperl-dev \

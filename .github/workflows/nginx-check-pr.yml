@@ -214,6 +214,12 @@ jobs:
           sudo make -j$(nproc)
           sudo make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua
 
+          cd ${WITHLIB}/lua-resty-core
+          sudo make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          cd ${WITHLIB}/lua-resty-lrucache
+          sudo make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          
+
           if [ ${pcre2_ver} == "nightly" ]; then
             sudo git clone --depth 1 https://github.com/PCRE2Project/pcre2.git ${WITHLIB}/pcre2
             cd ${WITHLIB}/pcre2
@@ -388,10 +394,7 @@ jobs:
           
           sudo chmod +x ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/00install.sh
 
-          cd ${WITHLIB}/lua-resty-core
-          sudo make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
-          cd ${WITHLIB}/lua-resty-lrucache
-          sudo make install PREFIX=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
+          
           cd ${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}
           
           zip -r -q -9 /opt/opt_ubuntu_nginx.zip .

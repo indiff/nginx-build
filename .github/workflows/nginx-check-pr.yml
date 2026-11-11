@@ -259,8 +259,12 @@ jobs:
           # export LD=/opt/indiff-gcc/bin/ld
           # export CC=/opt/indiff-gcc/bin/gcc
           # tell nginx's build system where to find LuaJIT 2.1:
+          
+
           export LUAJIT_LIB=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib/
-          export LUAJIT_INC=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/include/luajit-2.1
+          # export LUAJIT_INC=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/include/luajit-2.1
+          export LUAJIT_INC=$(find /opt/nginx/lua/include -maxdepth 1 -type d -name 'luajit-*' | head -n1)
+          echo "$LUAJIT_INC"
           
           CC_OPT="-O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -pipe -w -fPIC $(DEB_BUILD_MAINT_OPTIONS=hardening=+all DEB_CFLAGS_MAINT_APPEND=-fPIC DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed dpkg-buildflags --get CFLAGS)",
           LD_OPT="$(DEB_BUILD_MAINT_OPTIONS=hardening=+all DEB_CFLAGS_MAINT_APPEND=-fPIC DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed dpkg-buildflags --get LDFLAGS)"
@@ -313,7 +317,7 @@ jobs:
             --with-zlib=${WITHLIB}/zlib \
             --with-http_ssl_module \
             --prefix=${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }} \
-            --with-cc-opt="-O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -m64 -mtune=generic -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -Wl,--gc-sections -pipe -w -fPIC -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/include/luajit-2.1 -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/include $(dpkg-buildflags --get CFLAGS)" \
+            --with-cc-opt="-O2 -m64 -flto -flto-compression-level=9 -ffunction-sections -fdata-sections -m64 -mtune=generic -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -Wl,--gc-sections -pipe -w -fPIC -I$LUAJIT_INC -I${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/include $(dpkg-buildflags --get CFLAGS)" \
             --with-ld-opt="-Wl,-z,relro,-rpath,${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/lua/lib:${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib -L${{ needs.before_build.outputs.NGINX_BUILD_PREFIX }}/libmaxminddb/lib $(dpkg-buildflags --get LDFLAGS)" \
           || cat objs/autoconf.err
 

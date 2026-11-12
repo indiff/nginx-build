@@ -105,10 +105,11 @@ jobs:
 
       - name: Install build and test dependencies
         run: |
+          set -e
           # Free disk space
           # df -h && sudo apt-get clean && docker system prune -a -f && sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc && df -h
-          # sudo apt purge firefox firefox-locale-*  # 删除主程序和语言包
-          # sudo apt autoremove  # 移除不再需要的依赖
+          # sudo apt purge firefox firefox-locale-* # 删除主程序和语言包
+          # sudo apt autoremove # 移除不再需要的依赖
           # sudo apt-get update
           # sudo apt-get upgrade
           gcc --version
@@ -117,43 +118,47 @@ jobs:
           # sudo apt update
           # sudo apt upgrade
           # 安装GCC 16
-          # sudo apt-get update 
-          # sudo apt-get install -y mold 
+          # sudo apt-get update
+          # sudo apt-get install -y mold
           # sudo apt install gcc-16 g++-16 -y
           # sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-16 16
           # sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-16 16
-          
           # update my gcc
-          # curl -sLo /opt/indiff-gcc.zip ${{ env.gcc_indiff_ubuntu_url }}
+          # curl -sLo /opt/indiff-gcc.zip https://github.com/indiff/gcc-build/releases/download/gcc-17.0.0-202610150928/gcc-ubuntu-x86-20261015_085311.tar.xz
           # unzip /opt/indiff-gcc.zip -d /opt/indiff-gcc
-          # # /usr/bin/gcc 系统中 GCC 的默认路径 
+          # # /usr/bin/gcc 系统中 GCC 的默认路径
           # # 100 优先级（数字越大优先级越高）。
           # sudo update-alternatives --install /usr/bin/gcc gcc /opt/indiff-gcc/bin/gcc 100
           # sudo update-alternatives --install /usr/bin/g++ g++ /opt/indiff-gcc/bin/g++ 100
           # sudo update-alternatives --install /usr/bin/ld ld /opt/indiff-gcc/bin/ld 100
-          
           gcc --version
           g++ --version
           ld --version
-          
           export DEBIAN_FRONTEND=noninteractive
           APT_LIST="libedit-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip autoconf automake libtool uwsgi-plugin-python3 libtime-piece-perl"
-          if apt-get update && apt-get install -y --fix-missing $APT_LIST; then
-            echo "OK"
+          
+          # 全部apt命令加sudo
+          if sudo apt-get update && sudo apt-get install -y --fix-missing $APT_LIST; then
+           echo "✅ OK: original mirror install success"
           else
-            CODENAME=$(lsb_release -cs)
-            sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
-            sudo cat > /etc/apt/sources.list <<EOF
+           echo "❌ Original mirror 404 failed, switch to aliyun mirror"
+           CODENAME=$(lsb_release -cs)
+           sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+           # 先写到临时文件，再sudo mv覆盖，规避重定向权限问题
+           cat > /tmp/sources.list <<EOF
           deb http://mirrors.aliyun.com/ubuntu/ ${CODENAME} main restricted universe multiverse
           deb http://mirrors.aliyun.com/ubuntu/ ${CODENAME}-security main restricted universe multiverse
           deb http://mirrors.aliyun.com/ubuntu/ ${CODENAME}-updates main restricted universe multiverse
           deb http://mirrors.aliyun.com/ubuntu/ ${CODENAME}-proposed main restricted universe multiverse
           deb http://mirrors.aliyun.com/ubuntu/ ${CODENAME}-backports main restricted universe multiverse
           EOF
-            sudo rm -f /etc/apt/apt-mirrors.txt
-            apt-get clean && apt-get update
-            apt-get install -y --fix-missing $APT_LIST
+           sudo mv /tmp/sources.list /etc/apt/sources.list
+           sudo rm -f /etc/apt/apt-mirrors.txt
+           sudo apt-get clean
+           sudo apt-get update
+           sudo apt-get install -y --fix-missing $APT_LIST
           fi
+
 
       - name: Configure and build
         id: configure_build

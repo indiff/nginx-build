@@ -142,15 +142,15 @@ jobs:
             echo "OK"
           else
             CODENAME=$(lsb_release -cs)
-            cp /etc/apt/sources.list /etc/apt/sources.list.bak
-            cat > /etc/apt/sources.list <<EOF
+            sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+            sudo cat > /etc/apt/sources.list <<EOF
           deb http://mirrors.aliyun.com/ubuntu/ ${CODENAME} main restricted universe multiverse
           deb http://mirrors.aliyun.com/ubuntu/ ${CODENAME}-security main restricted universe multiverse
           deb http://mirrors.aliyun.com/ubuntu/ ${CODENAME}-updates main restricted universe multiverse
           deb http://mirrors.aliyun.com/ubuntu/ ${CODENAME}-proposed main restricted universe multiverse
           deb http://mirrors.aliyun.com/ubuntu/ ${CODENAME}-backports main restricted universe multiverse
           EOF
-            rm -f /etc/apt/apt-mirrors.txt
+            sudo rm -f /etc/apt/apt-mirrors.txt
             apt-get clean && apt-get update
             apt-get install -y --fix-missing $APT_LIST
           fi

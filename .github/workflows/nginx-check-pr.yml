@@ -135,7 +135,7 @@ jobs:
           g++ --version
           ld --version
           export DEBIAN_FRONTEND=noninteractive
-          APT_LIST="libedit-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip autoconf automake libtool uwsgi-plugin-python3 libtime-piece-perl"
+          APT_LIST="cmake build-essential libedit-dev libgeoip-dev libpcre2-dev libperl-dev libssl-dev libxml2-dev libxslt1-dev zlib1g-dev ffmpeg libcache-memcached-perl libcryptx-perl libgd-perl libio-socket-ssl-perl libtest-harness-perl libprotocol-websocket-perl libscgi-perl uwsgi zip unzip autoconf automake libtool uwsgi-plugin-python3 libtime-piece-perl"
           
           # 全部apt命令加sudo
           if sudo apt-get update && sudo apt-get install -y --fix-missing $APT_LIST; then
@@ -199,6 +199,13 @@ jobs:
           sudo git clone --filter=blob:none --depth 1 https://github.com/leev/ngx_http_geoip2_module.git ${WITHLIB}/ngx_http_geoip2_module
           sudo git clone --filter=blob:none --depth 1 --recursive https://github.com/maxmind/libmaxminddb.git ${WITHLIB}/libmaxminddb
           sudo git clone --filter=blob:none --depth 1 --recurse-submodules -j8 https://github.com/google/ngx_brotli ${WITHLIB}/ngx_brotli
+
+          # 进入brotli子源码目录编译静态库
+          cd ${WITHLIB}/ngx_brotli/deps/brotli
+          sudo mkdir -p out
+          cd out
+          sudo cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_CXX_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_INSTALL_PREFIX=./installed ..
+          sudo cmake --build . --config Release --target brotlienc
 
           cd ${WITHLIB}/libmaxminddb
           ./bootstrap

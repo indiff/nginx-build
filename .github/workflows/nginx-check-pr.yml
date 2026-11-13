@@ -198,6 +198,7 @@ jobs:
           sudo git clone --filter=blob:none --depth 1 https://github.com/openresty/lua-resty-lrucache.git ${WITHLIB}/lua-resty-lrucache
           sudo git clone --filter=blob:none --depth 1 https://github.com/leev/ngx_http_geoip2_module.git ${WITHLIB}/ngx_http_geoip2_module
           sudo git clone --filter=blob:none --depth 1 --recursive https://github.com/maxmind/libmaxminddb.git ${WITHLIB}/libmaxminddb
+          sudo git clone --filter=blob:none --depth 1 --recurse-submodules -j8 https://github.com/google/ngx_brotli ${WITHLIB}/ngx_brotli
 
           cd ${WITHLIB}/libmaxminddb
           ./bootstrap
@@ -310,6 +311,7 @@ jobs:
             --add-module=${WITHLIB}/ngx_devel_kit \
             --add-module=${WITHLIB}/lua-nginx-module \
             --add-module=${WITHLIB}/nginx-module-vts \
+            --add-module=${WITHLIB}/ngx_brotli \
             --with-openssl=${WITHLIB}/openssl \
             --with-pcre=${WITHLIB}/pcre2 \
             --with-zlib=${WITHLIB}/zlib \

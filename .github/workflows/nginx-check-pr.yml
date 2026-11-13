@@ -204,11 +204,13 @@ jobs:
           cd ${WITHLIB}/ngx_brotli/deps/brotli
           sudo mkdir -p out
           cd out
-          # 关键：sudo -E 保留当前shell环境变量（CC/CXX会传给cmake）
-          sudo -E cmake -DCMAKE_C_COMPILER=/opt/gcc-indiff/bin/gcc \
-            -DCMAKE_CXX_COMPILER=/opt/gcc-indiff/bin/g++ \
-            -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_CXX_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_INSTALL_PREFIX=./installed ..
-          sudo -E cmake --build . --config Release --target brotlienc
+          sudo cmake .. \
+          -DCMAKE_C_COMPILER=/opt/gcc-indiff/bin/gcc \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_SHARED_LIBS=OFF \
+          '-DCMAKE_C_FLAGS=-Ofast -m64 -march=native -mtune=native -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections' \
+          -DCMAKE_INSTALL_PREFIX=./installed
+          sudo cmake --build . --config Release --target brotlienc
 
           cd ${WITHLIB}/libmaxminddb
           ./bootstrap

@@ -334,6 +334,9 @@ jobs:
           || cat objs/autoconf.err
 
           cp -R conf objs/conf
+          curl -sLO https://github.com/indiff/nginx-build/raw/refs/heads/main/nginx.conf
+          cp -f nginx.conf objs/conf/nginx.conf
+          
           cp -R contrib objs/contrib
           cp -R docs/html objs/html
           sed -i 's/#define NGINX_VER[[:space:]]*"nginx\/" NGINX_VERSION/#define NGINX_VER          "qw0p\/" NGINX_VERSION/' src/core/nginx.h
